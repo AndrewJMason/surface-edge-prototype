@@ -1,0 +1,1517 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>[hidden]{display:none!important}img{max-width:100%}</style>
+<title>Surface Edge Order Desk</title>
+<link rel="stylesheet" href="bootstrap.min.css">
+<link rel="stylesheet" href="bootstrap-icons.min.css">
+<style>
+/* Layout follows the admin templates: fixed dark sidebar, white topbar with breadcrumbs, page-content with page-header, tabs, toolbar, data tables. Colors are tokens so the viewer's dark theme works; the sidebar stays dark in both. */
+:root{
+  --sidebar-width:240px; --sidebar-bg:#1a1d2e; --sidebar-text:#8b8fa3; --sidebar-hover:#ffffff; --sidebar-active-bg:rgba(99,102,241,.15); --sidebar-active-text:#818cf8; --topbar-height:56px;
+  --page-bg:#f5f6fa; --surface:#ffffff; --surface-2:#f9fafb; --surface-3:#f3f4f6; --border:#e5e7eb; --border-soft:#f3f4f6; --border-input:#d1d5db;
+  --text:#111827; --text-2:#374151; --text-muted:#6b7280; --text-faint:#9ca3af; --accent:#4f46e5; --accent-2:#6366f1;
+  --good-fg:#166534; --good-bg:#dcfce7; --good-dot:#16a34a; --warn-fg:#92400e; --warn-bg:#fef3c7; --warn-dot:#f59e0b; --crit-fg:#991b1b; --crit-bg:#fee2e2; --crit-dot:#ef4444; --info-fg:#3730a3; --info-bg:#e0e7ff; --info-dot:#6366f1; --gray-fg:#6b7280; --gray-bg:#f3f4f6; --gray-dot:#9ca3af;
+  --bs-primary:#4f46e5; --bs-primary-rgb:79,70,229; --bs-link-color:#4f46e5; --bs-link-color-rgb:79,70,229; --bs-link-hover-color:#4338ca; --bs-link-hover-color-rgb:67,56,202;
+  --bs-body-bg:var(--page-bg); --bs-body-color:var(--text); --bs-border-color:var(--border); --bs-offcanvas-width:var(--sidebar-width);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --page-bg:#0f1117; --surface:#161925; --surface-2:#1b1f2d; --surface-3:#222738; --border:#2a2f42; --border-soft:#222738; --border-input:#3a4057;
+  --text:#f3f4f6; --text-2:#d1d5db; --text-muted:#9ca3af; --text-faint:#6b7280; --accent:#818cf8; --accent-2:#a5b4fc;
+  --good-fg:#86efac; --good-bg:rgba(34,197,94,.15); --warn-fg:#fcd34d; --warn-bg:rgba(245,158,11,.15); --crit-fg:#fca5a5; --crit-bg:rgba(239,68,68,.15); --info-fg:#c7d2fe; --info-bg:rgba(99,102,241,.18); --gray-fg:#9ca3af; --gray-bg:#222738;
+  --bs-primary:#6366f1; --bs-primary-rgb:99,102,241; --bs-link-color:#a5b4fc; --bs-link-color-rgb:165,180,252; --bs-link-hover-color:#c7d2fe; --bs-link-hover-color-rgb:199,210,254; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --page-bg:#0f1117; --surface:#161925; --surface-2:#1b1f2d; --surface-3:#222738; --border:#2a2f42; --border-soft:#222738; --border-input:#3a4057;
+  --text:#f3f4f6; --text-2:#d1d5db; --text-muted:#9ca3af; --text-faint:#6b7280; --accent:#818cf8; --accent-2:#a5b4fc;
+  --good-fg:#86efac; --good-bg:rgba(34,197,94,.15); --warn-fg:#fcd34d; --warn-bg:rgba(245,158,11,.15); --crit-fg:#fca5a5; --crit-bg:rgba(239,68,68,.15); --info-fg:#c7d2fe; --info-bg:rgba(99,102,241,.18); --gray-fg:#9ca3af; --gray-bg:#222738;
+  --bs-primary:#6366f1; --bs-primary-rgb:99,102,241; --bs-link-color:#a5b4fc; --bs-link-color-rgb:165,180,252; --bs-link-hover-color:#c7d2fe; --bs-link-hover-color-rgb:199,210,254; color-scheme:dark }
+
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:var(--page-bg);color:var(--text);margin:0;min-height:100vh}
+.btn-primary{--bs-btn-bg:var(--accent);--bs-btn-border-color:var(--accent);--bs-btn-hover-bg:#4338ca;--bs-btn-hover-border-color:#4338ca;--bs-btn-active-bg:#4338ca;--bs-btn-active-border-color:#4338ca}
+.btn-outline-secondary{--bs-btn-color:var(--text-2);--bs-btn-border-color:var(--border-input);--bs-btn-hover-bg:var(--surface-2);--bs-btn-hover-color:var(--text);--bs-btn-hover-border-color:#b0b5c0;--bs-btn-active-bg:var(--surface-3);--bs-btn-active-color:var(--text);--bs-btn-active-border-color:#b0b5c0;background:var(--surface)}
+.btn-outline-danger{--bs-btn-hover-bg:var(--crit-bg);--bs-btn-hover-color:var(--crit-fg)}
+.form-control,.form-select{background:var(--surface);color:var(--text);border-color:var(--border-input)}
+.form-control:focus,.form-select:focus{border-color:#818cf8;box-shadow:0 0 0 3px rgba(99,102,241,.12)}
+.dropdown-menu{--bs-dropdown-bg:var(--surface);--bs-dropdown-color:var(--text);--bs-dropdown-link-color:var(--text-2);--bs-dropdown-border-color:var(--border);--bs-dropdown-link-hover-bg:var(--surface-3)}
+.minw0{min-width:0}
+.mono{font-family:var(--bs-font-monospace);font-size:.92em;font-variant-numeric:tabular-nums}
+
+/* ── Sidebar ── */
+.sidebar{position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;z-index:1040;overflow-y:auto;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px)}
+.sidebar-inner{background:var(--sidebar-bg);display:flex;flex-direction:column;min-height:100%;width:100%}
+.sidebar-logo{padding:20px 20px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.07)}
+.sidebar-logo .logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#818cf8,#6366f1);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px;flex-shrink:0}
+.sidebar-logo .logo-text{color:#fff;font-size:17px;font-weight:600;letter-spacing:-.3px;line-height:1.1}
+.sidebar-logo .logo-sub{color:var(--sidebar-text);font-size:11px}
+.sidebar-nav{flex:1;padding:12px 10px}
+.nav-section-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:rgba(139,143,163,.5);padding:16px 12px 6px}
+.sidebar .nav-link{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:6px;color:var(--sidebar-text);font-size:14px;font-weight:450;text-decoration:none;transition:all .15s ease;margin-bottom:2px}
+.sidebar .nav-link:hover{background:rgba(255,255,255,.06);color:var(--sidebar-hover)}
+.sidebar .nav-link.active{background:var(--sidebar-active-bg);color:var(--sidebar-active-text);font-weight:500}
+.sidebar .nav-link .bi{font-size:17px;width:20px;text-align:center}
+.sidebar .nav-link .badge{margin-left:auto;font-size:11px;font-weight:500;padding:2px 7px;border-radius:10px}
+/* Group row is the toggle: section icon when closed, down chevron when open. The sub-item rail runs under the chevron's center (12px padding + half of the 20px icon column). */
+button.nav-link{width:100%;border:0;background:transparent;font:inherit;text-align:left;cursor:pointer}
+.nav-group .nav-link .bi-chevron-down{font-size:13px}
+.nav-sub{display:none;position:relative;margin:0 0 4px 22px;padding-left:12px}
+.nav-group.open .nav-sub{display:block}
+.nav-sub::before{content:"";position:absolute;left:-0.5px;top:0;bottom:0;width:1px;background:rgba(139,143,163,.3)}
+.nav-sub .nav-link{padding:6px 12px 6px 12px;font-size:13px;position:relative}
+.nav-sub .nav-link::before{content:"";position:absolute;left:-12px;top:50%;width:8px;height:1px;background:rgba(139,143,163,.3)}
+.nav-sub .nav-link.active::before{background:var(--sidebar-active-text)}
+.sidebar-bottom{padding:10px;border-top:1px solid rgba(255,255,255,.07)}
+.sidebar .btn-close{filter:invert(1) grayscale(100%) brightness(200%)}
+@media (max-width:767.98px){.sidebar{padding-top:0}}
+
+/* ── Main / Topbar ── */
+.main-content{margin-left:var(--sidebar-width);min-height:100vh;display:flex;flex-direction:column}
+body.portal .sidebar{display:none}
+body.portal .main-content{margin-left:0}
+@media (max-width:767.98px){.main-content{margin-left:0}}
+.topbar{height:var(--topbar-height);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:env(safe-area-inset-top,0px);z-index:1030;gap:12px}
+.breadcrumb{margin:0;background:transparent;padding:0;font-size:13px;flex-wrap:nowrap;white-space:nowrap;overflow:hidden}
+.breadcrumb-item a{color:var(--text-muted);text-decoration:none}
+.breadcrumb-item a:hover{color:var(--accent)}
+.breadcrumb-item.active{color:var(--text);font-weight:500}
+.breadcrumb-item+.breadcrumb-item::before{color:var(--text-faint)}
+.topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.topbar-icon-btn{width:36px;height:36px;border-radius:8px;border:none;background:transparent;color:var(--text-muted);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;position:relative}
+.topbar-icon-btn:hover{background:var(--surface-3);color:var(--text)}
+.topbar-icon-btn .notification-dot{position:absolute;top:7px;right:7px;width:8px;height:8px;background:#ef4444;border-radius:50%;border:2px solid var(--surface)}
+.user-menu-btn{display:flex;align-items:center;gap:8px;padding:4px 8px 4px 4px;border-radius:8px;border:none;background:transparent;cursor:pointer}
+.user-menu-btn:hover{background:var(--surface-3)}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#818cf8,#6366f1);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:600}
+.user-menu-btn .user-name{font-size:13px;font-weight:500;color:var(--text-2)}
+.proto-tag{font-size:11px;color:var(--text-faint);border:1px dashed var(--border-input);border-radius:6px;padding:2px 8px;white-space:nowrap}
+
+/* ── Page ── */
+.page-content{flex:1;padding:24px;display:flex;flex-direction:column;gap:0;min-width:0}
+@media (max-width:767.98px){.page-content{padding:16px}}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap}
+.page-header-left{display:flex;align-items:flex-start;gap:12px;min-width:0}
+.page-header h1{font-size:24px;font-weight:700;color:var(--text);margin:0;letter-spacing:-.3px;line-height:1.2}
+.page-header .record-id{font-size:13px;color:var(--text-faint);font-weight:400;margin-left:8px;font-family:var(--bs-font-monospace)}
+.page-subtitle{font-size:14px;color:var(--text-muted);margin-top:4px;max-width:70ch}
+.page-header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.back-btn{width:36px;height:36px;border-radius:8px;border:1px solid var(--border-input);background:var(--surface);color:var(--text-muted);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;flex-shrink:0;text-decoration:none;margin-top:2px}
+.back-btn:hover{background:var(--surface-2);color:var(--text-2)}
+.page-tabs{margin-bottom:20px}
+.page-tabs .nav-tabs{border-bottom:2px solid var(--border)}
+.page-tabs .nav-tabs .nav-link{border:none;border-bottom:2px solid transparent;margin-bottom:-2px;padding:10px 16px;font-size:14px;font-weight:500;color:var(--text-muted)}
+.page-tabs .nav-tabs .nav-link:hover{color:var(--text-2);border-color:var(--border-input)}
+.page-tabs .nav-tabs .nav-link.active{color:var(--accent);border-color:var(--accent);background:transparent}
+.page-tabs .nav-tabs .nav-link .badge{font-size:11px;font-weight:500;padding:2px 7px;border-radius:10px;margin-left:6px;vertical-align:middle}
+.toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px;flex-wrap:wrap}
+.toolbar-search{position:relative;flex:0 1 360px;min-width:200px}
+.toolbar-search .form-control{padding-left:38px;border-radius:8px;height:38px;font-size:14px}
+.toolbar-search .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-faint);font-size:15px;pointer-events:none}
+.toolbar-right{display:flex;align-items:center;gap:8px}
+.toolbar-btn{display:flex;align-items:center;gap:6px;height:36px;padding:0 10px;border-radius:8px;border:1px solid var(--border-input);background:var(--surface);color:var(--text-2);font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap}
+.toolbar-btn:hover,.toolbar-btn.show{background:var(--surface-2)}
+.toolbar-btn .bi{font-size:16px;color:var(--text-muted)}
+.toolbar-btn.has-value{padding-right:12px;border-color:var(--accent-2);color:var(--accent)}
+.toolbar-btn.has-value .bi{color:var(--accent)}
+.toolbar-btn.dropdown-toggle::after{display:none}
+.dropdown-menu{--bs-dropdown-link-active-bg:var(--accent);--bs-dropdown-link-active-color:#fff;--bs-dropdown-header-color:var(--text-faint);font-size:13px;min-width:200px}
+.dropdown-header{font-size:11px;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.layout-toggle{display:flex;border:1px solid var(--border-input);border-radius:8px;overflow:hidden;background:var(--surface)}
+.layout-toggle .toggle-label{display:flex;align-items:center;padding:0 10px;font-size:12px;color:var(--text-faint);border-right:1px solid var(--border-input);white-space:nowrap}
+.layout-toggle .toggle-btn{display:flex;align-items:center;gap:6px;padding:0 12px;height:36px;border:none;background:var(--surface);color:var(--text-faint);cursor:pointer;font-size:13px;font-weight:500;white-space:nowrap}
+.layout-toggle .toggle-btn:not(:last-child){border-right:1px solid var(--border-input)}
+.layout-toggle .toggle-btn:hover{color:var(--text-2);background:var(--surface-2)}
+.layout-toggle .toggle-btn.active{background:var(--surface-3);color:var(--text)}
+/* Info strip: one fixed-height line under the tab row on every index page; click to read the full note. */
+.info-strip{display:flex;align-items:flex-start;gap:10px;width:100%;text-align:left;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;margin:0 0 16px;color:var(--text-muted);font-size:13px;line-height:1.45;cursor:pointer;font-family:inherit}
+.info-strip:hover{border-color:var(--border-input);color:var(--text-2)}
+.info-strip .bi-info-circle{color:var(--accent-2);font-size:15px;flex-shrink:0;line-height:1.3}
+.info-strip .info-text{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.info-strip.open .info-text{white-space:normal}
+.info-strip .info-chev{flex-shrink:0;font-size:11px;color:var(--text-faint);transition:transform .15s ease;line-height:1.6}
+.info-strip.open .info-chev{transform:rotate(180deg)}
+/* One row: page tabs on the left, search / group / filter / sort on the right */
+.page-nav{display:flex;align-items:flex-end;justify-content:space-between;gap:12px 16px;flex-wrap:wrap;border-bottom:2px solid var(--border);margin-bottom:14px}
+.page-nav .nav-tabs{border-bottom:0;flex-wrap:nowrap;overflow-x:auto}
+.page-nav .nav-tabs .nav-link{border:none;border-bottom:2px solid transparent;margin-bottom:-2px;padding:10px 14px;font-size:14px;font-weight:500;color:var(--text-muted);white-space:nowrap}
+.page-nav .nav-tabs .nav-link:hover{color:var(--text-2);border-color:var(--border-input)}
+.page-nav .nav-tabs .nav-link.active{color:var(--accent);border-color:var(--accent);background:transparent}
+.page-nav .nav-tabs .nav-link .badge{font-size:11px;font-weight:500;padding:2px 7px;border-radius:10px;margin-left:6px;vertical-align:middle}
+.page-nav .toolbar-right{padding-bottom:8px;margin-left:auto;flex-wrap:nowrap;min-width:0}
+.page-nav .toolbar-search{flex:1 1 120px;min-width:110px;max-width:260px}
+@media (max-width:575.98px){.page-nav .toolbar-right{flex-wrap:wrap}}
+.page-nav .toolbar-search .form-control{height:36px}
+
+/* ── Tables ── */
+/* Index lists grow to the bottom of the viewport so the pagination footer sits near the fold. */
+.data-table-wrapper{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;flex:1 1 auto;min-height:320px}
+.data-table-wrapper .table-responsive{flex:1}
+.grow{flex:1 1 auto;display:flex;flex-direction:column;min-height:320px}
+.grow>.action-list,.grow>.thread-list{flex:1}
+.chat-layout.grow{display:grid;align-items:stretch}
+.chat-layout>.detail-card{display:flex;flex-direction:column;min-height:100%}
+.chat-layout>.detail-card>.thread-list,.chat-layout>.detail-card>.msgs{flex:1}
+.table{margin:0;font-size:14px;--bs-table-bg:transparent;--bs-table-color:var(--text-2);--bs-table-hover-bg:var(--surface-2);--bs-table-hover-color:var(--text-2)}
+.table thead th{background:var(--surface-2);border-bottom:1px solid var(--border);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);padding:12px 16px;white-space:nowrap}
+.table tbody td{padding:12px 16px;vertical-align:middle;border-bottom:1px solid var(--border-soft);color:var(--text-2)}
+.table tbody tr:last-child td{border-bottom:none}
+.table tbody tr.link{cursor:pointer}
+.item-name{font-weight:500;color:var(--text)}
+.item-name a{color:var(--text);text-decoration:none}
+.item-name a:hover{color:var(--accent)}
+.item-sub{font-size:12px;color:var(--text-muted);font-weight:400}
+.table-footer{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-muted);gap:12px;flex-wrap:wrap}
+.pagination{margin:0;gap:2px}
+.pagination .page-link{border:1px solid var(--border-input);color:var(--text-2);font-size:13px;font-weight:500;padding:5px 11px;border-radius:6px!important;min-width:34px;text-align:center;background:var(--surface)}
+.pagination .page-item.active .page-link{background:var(--accent);border-color:var(--accent);color:#fff}
+.pagination .page-item.disabled .page-link{color:var(--border-input);background:var(--surface)}
+.num{text-align:right;font-family:var(--bs-font-monospace);font-variant-numeric:tabular-nums}
+
+/* ── Badges ── */
+.status-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:500;white-space:nowrap}
+.status-badge .status-dot{width:6px;height:6px;border-radius:50%}
+.status-badge.active{background:var(--good-bg);color:var(--good-fg)} .status-badge.active .status-dot{background:var(--good-dot)}
+.status-badge.pending{background:var(--warn-bg);color:var(--warn-fg)} .status-badge.pending .status-dot{background:var(--warn-dot)}
+.status-badge.danger{background:var(--crit-bg);color:var(--crit-fg)} .status-badge.danger .status-dot{background:var(--crit-dot)}
+.status-badge.info{background:var(--info-bg);color:var(--info-fg)} .status-badge.info .status-dot{background:var(--info-dot)}
+.status-badge.inactive{background:var(--gray-bg);color:var(--gray-fg)} .status-badge.inactive .status-dot{background:var(--gray-dot)}
+.tag{display:inline-flex;align-items:center;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:500;background:var(--surface-3);color:var(--text-2)}
+.tag.blue{background:var(--info-bg);color:var(--info-fg)} .tag.amber{background:var(--warn-bg);color:var(--warn-fg)} .tag.green{background:var(--good-bg);color:var(--good-fg)} .tag.red{background:var(--crit-bg);color:var(--crit-fg)}
+.tag-list{display:flex;flex-wrap:wrap;gap:6px}
+
+/* ── Cards (dashboard-card / detail-card) ── */
+.detail-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;display:flex;flex-direction:column;min-width:0}
+.detail-card-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border-soft);gap:10px;flex-wrap:wrap}
+.detail-card-header h3{font-size:15px;font-weight:600;color:var(--text);margin:0}
+.detail-card-header .card-action{font-size:13px;color:var(--accent-2);text-decoration:none;font-weight:500}
+.detail-card-header .card-action:hover{color:var(--accent)}
+.detail-card-header .card-note{font-size:13px;color:var(--text-muted)}
+.detail-card-body{padding:20px}
+.detail-card-body.flush{padding:0}
+.detail-card-footer{padding:12px 20px;border-top:1px solid var(--border-soft);font-size:12px;color:var(--text-muted)}
+.stat-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px}
+.stat-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px}
+.stat-card-header .stat-label{font-size:13px;font-weight:500;color:var(--text-muted)}
+.stat-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.stat-icon.blue{background:var(--info-bg);color:var(--info-dot)} .stat-icon.green{background:var(--good-bg);color:var(--good-dot)} .stat-icon.amber{background:var(--warn-bg);color:var(--warn-dot)} .stat-icon.red{background:var(--crit-bg);color:var(--crit-dot)} .stat-icon.gray{background:var(--gray-bg);color:var(--gray-fg)}
+.stat-value{font-size:28px;font-weight:700;color:var(--text);letter-spacing:-.5px;line-height:1}
+.stat-change{font-size:12px;color:var(--text-faint);margin-top:8px}
+a.stat-card{display:block;text-decoration:none;color:inherit;transition:border-color .15s ease}
+a.stat-card:hover{border-color:var(--accent-2)}
+a.stat-card .stat-link{font-size:12px;color:var(--accent);margin-top:8px;display:flex;align-items:center;gap:4px}
+/* Period comparison (performance over time) */
+.period-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden}
+.period-card-header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--border-soft);gap:12px;flex-wrap:wrap}
+.period-toggle{display:flex;background:var(--surface-3);border-radius:8px;padding:3px;gap:2px}
+.period-toggle .toggle-btn{padding:5px 14px;border-radius:6px;border:none;background:transparent;font-size:13px;font-weight:500;color:var(--text-muted);cursor:pointer;white-space:nowrap}
+.period-toggle .toggle-btn:hover{color:var(--text-2)}
+.period-toggle .toggle-btn.active{background:var(--surface);color:var(--text);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.period-nav{display:flex;align-items:center;gap:8px}
+.period-nav .year-label{font-size:15px;font-weight:600;color:var(--text);min-width:120px;text-align:center}
+.period-nav .nav-arrow{width:28px;height:28px;border-radius:6px;border:1px solid var(--border-input);background:var(--surface);color:var(--text-muted);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px}
+.period-nav .nav-arrow:hover{background:var(--surface-2);color:var(--text-2)}
+.period-nav .nav-arrow:disabled{opacity:.35;cursor:default}
+.period-today{font-size:12px;font-weight:500;color:var(--text-muted);background:var(--surface-3);padding:4px 10px;border-radius:6px;white-space:nowrap}
+.period-table{width:100%;font-size:13px;border-collapse:collapse}
+.period-table thead th{padding:10px 14px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-faint);text-align:right;border-bottom:1px solid var(--border);white-space:nowrap;vertical-align:bottom}
+.period-table thead th:first-child{text-align:left;color:var(--text-muted);padding-left:20px}
+.period-table thead th .sub{display:block;font-weight:400;text-transform:none;letter-spacing:0;font-style:italic;color:var(--text-faint);font-size:11px}
+.period-table tbody td{padding:9px 14px;text-align:right;color:var(--text-2);font-variant-numeric:tabular-nums;border-bottom:1px solid var(--border-soft);white-space:nowrap}
+.period-table tbody td:first-child{text-align:left;font-weight:500;color:var(--text-muted);padding-left:20px;white-space:normal}
+.period-table tbody tr:last-child td{border-bottom:none}
+.period-table tbody tr.row-highlight td{font-weight:600;color:var(--text);background:rgba(99,102,241,.04)}
+.period-table tbody tr.row-highlight td:first-child{color:var(--accent)}
+.period-table tbody tr.row-negative td{color:var(--text-faint)}
+.period-table .empty-cell{color:var(--border-input)}
+.period-table .delta{font-size:11px;font-weight:500;margin-left:6px}
+.period-table .delta.up{color:var(--good-dot)} .period-table .delta.down{color:var(--crit-dot)}
+.dashboard-grid{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+.show-layout{display:grid;grid-template-columns:2fr 1fr;gap:20px}
+@media (max-width:991.98px){.dashboard-grid,.show-layout{grid-template-columns:1fr}}
+.show-main,.show-sidebar{display:flex;flex-direction:column;gap:20px;min-width:0}
+.stack{display:flex;flex-direction:column;gap:16px}
+
+/* ── Rows / lists ── */
+.action-list{list-style:none;margin:0;padding:0}
+.action-item{display:flex;align-items:flex-start;gap:12px;padding:12px 20px;border-bottom:1px solid var(--border-soft)}
+.action-item:last-child{border-bottom:none}
+.action-item.done{opacity:.55}
+.action-item .stripe{width:4px;align-self:stretch;border-radius:2px;background:var(--border-input);flex-shrink:0}
+.stripe.crit{background:var(--crit-dot)} .stripe.warn{background:var(--warn-dot)} .stripe.good{background:var(--good-dot)} .stripe.info{background:var(--info-dot)}
+.action-text{font-size:14px;color:var(--text);font-weight:500}
+.action-sub{font-size:13px;color:var(--text-muted);margin-top:2px}
+.action-btns{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;flex-shrink:0}
+.empty{padding:20px;color:var(--text-muted);font-size:14px}
+.status-banner{display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:8px;margin-bottom:20px;font-size:13px;font-weight:500;flex-wrap:wrap}
+.status-banner.active{background:var(--good-bg);color:var(--good-fg);border:1px solid rgba(34,197,94,.25)}
+.status-banner.pending{background:var(--warn-bg);color:var(--warn-fg);border:1px solid rgba(245,158,11,.3)}
+.status-banner.danger{background:var(--crit-bg);color:var(--crit-fg);border:1px solid rgba(239,68,68,.3)}
+.status-banner.info{background:var(--info-bg);color:var(--info-fg);border:1px solid rgba(99,102,241,.3)}
+.status-banner .bi{font-size:16px}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 20px}
+.detail-field{padding:10px 0;border-bottom:1px solid var(--border-soft);min-width:0}
+.detail-field.full-width{grid-column:1/-1}
+.detail-label{font-size:11px;font-weight:600;color:var(--text-faint);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.detail-value{font-size:14px;color:var(--text);font-weight:450;overflow-wrap:anywhere}
+.meta-list{list-style:none;padding:0;margin:0}
+.meta-item{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-soft)}
+.meta-item:last-child{border-bottom:none}
+.meta-label{font-size:13px;color:var(--text-muted);flex-shrink:0}
+.meta-value{font-size:13px;font-weight:500;color:var(--text);text-align:right;min-width:0;overflow-wrap:anywhere}
+.timeline{list-style:none;padding:0;margin:0}
+.timeline-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-soft)}
+.timeline-item:last-child{border-bottom:none}
+.timeline-icon{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.timeline-icon.blue{background:var(--info-bg);color:var(--info-dot)} .timeline-icon.green{background:var(--good-bg);color:var(--good-dot)} .timeline-icon.amber{background:var(--warn-bg);color:var(--warn-dot)} .timeline-icon.gray{background:var(--gray-bg);color:var(--gray-fg)}
+.timeline-text{font-size:13px;color:var(--text-2);line-height:1.5}
+.timeline-time{font-size:12px;color:var(--text-faint);margin-top:2px}
+.check-list{list-style:none;padding:0;margin:0}
+.check-item{display:flex;align-items:center;gap:10px;padding:10px 20px;border-bottom:1px solid var(--border-soft)}
+.check-item:last-child{border-bottom:none}
+.check-item.na{opacity:.5}
+.check-item .form-check-input{margin:0;flex-shrink:0}
+.check-item .form-check-input:checked{background-color:var(--good-dot);border-color:var(--good-dot)}
+.check-item.over .form-check-input:checked{background-color:var(--warn-dot);border-color:var(--warn-dot)}
+.check-label{flex:1;min-width:0;font-size:14px;color:var(--text)}
+.check-sub{font-size:12px;color:var(--text-muted)}
+
+/* ── Shipment block & milestones ── */
+.ship{border:1px solid var(--border);border-radius:8px;background:var(--surface)}
+.ship-head{display:flex;align-items:center;gap:10px;padding:10px 12px 10px 8px}
+.ship.open .ship-head{border-bottom:1px solid var(--border-soft)}
+.ship-toggle{width:28px;height:28px;border:0;background:transparent;color:var(--text-muted);border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.ship-toggle:hover{background:var(--surface-3);color:var(--text)}
+.ship-toggle .chev{transition:transform .15s ease;font-size:12px}
+.ship.open .ship-toggle .chev{transform:rotate(90deg)}
+.ship-sum{flex:1;min-width:0}
+.ship-body{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px;padding:14px 16px}
+@media (max-width:640px){.ship-body{grid-template-columns:1fr}}
+.ship-name{font-size:15px;font-weight:600;color:var(--text);margin:0}
+.ship-kind{font-size:11px;color:var(--text-muted);border:1px solid var(--border);border-radius:6px;padding:1px 7px}
+.ms{list-style:none;margin:0;padding:0}
+.ms li{display:grid;grid-template-columns:18px 1fr auto;gap:10px;align-items:center;padding:5px 0;position:relative}
+.ms li::before{content:"";position:absolute;left:8px;top:-5px;bottom:-5px;width:2px;background:var(--border)}
+.ms li:first-child::before{top:50%}.ms li:last-child::before{bottom:50%}
+.ms .k{width:18px;height:18px;border-radius:50%;border:2px solid var(--border-input);background:var(--surface);position:relative;z-index:1}
+.ms li.done .k{background:var(--good-dot);border-color:var(--good-dot)}
+.ms li.now .k{border-color:var(--accent-2);box-shadow:0 0 0 3px var(--info-bg)}
+.ms li.late .k{border-color:var(--crit-dot)}
+.ms .n{font-size:13px;color:var(--text);font-weight:500}
+.ms li.future .n{color:var(--text-muted);font-weight:400}
+.ms .dt{font-family:var(--bs-font-monospace);font-size:12px;color:var(--text-faint)}
+.ms li.done .dt{color:var(--text-2)}
+
+/* ── Forecast bars ── */
+.bar-row{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.bar-row .lbl{font-family:var(--bs-font-monospace);font-size:12px;color:var(--text-muted);width:3.6rem;flex-shrink:0}
+.bar-track{display:flex;gap:2px;height:16px;flex:1}
+.bar-seg{height:100%;border-radius:2px;min-width:3px}
+.bar-seg.placed{background:var(--accent-2)} .bar-seg.toplace{background:var(--warn-dot)}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--text-muted);flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+
+/* ── Chats ── */
+.chat-layout{display:grid;grid-template-columns:minmax(280px,360px) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:991.98px){.chat-layout{grid-template-columns:1fr}}
+.thread-list{list-style:none;margin:0;padding:0}
+.thread-item{display:flex;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border-soft);cursor:pointer;text-decoration:none;color:inherit}
+.thread-item:last-child{border-bottom:none}
+.thread-item:hover{background:var(--surface-2)}
+.thread-item.active{background:var(--info-bg)}
+.thread-item .avatar{width:34px;height:34px;border-radius:50%;background:var(--surface-3);color:var(--text-2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
+.thread-item .avatar.vendor{background:var(--warn-bg);color:var(--warn-fg)}
+.thread-item .avatar.customer{background:var(--info-bg);color:var(--info-fg)}
+.thread-item .subj{font-size:14px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.thread-item .prev{font-size:12px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.thread-item .meta{font-size:11px;color:var(--text-faint);white-space:nowrap;text-align:right;flex-shrink:0}
+.thread-item .unread{width:8px;height:8px;border-radius:50%;background:var(--accent-2);display:inline-block;margin-left:4px}
+.thread-head{padding:14px 20px;border-bottom:1px solid var(--border-soft);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}
+.thread-head h3{font-size:16px;font-weight:600;margin:0 0 2px}
+.msgs{padding:16px 20px;display:flex;flex-direction:column;gap:14px;background:var(--surface-2)}
+.msg{max-width:min(640px,92%);display:flex;flex-direction:column;gap:4px}
+.msg .who{font-size:12px;color:var(--text-muted)}
+.msg .bubble{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--text-2);line-height:1.55;white-space:pre-wrap}
+.msg.us{align-self:flex-end;align-items:flex-end}
+.msg.us .bubble{background:var(--info-bg);border-color:transparent;color:var(--text)}
+.msg.system .bubble{background:var(--surface-3);border-style:dashed;font-size:13px}
+.msg .att{display:inline-flex;align-items:center;gap:6px;font-size:12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:3px 8px;color:var(--text-2);margin-top:4px}
+.composer{padding:14px 20px;border-top:1px solid var(--border-soft);display:flex;flex-direction:column;gap:8px}
+.composer textarea{resize:vertical;min-height:72px}
+.composer.drafted textarea{min-height:150px;border-color:var(--accent-2);box-shadow:inset 3px 0 0 var(--accent-2)}
+.draft-note{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--accent);flex-wrap:wrap}
+.draft-note .bi{font-size:14px}
+
+/* ── Email preview ── */
+.email{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;font-size:13px;color:var(--text-2)}
+.email .hd{font-family:var(--bs-font-monospace);font-size:12px;color:var(--text-faint);margin-bottom:8px}
+.email p{margin:0 0 6px}
+.email p:last-child{margin:0}
+
+/* ── Portal ── */
+.portal-topbar{height:var(--topbar-height);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;gap:12px;position:sticky;top:env(safe-area-inset-top,0px);z-index:1030}
+.portal-wrap{max-width:960px;margin:0 auto;width:100%}
+.form-label.small{color:var(--text-muted);margin-bottom:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<aside class="sidebar offcanvas-md offcanvas-start" id="sidebar" tabindex="-1" aria-label="Navigation">
+  <div class="sidebar-inner">
+    <div class="sidebar-logo">
+      <div class="logo-icon">SE</div>
+      <div><div class="logo-text">Surface Edge</div><div class="logo-sub">Order Desk · Wanke Cascade</div></div>
+      <button type="button" class="btn-close ms-auto d-md-none" data-bs-dismiss="offcanvas" data-bs-target="#sidebar" aria-label="Close"></button>
+    </div>
+    <nav class="sidebar-nav" id="sidenav"></nav>
+    <div class="sidebar-bottom" id="sidebottom"></div>
+  </div>
+</aside>
+<div class="main-content" id="main"></div>
+<div class="toast-container position-fixed bottom-0 end-0 p-3" id="toasts"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script>
+/* ---------- theme sync: viewer sets data-theme; Bootstrap reads data-bs-theme ---------- */
+function syncTheme() {
+  const t = document.documentElement.getAttribute('data-theme');
+  const dark = t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  document.documentElement.setAttribute('data-bs-theme', dark ? 'dark' : 'light');
+}
+/* User toggle: Auto follows the viewer or OS; Light and Dark pin it. Remembered per browser. */
+let themePref = 'auto'; try { themePref = localStorage.getItem('se-theme') || 'auto'; } catch (e) {}
+function applyTheme() { if (themePref === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', themePref); syncTheme(); }
+const THEME_UI = { auto: ['circle-half', 'Theme: Auto (follows system)'], light: ['sun', 'Theme: Light'], dark: ['moon-stars', 'Theme: Dark'] };
+const themeButton = () => `<button class="topbar-icon-btn" type="button" title="${THEME_UI[themePref][1]}" aria-label="${THEME_UI[themePref][1]}" onclick="act.theme()"><i class="bi bi-${THEME_UI[themePref][0]}"></i></button>`;
+applyTheme();
+new MutationObserver(syncTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncTheme);
+
+/* ---------- helpers ---------- */
+const TODAY = new Date(2026, 9, 26);
+const DAY = 86400000;
+const d = s => { if (s instanceof Date) return s; const [y,m,dd] = s.split('-').map(Number); return new Date(y, m-1, dd); };
+const addDays = (dt, n) => new Date(d(dt).getTime() + n*DAY);
+const diffDays = (a, b) => Math.round((d(a) - d(b)) / DAY);
+const iso = dt => { const x = d(dt); return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`; };
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const fmt = dt => { if (!dt) return '—'; const x = d(dt); const y = x.getFullYear() === TODAY.getFullYear() ? '' : ` ${x.getFullYear()}`; return `${MONTHS[x.getMonth()]} ${x.getDate()}${y}`; };
+const fmtLong = dt => { const x = d(dt); return `${MONTHS[x.getMonth()]} ${x.getDate()}, ${x.getFullYear()}`; };
+const sqft = n => n.toLocaleString('en-US') + ' sq ft';
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const rel = dt => { const n = diffDays(dt, TODAY); if (n === 0) return 'today'; if (n === 1) return 'tomorrow'; if (n === -1) return 'yesterday'; return n > 0 ? `in ${n} days` : `${-n} days ago`; };
+
+/* ---------- editable constraints (Ryan's napkin numbers; placeholders) ---------- */
+const C = {
+  production: 45, loadout: 10, clearance: 5, drayage: 3, bookingLead: 21, pick: 2, ground: 4,
+  ocean: { 'Los Angeles': 21, 'Long Beach': 21, 'Houston': 35, 'Savannah': 33, 'Charleston': 33, 'Miami': 36 },
+  reminderDays: 7, stopUsDays: 10, standingEmailDays: 14,
+};
+
+/* ---------- sample data ---------- */
+const customers = [
+  { id:'ilg', name:'ILG Flooring Solutions', hq:'Houston, TX', contact:'Dana Whitfield', email:'dwhitfield@ilgfloors.com', rep:'Meredith', onboarded:true, showLeadTimes:true, notes:'Works in 35 states. ~15 salespeople each with their own customers. High contact turnover.', completeness:58, cos90:11 },
+  { id:'tcc', name:'TCC Interiors', hq:'Atlanta, GA', contact:'Luis Ortega', email:'lortega@tccinteriors.com', rep:'Isaac', onboarded:true, showLeadTimes:true, notes:'Second-largest account. Usually gives first need-by; rarely the rest.', completeness:71, cos90:6 },
+  { id:'fantasia', name:'Fantasia Development', hq:'Atlanta, GA', contact:'Priya Natarajan', email:'priya@fantasiadev.com', rep:'Alan', onboarded:true, showLeadTimes:false, notes:'Two large orders with no need-by dates. Jobs may not start until fall 2027.', completeness:25, cos90:2 },
+  { id:'meridian', name:'Meridian Student Living', hq:'Boise, ID', contact:'Tom Beckett', email:'tbeckett@meridiansl.com', rep:'Alan', onboarded:false, showLeadTimes:true, notes:'New account. First PO arrived last night.', completeness:60, cos90:0 },
+  { id:'northwind', name:'Northwind Senior Communities', hq:'Spokane, WA', contact:'Gail Munro', email:'gmunro@northwindsc.org', rep:'Meredith', onboarded:true, showLeadTimes:true, notes:'Small orders from Portland stock.', completeness:90, cos90:1 },
+];
+const cust = id => customers.find(c => c.id === id);
+
+/* Vendors and customers are both companies; the role is what differs. */
+const vendors = [
+  { id:'daizhin', name:'Daizhin Flooring Co.', roles:['Factory'], hq:'Busan, Korea', notes:'Primary mill. 45-day production; holiday shutdown late Jan. Will produce everything you send, so send only what should be made.', constraint:'production' },
+  { id:'vina', name:'Vina Floor Industries', roles:['Factory'], hq:'Ho Chi Minh City, Vietnam', notes:'Secondary mill for Summit Hickory overflow. No open shipments.', constraint:'production' },
+  { id:'pacific-line', name:'Pacific Line Logistics', roles:['Freight forwarder','Customs broker'], hq:'Long Beach, CA', notes:'Books ocean freight and clears customs. ~3 weeks from booking request to confirmed booking.', constraint:'bookingLead' },
+  { id:'gulf-dray', name:'Gulf Coast Drayage', roles:['Drayage carrier'], hq:'Houston, TX', notes:'Port of Houston to Texas job sites.', constraint:'drayage' },
+  { id:'coastal-dray', name:'Coastal Drayage Services', roles:['Drayage carrier'], hq:'Savannah, GA', notes:'Savannah and Charleston ports to Georgia and the Carolinas.', constraint:'drayage' },
+  { id:'west-dray', name:'Westline Intermodal', roles:['Drayage carrier'], hq:'Long Beach, CA', notes:'LA and Long Beach to the Mountain West.', constraint:'drayage' },
+  { id:'cascade-ltl', name:'Cascade Freight Lines', roles:['LTL carrier'], hq:'Portland, OR', notes:'Third-party LTL for pallets out of Wanke warehouses. Small shipments cause the most customer-service pain.', constraint:'ground' },
+  { id:'wanke-ga', name:'Mainline 3PL (Wanke Georgia)', roles:['Warehouse'], hq:'Savannah, GA', notes:'Third-party warehouse. Orders and shipments are booked in their portal, not in the Wanke system.', constraint:'pick' },
+  { id:'wanke-pdx', name:'Wanke Cascade Portland', roles:['Warehouse'], hq:'Portland, OR', notes:'Own warehouse. Orders flow through the Wanke system. Always pallets, never containers.', constraint:'pick' },
+];
+const vendor = id => vendors.find(v => v.id === id);
+const company = id => cust(id) || vendor(id);
+const companyRoles = c => c.roles || ['Customer'];
+const companyLink = c => `#${c.roles ? 'vendor' : 'customer'}-${c.id}`;
+
+/* Contacts are people attached to a company. Primary = who the system emails first. */
+const contacts = [
+  { id:'ct1', company:'ilg', name:'Dana Whitfield', title:'Purchasing manager', email:'dwhitfield@ilgfloors.com', phone:'(713) 555-0142', status:'active', primary:true },
+  { id:'ct2', company:'ilg', name:'Marcus Hale', title:'Project coordinator, Dallas', email:'mhale@ilgfloors.com', phone:'(214) 555-0188', status:'active' },
+  { id:'ct3', company:'ilg', name:'Renee Castillo', title:'Purchasing lead', email:'rcastillo@ilgfloors.com', status:'left', note:'Left Sep 2026. Dates she gave on Lakeshore Flats are unverified.' },
+  { id:'ct4', company:'tcc', name:'Luis Ortega', title:'Operations director', email:'lortega@tccinteriors.com', phone:'(404) 555-0119', status:'active', primary:true },
+  { id:'ct5', company:'tcc', name:'Amber Shaw', title:'Accounts payable', email:'ashaw@tccinteriors.com', status:'active' },
+  { id:'ct6', company:'fantasia', name:'Priya Natarajan', title:'Development manager', email:'priya@fantasiadev.com', phone:'(404) 555-0163', status:'active', primary:true },
+  { id:'ct7', company:'meridian', name:'Tom Beckett', title:'Owner', email:'tbeckett@meridiansl.com', phone:'(208) 555-0127', status:'active', primary:true },
+  { id:'ct8', company:'northwind', name:'Gail Munro', title:'Facilities', email:'gmunro@northwindsc.org', status:'active', primary:true },
+  { id:'ct9', company:'daizhin', name:'Ji-ho Park', title:'Export sales manager', email:'jpark@daizhin.co.kr', status:'active', primary:true },
+  { id:'ct10', company:'daizhin', name:'Soo-min Lee', title:'Production planning', email:'slee@daizhin.co.kr', status:'active' },
+  { id:'ct11', company:'pacific-line', name:'Kevin Tran', title:'Account manager', email:'ktran@pacificline.com', phone:'(562) 555-0171', status:'active', primary:true },
+  { id:'ct12', company:'gulf-dray', name:'Dispatch desk', title:'Dispatch', email:'dispatch@gulfcoastdray.com', phone:'(713) 555-0190', status:'active', primary:true },
+  { id:'ct13', company:'coastal-dray', name:'Terrence Boyd', title:'Operations', email:'tboyd@coastaldray.com', status:'active', primary:true },
+  { id:'ct14', company:'wanke-ga', name:'Shanice Bell', title:'Warehouse coordinator', email:'sbell@mainline3pl.com', phone:'(912) 555-0144', status:'active', primary:true },
+  { id:'ct15', company:'wanke-pdx', name:'Marlene Ortiz', title:'Customer service', email:'marlene@wankecascade.com', phone:'(503) 555-0108', status:'active', primary:true },
+  { id:'ct16', company:'cascade-ltl', name:'Dale Pruitt', title:'Dispatcher', email:'dale@cascadefreight.com', status:'active', primary:true },
+];
+const contact = id => contacts.find(c => c.id === id);
+const contactsOf = companyId => contacts.filter(c => c.company === companyId);
+
+const pos = [
+  { id:'PO-4471', customer:'ilg', job:'The Fairway at Westchase', site:'Houston, TX', sqft:200000, product:'SE Harbor Oak 7" SPC, 20 mil', received:'2026-05-28', source:'PDF (ILG PO #88213)', lane:'production', rep:'Meredith',
+    gate:[['package','New account package','Customer','done'],['credit','Credit approved','Credit','done'],['deposit','Deposit','Ops','na'],['prelim','Preliminary notice filed','Ops','done'],['tax','Tax status confirmed','Ops','done']],
+    activity:[['2026-05-28','PO received by email from Dana Whitfield (ILG). Parsed: 4 shipments, need-by for the first only.'],['2026-05-28','Auto-reply sent: acknowledged, requested need-by for shipments 2–4.'],['2026-06-01','Container 1 placed with Daizhin.'],['2026-07-14','Customer set need-by Nov 20 and Jan 15 for Containers 2 and 3 via portal.'],['2026-09-16','Container 1 delivered to job site. Invoice #30417 sent.'],['2026-10-25','Change request received by email: push Container 3 to Feb 15.']] },
+  { id:'PO-4495', customer:'ilg', job:'Lakeshore Flats', site:'Dallas, TX', sqft:100000, product:'SE Harbor Oak 7" SPC, 20 mil', received:'2026-08-20', source:'PDF (ILG PO #88402)', lane:'production', rep:'Isaac',
+    gate:[['package','New account package','Customer','done'],['credit','Credit approved','Credit','done'],['deposit','Deposit','Ops','na'],['prelim','Preliminary notice filed','Ops','done'],['tax','Tax status confirmed','Ops','done']],
+    activity:[['2026-08-20','PO received. Need-by Dec 5 for both shipments.'],['2026-08-24','Both shipments placed with Daizhin. Earliest planned delivery Dec 9; customer notified of 4-day gap.'],['2026-10-20','Ocean transit to Houston quoted 35 days; Container 1 now planned Dec 12.']] },
+  { id:'PO-4488', customer:'tcc', job:'Peachtree Commons Phase 2', site:'Atlanta, GA', sqft:104000, product:'SE Summit Hickory 9" SPC, 22 mil', received:'2026-09-02', source:'PDF (TCC PO 2026-0415)', lane:'production', rep:'Isaac',
+    gate:[['package','New account package','Customer','done'],['credit','Credit approved','Credit','done'],['deposit','Deposit','Ops','na'],['prelim','Preliminary notice filed','Ops','done'],['tax','Tax status confirmed','Ops','done']],
+    activity:[['2026-09-02','PO received. 2 containers via Savannah plus a 4,000 sq ft balance from Wanke Georgia.'],['2026-09-08','Container 1 placed with Daizhin.'],['2026-10-24','Customer asked whether the balance could ship before the containers.']] },
+  { id:'PO-4490', customer:'northwind', job:'Cedar Ridge Senior Living', site:'Spokane, WA', sqft:18000, product:'SE Harbor Oak 7" SPC, 20 mil (Portland stock)', received:'2026-10-14', source:'Email body (no attachment)', lane:'production', rep:'Meredith',
+    gate:[['package','New account package','Customer','done'],['credit','Credit approved','Credit','done'],['deposit','Deposit','Ops','na'],['prelim','Preliminary notice filed','Ops','done'],['tax','Tax status confirmed','Ops','done']],
+    activity:[['2026-10-14','PO received as email text. Parsed 18,000 sq ft, need-by Nov 3.'],['2026-10-22','Released to Wanke Portland for pick.']] },
+  { id:'PO-4502', customer:'fantasia', job:'Midtown Lofts', site:'Atlanta, GA', sqft:150000, product:'SE Summit Hickory 9" SPC, 22 mil', received:'2026-10-02', source:'PDF (Fantasia PO F-1190)', lane:'queue', rep:'Alan',
+    gate:[['package','New account package','Customer','done'],['credit','Credit approved','Credit','done'],['deposit','Deposit (20%)','Customer','pending'],['prelim','Preliminary notice filed','Ops','pending'],['tax','Tax status confirmed','Ops','done']],
+    activity:[['2026-10-02','PO received. No need-by dates. Customer said "fall 2027, maybe".'],['2026-10-02','Auto-reply sent: added to queue, requested need-by dates and deposit.'],['2026-10-16','Reminder sent. No click-through.']] },
+  { id:'PO-4503', customer:'fantasia', job:'Buckhead Terrace', site:'Atlanta, GA', sqft:96000, product:'SE Harbor Oak 7" SPC, 20 mil', received:'2026-10-02', source:'PDF (Fantasia PO F-1191)', lane:'queue', rep:'Alan',
+    gate:[['package','New account package','Customer','done'],['credit','Credit approved','Credit','done'],['deposit','Deposit (20%)','Customer','pending'],['prelim','Preliminary notice filed','Ops','pending'],['tax','Tax status confirmed','Ops','done']],
+    activity:[['2026-10-02','PO received. No need-by dates.'],['2026-10-16','Reminder sent. No click-through.']] },
+  { id:'PO-4510', customer:'meridian', job:'Riverline Hall', site:'Boise, ID', sqft:62000, product:'SE Harbor Oak 7" SPC, 20 mil', received:'2026-10-25', source:'PDF (Meridian PO 00071)', lane:'queue', rep:'Alan',
+    gate:[['package','New account package','Customer','pending'],['credit','Credit approved','Credit','pending'],['deposit','Deposit','Ops','pending'],['prelim','Preliminary notice filed','Ops','pending'],['tax','Tax status confirmed','Ops','pending']],
+    activity:[['2026-10-25','PO received 10:14 pm. Customer not found in customer list.'],['2026-10-25','Auto-reply sent: added to queue. Account package link sent to Tom Beckett.'],['2026-10-25','Credit department notified. Ops task opened for preliminary notice and tax status.']] },
+  { id:'PO-4515', customer:'tcc', job:'Sugarloaf Student Housing', site:'Lawrenceville, GA', sqft:150000, product:'SE Summit Hickory 9" SPC, 22 mil', received:'2026-10-26', source:'PDF (TCC PO 2026-0502)', lane:'queue', rep:'Isaac',
+    gate:[['package','New account package','Customer','done'],['credit','Credit approved','Credit','done'],['deposit','Deposit','Ops','na'],['prelim','Preliminary notice filed','Ops','pending'],['tax','Tax status confirmed','Ops','done']],
+    activity:[['2026-10-26','PO received 6:52 am, forwarded by Isaac rather than sent by the customer.'],['2026-10-26','Parsed: 3 shipments. Need-by Mar 1 for the first only. Ship-to address missing.'],['2026-10-26','Auto-reply sent to Luis Ortega: need ship-to address and need-by for shipments 2–3.']] },
+];
+const po = id => pos.find(p => p.id === id);
+
+/* A shipment is the unit of tracking. `name` is free text the team chooses ("Container 1", "Pallet 1", "Balance").
+   stage: index of last completed milestone; placedAt null = not yet placed/released; actual: {index: date} */
+const shipments = [
+  { id:'S1', po:'PO-4471', name:'Container 1', type:'container', sqft:50000, origin:'Daizhin, Korea', port:'Houston', dest:'Job site, Houston TX', needBy:'2026-09-15', placedAt:'2026-06-01', stage:5, actual:{1:'2026-07-14',2:'2026-07-23',3:'2026-08-28',4:'2026-09-02',5:'2026-09-16'}, invoiced:true },
+  { id:'S2', po:'PO-4471', name:'Container 2', type:'container', sqft:50000, origin:'Daizhin, Korea', port:'Houston', dest:'Job site, Houston TX', needBy:'2026-11-20', placedAt:'2026-07-20', stage:2, actual:{1:'2026-09-02',2:'2026-09-14'} },
+  { id:'S3', po:'PO-4471', name:'Container 3', type:'container', sqft:50000, origin:'Daizhin, Korea', port:'Houston', dest:'Job site, Houston TX', needBy:'2027-01-15', placedAt:'2026-09-20', stage:0, actual:{} },
+  { id:'S4', po:'PO-4471', name:'Container 4', type:'container', sqft:50000, origin:'Daizhin, Korea', port:'Houston', dest:'Job site, Houston TX', needBy:null, placedAt:null, stage:-1, actual:{} },
+  { id:'S5', po:'PO-4495', name:'Container 1', type:'container', sqft:50000, origin:'Daizhin, Korea', port:'Houston', dest:'ILG warehouse, Dallas TX', needBy:'2026-12-05', placedAt:'2026-08-24', stage:2, actual:{1:'2026-10-08',2:'2026-10-20'} },
+  { id:'S6', po:'PO-4495', name:'Container 2', type:'container', sqft:50000, origin:'Daizhin, Korea', port:'Houston', dest:'ILG warehouse, Dallas TX', needBy:'2026-12-05', placedAt:'2026-08-24', stage:1, actual:{1:'2026-10-10'} },
+  { id:'S7', po:'PO-4488', name:'Container 1', type:'container', sqft:50000, origin:'Daizhin, Korea', port:'Savannah', dest:'Job site, Atlanta GA', needBy:'2026-12-20', placedAt:'2026-09-08', stage:0, actual:{} },
+  { id:'S8', po:'PO-4488', name:'Container 2', type:'container', sqft:50000, origin:'Daizhin, Korea', port:'Savannah', dest:'Job site, Atlanta GA', needBy:'2027-02-10', placedAt:null, stage:-1, actual:{} },
+  { id:'S9', po:'PO-4488', name:'Balance pallet', type:'ltl', sqft:4000, origin:'Wanke Georgia', port:null, dest:'Job site, Atlanta GA', needBy:'2027-02-24', placedAt:null, stage:-1, actual:{} },
+  { id:'S10', po:'PO-4490', name:'Pallet 1', type:'ltl', sqft:18000, origin:'Wanke Portland', port:null, dest:'Job site, Spokane WA', needBy:'2026-11-03', placedAt:'2026-10-22', stage:1, actual:{1:'2026-10-24'} },
+  { id:'S11', po:'PO-4502', name:'Container 1', type:'container', sqft:50000, origin:'Daizhin, Korea', port:'Savannah', dest:'Job site, Atlanta GA', needBy:null, placedAt:null, stage:-1, actual:{} },
+  { id:'S12', po:'PO-4502', name:'Container 2', type:'container', sqft:50000, origin:'Daizhin, Korea', port:'Savannah', dest:'Job site, Atlanta GA', needBy:null, placedAt:null, stage:-1, actual:{} },
+  { id:'S13', po:'PO-4502', name:'Container 3', type:'container', sqft:50000, origin:'Daizhin, Korea', port:'Savannah', dest:'Job site, Atlanta GA', needBy:null, placedAt:null, stage:-1, actual:{} },
+  { id:'S14', po:'PO-4503', name:'Container 1', type:'container', sqft:50000, origin:'Daizhin, Korea', port:'Savannah', dest:'Job site, Atlanta GA', needBy:null, placedAt:null, stage:-1, actual:{} },
+  { id:'S15', po:'PO-4503', name:'Container 2', type:'container', sqft:46000, origin:'Daizhin, Korea', port:'Savannah', dest:'Job site, Atlanta GA', needBy:null, placedAt:null, stage:-1, actual:{} },
+  { id:'S16', po:'PO-4510', name:'Container 1', type:'container', sqft:50000, origin:'Daizhin, Korea', port:'Long Beach', dest:'Job site, Boise ID', needBy:'2027-02-01', placedAt:null, stage:-1, actual:{} },
+  { id:'S17', po:'PO-4510', name:'Pallet 1', type:'ltl', sqft:12000, origin:'Wanke Portland', port:null, dest:'Job site, Boise ID', needBy:'2027-02-01', placedAt:null, stage:-1, actual:{} },
+  { id:'S18', po:'PO-4515', name:'Container 1', type:'container', sqft:50000, origin:'Daizhin, Korea', port:'Savannah', dest:'Ship-to address missing', needBy:'2027-03-01', placedAt:null, stage:-1, actual:{} },
+  { id:'S19', po:'PO-4515', name:'Container 2', type:'container', sqft:50000, origin:'Daizhin, Korea', port:'Savannah', dest:'Ship-to address missing', needBy:null, placedAt:null, stage:-1, actual:{} },
+  { id:'S20', po:'PO-4515', name:'Container 3', type:'container', sqft:50000, origin:'Daizhin, Korea', port:'Savannah', dest:'Ship-to address missing', needBy:null, placedAt:null, stage:-1, actual:{} },
+];
+const shipsOf = id => shipments.filter(s => s.po === id);
+const ship = id => shipments.find(s => s.id === id);
+
+/* Vendor roles on each shipment: where it comes from, who books the freight, who moves the last leg. */
+const ORIGIN_CO = { 'Daizhin, Korea':'daizhin', 'Wanke Georgia':'wanke-ga', 'Wanke Portland':'wanke-pdx' };
+const PORT_CARRIER = { Houston:'gulf-dray', Savannah:'coastal-dray', Charleston:'coastal-dray', Miami:'coastal-dray', 'Long Beach':'west-dray', 'Los Angeles':'west-dray' };
+shipments.forEach(s => { s.originCo = ORIGIN_CO[s.origin]; s.forwarder = s.type === 'container' ? 'pacific-line' : null; s.carrier = s.type === 'container' ? PORT_CARRIER[s.port] : 'cascade-ltl'; });
+const vendorRoleOn = (v, s) => s.originCo === v ? (vendor(v).roles[0]) : s.forwarder === v ? 'Forwarder' : s.carrier === v ? 'Carrier' : null;
+const vendorShipments = v => shipments.filter(s => vendorRoleOn(v, s));
+
+/* Change requests carry a context: what the change is about. Status names match the action names: Approve → Approved, Reject → Rejected, Modify → Modified. */
+const CONTEXTS = ['Shipment', 'Order', 'Customer', 'Vendor', 'Contact'];
+const changes = [
+  { id:'CO-2031', context:'Shipment', po:'PO-4471', ship:'S3', by:'Customer · Dana Whitfield (ILG)', via:'Email', received:'2026-10-25', type:'Push need-by', from:'Jan 15, 2027', to:'Feb 15, 2027', status:'pending',
+    impact:'Container 3 is already in production (placed Sep 20). Pushing a month means ~30 days of storage at Daizhin or shipping on schedule and holding at the Houston drayage yard. Recommend: approve, hold departure, request booking for Jan 5.' },
+  { id:'CO-2033', context:'Shipment', po:'PO-4488', ship:'S9', by:'Customer · Luis Ortega (TCC)', via:'Email', received:'2026-10-24', type:'Pull in', from:'Feb 24, 2027', to:'Nov 10, 2026', status:'pending',
+    impact:'4,000 sq ft balance from Wanke Georgia can ship any time; stock on hand is 6,200 sq ft. Shipping early reduces what is left for balances on other jobs. Recommend: approve.' },
+  { id:'CO-2032', context:'Shipment', po:'PO-4502', ship:'S11', by:'Customer · Priya Natarajan (Fantasia)', via:'Portal', received:'2026-10-26', type:'Set need-by', from:'Unknown', to:'Sep 1, 2027', status:'pending',
+    impact:'First need-by for Midtown Lofts. Place-by date would be May 24, 2027. Shipment moves from unknown to forecastable. Recommend: approve and send remaining-shipments reminder.' },
+  { id:'CO-2034', context:'Vendor', target:'daizhin', by:'Vendor · Ji-ho Park (Daizhin)', via:'Email', received:'2026-10-23', type:'Lead time change', from:'45-day production', to:'52-day production through Feb 1, 2027', status:'pending',
+    impact:'Holiday shutdown at the mill. Every unplaced Daizhin shipment with a place-by date before Feb 1 moves 7 days earlier. Container 2 of Peachtree Commons would need to be placed by Oct 30. Recommend: approve and set the production constraint to 52.' },
+  { id:'CO-2035', context:'Contact', target:'ilg', by:'Customer · Marcus Hale (ILG)', via:'Email', received:'2026-10-22', type:'Primary contact change', from:'Dana Whitfield', to:'Marcus Hale for Dallas jobs', status:'pending',
+    impact:'Need-by dates on Lakeshore Flats were given by Renee Castillo, who has left. Marcus should confirm them. Recommend: approve and resend the Lakeshore standing email to Marcus.' },
+  { id:'CO-2036', context:'Customer', target:'tcc', by:'Customer · Amber Shaw (TCC)', via:'Email', received:'2026-10-21', type:'Billing change', from:'Bill to Atlanta HQ', to:'Bill to TCC Interiors – Gwinnett LLC (tax-exempt, certificate attached)', status:'approved', note:'Melissa · Oct 22',
+    impact:'Applies to Sugarloaf only. Tax status on PO-4515 set to exempt.' },
+  { id:'CO-2037', context:'Order', po:'PO-4503', by:'Sales · Alan', via:'Phone', received:'2026-10-20', type:'Add shipment', from:'2 shipments (96,000 sq ft)', to:'3 shipments (112,000 sq ft)', status:'rejected', note:'Rob · Oct 20',
+    impact:'Customer has not confirmed the added square footage in writing. Rejected until a revised PO arrives.' },
+  { id:'CO-2029', context:'Shipment', po:'PO-4495', ship:'S5', by:'Customer · Dana Whitfield (ILG)', via:'Email', received:'2026-10-18', type:'Pull in', from:'Dec 12, 2026', to:'Dec 5, 2026', status:'modified',
+    impact:'Ocean transit cannot be compressed. Modified: Container 1 holds Dec 12; offered 4,800 sq ft from Wanke Georgia stock to start.', note:'Melissa · Oct 19' },
+  { id:'CO-2028', context:'Shipment', po:'PO-4490', ship:'S10', by:'Sales · Meredith', via:'Phone', received:'2026-10-15', type:'Change destination', from:'Northwind warehouse', to:'Job site, Spokane WA', status:'approved', note:'Ryan · Oct 15' },
+];
+function coTarget(c) {
+  if (c.context === 'Shipment') { const p = po(c.po); return { label: `${p.job} · ${ship(c.ship).name}`, html: `<a href="#po-${p.id.slice(3)}" class="text-decoration-none">${esc(p.job)}</a> <span class="text-body-secondary fw-normal">· ${esc(ship(c.ship).name)}</span>` }; }
+  if (c.context === 'Order') { const p = po(c.po); return { label: p.job, html: `<a href="#po-${p.id.slice(3)}" class="text-decoration-none">${esc(p.job)}</a> <span class="mono text-body-secondary fw-normal">${p.id}</span>` }; }
+  const co = company(c.target); return { label: co.name, html: `<a href="${companyLink(co)}" class="text-decoration-none">${esc(co.name)}</a>` };
+}
+
+const intake = [
+  { id:'IN-1', received:'2026-10-26 06:52', from:'Isaac Reyes (Surface Edge sales)', subject:'FW: TCC PO 2026-0502 – Sugarloaf Student Housing', attach:'PDF · 2 pages', match:'TCC Interiors (existing)', result:'queued', link:'PO-4515', flags:['Sent by sales rep, not customer','Ship-to address missing','Need-by for shipments 2–3 missing'], reply:'Sent to Luis Ortega (TCC) at 6:53 am' },
+  { id:'IN-2', received:'2026-10-25 22:14', from:'Tom Beckett (Meridian Student Living)', subject:'Purchase Order 00071 – Riverline Hall', attach:'PDF · 1 page', match:'No match · new customer', result:'queued', link:'PO-4510', flags:['New customer: account package, credit, prelim notice, tax'], reply:'Sent at 10:15 pm with account package link' },
+  { id:'IN-3', received:'2026-10-25 16:40', from:'Dana Whitfield (ILG)', subject:'Re: Fairway at Westchase – container 3', attach:'none (email body)', match:'ILG · PO-4471', result:'change', link:'CO-2031', flags:['Parsed as change request: Container 3 need-by Jan 15 → Feb 15'], reply:'Acknowledged; "under review" sent' },
+  { id:'IN-4', received:'2026-10-24 11:05', from:'Luis Ortega (TCC)', subject:'Peachtree balance – can it ship sooner?', attach:'none (email body)', match:'TCC · PO-4488', result:'change', link:'CO-2033', flags:['Parsed as change request: balance pallet pull-in'], reply:'Acknowledged' },
+  { id:'IN-5', received:'2026-10-23 14:31', from:'orders@apexbuildgroup.com', subject:'PO attached', attach:'XLSX · unreadable (password protected)', match:'Unknown sender', result:'review', link:null, flags:['Attachment could not be read','No customer match'], reply:'Asked sender for an unlocked PDF' },
+  { id:'IN-6', received:'2026-10-22 09:12', from:'Gail Munro (Northwind)', subject:'Cedar Ridge – ship to the job site please', attach:'none', match:'Northwind · PO-4490', result:'change', link:'CO-2028', flags:['Destination change, already approved'], reply:'Confirmed' },
+];
+
+/* Chats: every inbound email or portal message is merged into a thread by sender and subject. status: open = their move is done, ours is due; awaiting = we replied, waiting on them; closed = resolved. */
+const ME = 'ryan';
+const TEAM = { ryan:'Ryan K.', melissa:'Melissa R.', marlene:'Marlene O.', alan:'Alan B.' };
+const threads = [
+  { id:'T3', subject:'Re: Fairway at Westchase – container 3', company:'ilg', contact:'ct1', assignee:'ryan', status:'open', po:'PO-4471', co:'CO-2031', unread:true,
+    draft:'Hi Dana,\n\nWe can move Container 3 to Feb 15. It is already in production at the mill (placed Sep 20), so we will hold it after production and book a Jan 5 sailing, which lands in Houston Feb 9 and delivers by Feb 12. Container 2 stays on Nov 20.\n\nYou will get a departure notice 10 days before it ships. If anything changes before then, update the date in your portal and we will adjust.\n\nRyan', msgs:[
+    ['them','2026-10-25 16:40','Hi team, the GC pushed the Fairway schedule. Can we move container 3 to Feb 15 instead of Jan 15? Container 2 should stay as is.\n\nThanks,\nDana'],
+    ['system','2026-10-25 16:41','Parsed as a change request on Container 3 (need-by Jan 15 → Feb 15). CO-2031 opened for review. Acknowledgement sent: "We received your request and will confirm within one business day."'] ] },
+  { id:'T7', subject:'Production schedule – Lunar New Year shutdown', company:'daizhin', contact:'ct9', assignee:'ryan', status:'open', co:'CO-2034', unread:true,
+    draft:'Dear Mr. Park,\n\nThank you for the notice. We will plan on 52 days of production for anything placed after Nov 5 through Feb 1.\n\nPlease confirm the open POs keep their current production dates: Fairway Container 3 (ready Nov 4), Peachtree Container 1 (ready Oct 23), and Lakeshore Containers 1 and 2 (complete).\n\nWe expect to send Peachtree Container 2 by Oct 30 so it clears before the shutdown.\n\nBest regards,\nRyan', msgs:[
+    ['them','2026-10-23 03:12','Dear Ryan, please note the factory will close Jan 24 – Feb 1 for the holiday. Orders placed after Nov 5 should allow 52 days production until February. Current open POs are not affected.\n\nBest regards,\nJi-ho Park'],
+    ['system','2026-10-23 03:13','Parsed as a vendor lead-time change. CO-2034 opened: production 45 → 52 days through Feb 1. Affects 2 unplaced shipments.'] ] },
+  { id:'T4', subject:'Peachtree balance – can it ship sooner?', company:'tcc', contact:'ct4', assignee:'ryan', status:'open', po:'PO-4488', co:'CO-2033',
+    draft:'Hi Luis,\n\nYes. We have 6,200 sq ft of Summit Hickory at our Georgia warehouse, so the 4,000 sq ft balance can ship the week of Nov 3 and arrive by Nov 10. I will confirm the pickup day once it is booked with the carrier.\n\nThe two containers stay on Dec 20 and Feb 10.\n\nRyan', msgs:[
+    ['them','2026-10-24 11:05','Luis here. The Peachtree crew wants to start the amenity floor early. Any chance the 4,000 sq ft balance from your Georgia warehouse could ship by Nov 10 instead of waiting for the end?'],
+    ['system','2026-10-24 11:06','Parsed as a pull-in on Balance pallet (Feb 24 → Nov 10). CO-2033 opened. Acknowledgement sent.'] ] },
+  { id:'T8', subject:'New contact for ILG Dallas projects', company:'ilg', contact:'ct2', assignee:'melissa', status:'open', co:'CO-2035',
+    draft:'Hi Marcus,\n\nThanks for letting us know, and welcome. You are now the contact for the Dallas projects and will get the Lakeshore Flats updates.\n\nOne thing to confirm: both Lakeshore containers are set to a Dec 5 need-by, a date Renee gave us. Container 1 is on the water and lands Dec 12; Container 2 follows about a week later. Does Dec 5 still hold? If not, you can set the new date in your portal and we will adjust the plan.\n\nMelissa', msgs:[
+    ['them','2026-10-22 09:30','Hello, I have taken over the Dallas projects from Renee Castillo, who left the company last month. Please send anything about Lakeshore Flats to me going forward.\n\nMarcus Hale\nProject Coordinator, ILG'],
+    ['system','2026-10-22 09:31','New contact created: Marcus Hale (ILG). CO-2035 opened: primary contact change for Dallas jobs. Lakeshore Flats dates were given by Renee Castillo; flagged unverified.'] ] },
+  { id:'T1', subject:'FW: TCC PO 2026-0502 – Sugarloaf Student Housing', company:'tcc', contact:'ct4', assignee:'marlene', status:'awaiting', po:'PO-4515', msgs:[
+    ['them','2026-10-26 06:52','Forwarding the Sugarloaf PO from Luis. Three containers. First one needed March 1.\n\n— Isaac', ['TCC-PO-2026-0502.pdf']],
+    ['system','2026-10-26 06:53','PO ingested as PO-4515 and added to the queue. Sent by a sales rep rather than the customer. Missing: ship-to address, need-by for shipments 2–3.'],
+    ['us','2026-10-26 06:53','Hi Luis, we received PO 2026-0502 for 150,000 sq ft of Summit Hickory and added it to your queue. Before we can place it with the factory we need:\n\n1. Ship-to address for the Sugarloaf job site\n2. Need-by dates for shipments 2 and 3 (shipment 1 is set for Mar 1, 2027)\n\nYou can add these in your portal. Shipment 1 must be placed by Nov 23 to arrive by Mar 1.', null, 'Automatic reply'] ] },
+  { id:'T2', subject:'Purchase Order 00071 – Riverline Hall', company:'meridian', contact:'ct7', assignee:'marlene', status:'awaiting', po:'PO-4510', msgs:[
+    ['them','2026-10-25 22:14','Please find our PO for the Riverline Hall project in Boise. We need the material on site by February 1. Let me know what else you need from us.\n\nTom Beckett', ['Meridian-PO-00071.pdf']],
+    ['system','2026-10-25 22:15','No customer match. New customer created: Meridian Student Living. PO ingested as PO-4510 and added to the queue. Credit department notified. Ops tasks opened for preliminary notice and tax status.'],
+    ['us','2026-10-25 22:15','Hi Tom, thanks for the order. We have it in our queue as PO-4510. Since this is your first order with Surface Edge, we need a new account package before we can place it with the factory. The link below takes about ten minutes. Our credit team reviews within two business days.\n\nTo make Feb 1, we need to place the order by Nov 9.', null, 'Automatic reply'] ] },
+  { id:'T9', subject:'Midtown Lofts and Buckhead Terrace – what we need', company:'fantasia', contact:'ct6', assignee:'marlene', status:'awaiting', po:'PO-4502', msgs:[
+    ['us','2026-10-02 10:20','Hi Priya, both POs are in your queue. We cannot place either with the factory until we have need-by dates and the 20% deposit. If the jobs are not scheduled yet, that is fine; reply when you know.', null, 'Automatic reply'],
+    ['us','2026-10-16 09:00','Reminder: Midtown Lofts and Buckhead Terrace are still waiting on need-by dates and deposit. Open your portal to add dates.', null, 'Scheduled reminder'],
+    ['system','2026-10-26 08:10','Priya set a need-by of Sep 1, 2027 on Midtown Lofts Container 1 in the portal. CO-2032 opened.'] ] },
+  { id:'T5', subject:'PO attached', company:null, contact:null, assignee:'marlene', status:'awaiting', msgs:[
+    ['them','2026-10-23 14:31','PO attached.', ['PO.xlsx']],
+    ['system','2026-10-23 14:32','Attachment is password-protected and could not be read. Sender orders@apexbuildgroup.com does not match a customer. Flagged for a human.'],
+    ['us','2026-10-23 15:05','Thanks for sending this over. The spreadsheet is locked and we cannot open it. Could you resend as a PDF, or share the password? Also, who should we list as the project contact?'] ] },
+  { id:'T6', subject:'Cedar Ridge – ship to the job site please', company:'northwind', contact:'ct8', assignee:'ryan', status:'closed', po:'PO-4490', co:'CO-2028', msgs:[
+    ['them','2026-10-22 09:12','Can the Cedar Ridge pallet go straight to the job site instead of our warehouse? Address is 4410 N Cedar Ridge Rd, Spokane.'],
+    ['system','2026-10-22 09:13','Parsed as a destination change on Pallet 1. CO-2028 opened.'],
+    ['us','2026-10-22 10:40','Done. Pallet 1 will deliver to 4410 N Cedar Ridge Rd. Estimated delivery Oct 30. You will get a notice the day before.'],
+    ['them','2026-10-22 10:52','Perfect, thank you.'] ] },
+  { id:'T11', subject:'Sugarloaf billing entity', company:'tcc', contact:'ct5', assignee:'melissa', status:'closed', co:'CO-2036', msgs:[
+    ['them','2026-10-21 13:20','For the Sugarloaf project please bill TCC Interiors – Gwinnett LLC. Tax exemption certificate attached.', ['GA-ST5-Gwinnett.pdf']],
+    ['system','2026-10-21 13:21','Parsed as a customer billing change. CO-2036 opened.'],
+    ['us','2026-10-22 08:15','Updated. Sugarloaf (PO-4515) will bill to TCC Interiors – Gwinnett LLC as tax-exempt. Other TCC jobs are unchanged.'] ] },
+  { id:'T12', subject:'Booking confirmation – Fairway C2 / HOU', company:'pacific-line', contact:'ct11', assignee:'ryan', status:'closed', po:'PO-4471', msgs:[
+    ['us','2026-08-20 14:02','Kevin, please book one 40HC Busan → Houston, ready Sep 2, for Fairway container 2.'],
+    ['them','2026-08-23 09:15','Booked. Vessel departs Busan Sep 14, ETA Houston Oct 19. Booking PLX-77120.', ['PLX-77120.pdf']],
+    ['system','2026-08-23 09:16','Departure milestone set to Sep 14 (actual). Arrival estimate Oct 19.'] ] },
+];
+const thread = id => threads.find(t => t.id === id);
+const threadsFor = tab => threads.filter(t => tab === 'inbox' ? (t.assignee === ME && t.status !== 'closed') : t.status === tab).sort((a, b) => b.msgs[b.msgs.length-1][1] > a.msgs[a.msgs.length-1][1] ? 1 : -1);
+const threadsOnPO = poId => threads.filter(t => t.po === poId);
+
+/* ---------- milestone engine ---------- */
+const CONTAINER_STAGES = ['Placed with factory', 'Production complete', 'Departed origin port', 'Arrived US port', 'Cleared customs', 'Delivered'];
+const LTL_STAGES = ['Released to warehouse', 'Picked', 'Shipped', 'Delivered'];
+function durations(s) {
+  return s.type === 'container'
+    ? [0, C.production, C.loadout, C.ocean[s.port] ?? 30, C.clearance, C.drayage]
+    : [0, C.pick, 1, C.ground];
+}
+const totalDays = s => durations(s).reduce((a, b) => a + b, 0);
+function milestones(s) {
+  const names = s.type === 'container' ? CONTAINER_STAGES : LTL_STAGES;
+  const dur = durations(s);
+  const start = s.placedAt || placeBy(s) || TODAY;
+  const out = []; let cursor = d(start);
+  names.forEach((name, i) => {
+    if (i > 0) cursor = addDays(cursor, dur[i]);
+    if (s.actual[i]) cursor = d(s.actual[i]);
+    out.push({ i, name, date: cursor, done: s.placedAt && i <= s.stage, now: s.placedAt && i === s.stage + 1, actual: !!s.actual[i] || (i === 0 && !!s.placedAt) });
+  });
+  return out;
+}
+function placeBy(s) { return s.needBy ? addDays(s.needBy, -totalDays(s)) : null; }
+function eta(s) { const m = milestones(s); return m[m.length - 1].date; }
+const isDelivered = s => s.placedAt && s.stage === milestones(s).length - 1;
+function health(s) {
+  if (isDelivered(s)) return { k:'good', t:'Delivered' };
+  if (!s.placedAt) {
+    if (!s.needBy) return { k:'muted', t:'Need-by unknown' };
+    const pb = placeBy(s), n = diffDays(pb, TODAY);
+    if (n < 0) return { k:'crit', t:`Place-by missed ${-n}d` };
+    if (n <= 14) return { k:'warn', t:`Place by ${fmt(pb)}` };
+    return { k:'info', t:`Place by ${fmt(pb)}` };
+  }
+  if (!s.needBy) return { k:'muted', t:'Need-by unknown' };
+  const slip = diffDays(eta(s), s.needBy);
+  if (slip > 0) return { k:'crit', t:`${slip}d late` };
+  if (slip > -5) return { k:'warn', t:'Tight' };
+  return { k:'good', t:'On track' };
+}
+const stageName = s => s.placedAt ? (s.type === 'container' ? CONTAINER_STAGES : LTL_STAGES)[s.stage] : 'Not placed';
+const nextMs = s => milestones(s)[s.stage + 1] || null;
+
+/* ---------- derived ---------- */
+function queueReasons(p) {
+  const r = [];
+  p.gate.filter(g => g[3] === 'pending').forEach(g => r.push(`${g[1]} (${g[2]})`));
+  const sh = shipsOf(p.id); const unknown = sh.filter(s => !s.needBy).length;
+  if (unknown) r.push(`Need-by date missing on ${unknown} of ${sh.length} shipments`);
+  if (sh.some(s => /missing/i.test(s.dest))) r.push('Ship-to address missing');
+  return r;
+}
+function poHealth(p) {
+  const hs = shipsOf(p.id).map(health);
+  if (hs.some(h => h.k === 'crit')) return 'crit';
+  if (hs.some(h => h.k === 'warn')) return 'warn';
+  return p.lane === 'queue' ? 'muted' : 'good';
+}
+const PO_LABEL = { good:'On track', warn:'Watch', crit:'At risk', muted:'Queued' };
+const done = new Set();
+function nextActions() {
+  const a = [];
+  changes.filter(c => c.status === 'pending').forEach(c => a.push({ id:c.id, k:'info', t:`Review change request ${c.id} (${c.context.toLowerCase()})`, d:`${c.type} on ${coTarget(c).label} · ${c.from} → ${c.to}`, link:'changes', open:true }));
+  shipments.filter(s => !s.placedAt && s.needBy).forEach(s => { const h = health(s);
+    if (h.k === 'crit' || h.k === 'warn') a.push({ id:'place-'+s.id, k:h.k, t:`Place ${s.name} of ${po(s.po).job} with ${s.origin}`, d:h.k === 'crit' ? `Place-by date passed. Earliest delivery now ${fmt(addDays(TODAY, totalDays(s)))} against need-by ${fmt(s.needBy)}.` : `Last day to place and still make ${fmt(s.needBy)} is ${fmt(placeBy(s))}.`, link:'po-'+s.po.slice(3), btn:'Approve: place order', toast:`Factory PO drafted for ${s.name}. Ryan to send to ${s.origin}.` }); });
+  shipments.filter(s => s.placedAt && s.needBy && !isDelivered(s) && diffDays(eta(s), s.needBy) > 0).forEach(s => a.push({ id:'late-'+s.id, k:'crit', t:`Tell ${cust(po(s.po).customer).name}: ${s.name} will arrive ${fmt(eta(s))}`, d:`${po(s.po).job} · need-by ${fmt(s.needBy)} · ${diffDays(eta(s), s.needBy)} days late. Offer stock from Wanke Georgia to start.`, link:'po-'+s.po.slice(3), btn:'Approve: send notice', toast:`Late notice sent to ${cust(po(s.po).customer).contact}, flagged "Action required".` }));
+  pos.filter(p => p.lane === 'queue').forEach(p => { const r = queueReasons(p); if (!r.length) return;
+    const waitingOn = p.gate.some(g => g[3] === 'pending' && g[2] === 'Customer') || shipsOf(p.id).some(s => !s.needBy);
+    a.push({ id:'remind-'+p.id, k:'muted', t:waitingOn ? `Remind ${cust(p.customer).name} what we still need on ${p.job}` : `Internal items open on ${p.job}`, d:r.join(' · '), link:'po-'+p.id.slice(3), btn: waitingOn ? 'Approve: send reminder' : null, open: !waitingOn, toast:`Reminder sent to ${cust(p.customer).contact} with ${r.length} open item${r.length>1?'s':''} and a portal link.` }); });
+  threads.filter(t => t.status === 'open' && t.draft && !t.draftDismissed).forEach(t => a.push({ id:'draft-'+t.id, k:'info', t:`Reply to ${t.contact ? contact(t.contact).name : 'sender'}: ${t.subject}`, d:`Drafted from ${[t.po ? po(t.po).job : null, t.co].filter(Boolean).join(' and ') || 'the thread'}: "${t.draft.split('\n').filter(l => l.trim() && !/^(hi|dear)\b/i.test(l))[0].slice(0, 110)}…"`, link:'chat-'+t.id, btn:'Approve: send draft', fn:`act.sendDraft('${t.id}')` }));
+  shipments.filter(s => s.placedAt && s.stage === 1 && s.type === 'container').forEach(s => a.push({ id:'stop-'+s.id, k:'info', t:`"Stop us or it ships": ${s.name} of ${po(s.po).job} departs ${fmt(milestones(s)[2].date)}`, d:`Standing notice ${C.stopUsDays} days before departure. No reply means it ships.`, link:'po-'+s.po.slice(3), btn:'Approve: send notice', toast:'Departure notice sent. Customer has until departure to change.' }));
+  return a.filter(x => !done.has(x.id));
+}
+
+/* ---------- routing & state ---------- */
+let route = 'today';
+const go = r => { location.hash = r; };
+window.addEventListener('hashchange', () => { route = location.hash.replace('#', '') || 'today'; if (route === 'orders') route = 'orders-production'; render(); });
+const isPortal = () => route.startsWith('portal');
+let portalCustomer = 'ilg';
+let renaming = null;
+let q = '';
+let groupBy = 'order';
+const openShips = new Set(shipments.filter(s => s.placedAt && !isDelivered(s)).map(s => s.id));
+let coTab = 'pending';
+let coContext = 'All';
+let coSort = 'newest';
+const navOpen = {};
+
+/* ---------- toasts (Bootstrap) ---------- */
+function toast(msg) {
+  const c = document.getElementById('toasts'); const el = document.createElement('div');
+  el.className = 'toast text-bg-dark border-0'; el.setAttribute('role', 'status');
+  el.innerHTML = `<div class="d-flex"><div class="toast-body">${msg}</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div>`;
+  c.appendChild(el);
+  if (window.bootstrap) { el.addEventListener('hidden.bs.toast', () => el.remove()); bootstrap.Toast.getOrCreateInstance(el, { delay: 4000 }).show(); }
+  else { el.classList.add('show'); setTimeout(() => el.remove(), 4000); }
+}
+
+/* ---------- actions ---------- */
+const act = {
+  completeAction(id, msg) { done.add(id); toast(`<b>Done.</b> ${msg}`); render(); },
+  decideCO(id, status) {
+    const c = changes.find(x => x.id === id); c.status = status; c.note = `You · ${fmt(TODAY)}`;
+    const who = c.by.split('·')[1].trim();
+    const log = msg => { if (c.po) po(c.po).activity.push([iso(TODAY), msg]); };
+    if (status === 'approved') {
+      if (c.ship) {
+        const s = ship(c.ship);
+        if (c.pendingDate) s.needBy = c.pendingDate;
+        else if (c.type === 'Set need-by') s.needBy = '2027-09-01';
+        else if (c.type === 'Push need-by') s.needBy = '2027-02-15';
+        else if (c.type === 'Pull in') s.needBy = '2026-11-10';
+        log(`${c.id} approved. Milestones recalculated. ${who} notified.`);
+        toast(`<b>${c.id} approved.</b> Milestones recalculated and ${esc(who)} was notified.`);
+      } else if (c.id === 'CO-2034') { C.production = 52; toast('<b>CO-2034 approved.</b> Production constraint set to 52 days. Every Daizhin place-by date moved 7 days earlier.'); }
+      else if (c.id === 'CO-2035') { contact('ct1').primary = false; contact('ct2').primary = true; toast('<b>CO-2035 approved.</b> Marcus Hale is now the primary ILG contact. Lakeshore standing email resent.'); }
+      else { log(`${c.id} approved. ${who} notified.`); toast(`<b>${c.id} approved.</b> ${esc(who)} was notified.`); }
+    } else if (status === 'rejected') {
+      log(`${c.id} rejected. ${who} notified with reason.`);
+      toast(`<b>${c.id} rejected.</b> A reply with the reason went to ${esc(who)}.`);
+    } else {
+      log(`${c.id} modified. Counter-proposal sent to ${who}.`);
+      toast(`<b>${c.id} modified.</b> Counter-proposal sent; awaiting ${esc(who)}.`);
+    }
+    render();
+  },
+  gate(poId, key, status) {
+    const p = po(poId); const g = p.gate.find(x => x[0] === key); g[3] = status;
+    p.activity.push([iso(TODAY), status === 'over' ? `${g[1]} overridden by Rob: "Proceed, I'll get it." Logged.` : `${g[1]} marked complete.`]);
+    if (!p.gate.some(x => x[3] === 'pending') && shipsOf(poId).some(s => s.needBy)) { p.lane = 'production'; toast(`<b>${poId} moved to Production.</b> All gate items closed.`); }
+    else toast(status === 'over' ? '<b>Override logged.</b> Visible on the order permanently.' : '<b>Checklist updated.</b>');
+    render();
+  },
+  setNeedBy(shipId, val) {
+    if (!val) { toast('Pick a date first.'); return; }
+    const s = ship(shipId); const p = po(s.po);
+    const id = 'CO-' + (2034 + changes.filter(c => c.id > 'CO-2033').length);
+    changes.unshift({ id, context:'Shipment', po:p.id, ship:shipId, by:`Customer · ${cust(p.customer).contact} (${cust(p.customer).name})`, via:'Portal', received:iso(TODAY), type: s.needBy ? 'Change need-by' : 'Set need-by', from: s.needBy ? fmtLong(s.needBy) : 'Unknown', to:fmtLong(val), status:'pending', impact:`Place-by would be ${fmt(addDays(val, -totalDays(s)))}. Recommend: approve.`, pendingDate: val });
+    p.activity.push([iso(TODAY), `Customer set need-by ${fmtLong(val)} on ${s.name} via portal. ${id} opened for review.`]);
+    toast(`<b>Thanks.</b> Surface Edge will confirm ${fmtLong(val)} for ${s.name}.`);
+    render();
+  },
+  rename(shipId) { renaming = shipId; render(); setTimeout(() => document.getElementById('rn-' + shipId)?.focus(), 0); },
+  saveName(shipId) {
+    const v = (document.getElementById('rn-' + shipId)?.value || '').trim(); const s = ship(shipId);
+    if (v && v !== s.name) { po(s.po).activity.push([iso(TODAY), `Shipment "${s.name}" renamed to "${v}".`]); s.name = v; toast(`<b>Renamed.</b> Now "${esc(v)}".`); }
+    renaming = null; render();
+  },
+  cancelRename() { renaming = null; render(); },
+  remind(poId) { toast(`<b>Reminder sent</b> to ${cust(po(poId).customer).contact} with a portal link.`); },
+  toggleLead(id) { const c = cust(id); c.showLeadTimes = !c.showLeadTimes; toast(`<b>${c.name}:</b> lead times ${c.showLeadTimes ? 'visible' : 'hidden'} in the portal.`); render(); },
+  setC(key, val, port) { const n = Number(val); if (isNaN(n)) return; if (port) C.ocean[port] = n; else C[key] = n; render(); },
+  portalCustomer(id) { portalCustomer = id; render(); },
+  intakeResolve(id) { intake.find(x => x.id === id).result = 'resolved'; toast('<b>Marked handled.</b> Sender asked for an unlocked PDF.'); render(); },
+  stub(msg) { toast(msg); },
+  search(v) { q = v.toLowerCase(); renderMain(); const el = document.getElementById('q'); if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); } },
+  toggleNav(k) { const el = document.querySelector(`.nav-group[data-group="${k}"]`); navOpen[k] = el ? !el.classList.contains('open') : !navOpen[k]; renderSidebar(); },
+  tool(key, val) { T[key] = val; if (key === 'groupBy') groupBy = val; if (key === 'coContext') coContext = val; if (key === 'coSort') coSort = val; renderMain(); },
+  coTab(v) { go(v === 'pending' ? 'changes' : 'changes-' + v); },
+  setPrimary(id) { const c = contact(id); contactsOf(c.company).forEach(x => x.primary = false); c.primary = true; toast(`<b>${esc(c.name)}</b> is now the primary contact for ${esc(company(c.company).name)}.`); render(); },
+  reply(tid, fromDraft) {
+    const t = thread(tid); const el = document.getElementById('reply-' + tid); const body = (el?.value || '').trim();
+    if (!body) { toast('Write a reply first.'); el?.focus(); return; }
+    const edited = fromDraft && body !== t.draft.trim();
+    t.msgs.push(['us', '2026-10-26 ' + new Date().toTimeString().slice(0, 5), body, null, fromDraft ? `${TEAM[t.assignee] || 'Surface Edge'} · drafted by system${edited ? ', edited' : ''}` : null]);
+    t.status = 'awaiting'; t.unread = false; t.draftDismissed = true;
+    toast(`<b>Sent.</b> Emailed to ${t.contact ? esc(contact(t.contact).name) : 'the sender'} and the thread moved to Awaiting reply.`); render();
+  },
+  sendDraft(tid) { const t = thread(tid); t.msgs.push(['us', '2026-10-26 ' + new Date().toTimeString().slice(0, 5), t.draft, null, `${TEAM[t.assignee] || 'Surface Edge'} · drafted by system`]); t.status = 'awaiting'; t.unread = false; t.draftDismissed = true; toast(`<b>Sent.</b> Draft emailed to ${t.contact ? esc(contact(t.contact).name) : 'the sender'} as written.`); render(); },
+  discardDraft(tid) { thread(tid).draftDismissed = true; render(); },
+  theme() { themePref = { auto:'light', light:'dark', dark:'auto' }[themePref]; try { localStorage.setItem('se-theme', themePref); } catch (e) {} applyTheme(); renderMain(); toast(`<b>${THEME_UI[themePref][1].replace('Theme: ', '')}</b> theme.`); },
+  toggleShip(id) { openShips.has(id) ? openShips.delete(id) : openShips.add(id); renderMain(); },
+  toggleDesc() { openDesc.has(route) ? openDesc.delete(route) : openDesc.add(route); renderMain(); },
+  perfMode(m) { perf.mode = m; renderMain(); },
+  perfNav(dir) { if (perf.mode === 'weekly') { perf.month += dir; if (perf.month < 0) { perf.month = 11; perf.year--; } if (perf.month > 11) { perf.month = 0; perf.year++; } } else perf.year += dir; if (perf.year < 2024) perf.year = 2024; renderMain(); },
+  expandAll(poId, open) { shipsOf(poId).forEach(s => open ? openShips.add(s.id) : openShips.delete(s.id)); renderMain(); },
+  saveShip(id) {
+    const s = ship(id); const p = po(s.po); const v = k => document.getElementById('f-' + k)?.value ?? '';
+    const before = { ...s }; const changed = [];
+    const name = v('name').trim() || s.name; if (name !== s.name) { changed.push(`renamed "${s.name}" → "${name}"`); s.name = name; }
+    const type = v('type'); if (type && type !== s.type) { changed.push(`kind → ${type === 'container' ? 'ocean container' : 'LTL / pallet'}`); s.type = type; s.actual = {}; }
+    const sq = Number(v('sqft')); if (sq > 0 && sq !== s.sqft) { changed.push(`quantity ${before.sqft.toLocaleString()} → ${sq.toLocaleString()} sq ft`); s.sqft = sq; }
+    const nb = v('needby') || null; if (nb !== s.needBy) { changed.push(`need-by ${s.needBy ? fmt(s.needBy) : 'unknown'} → ${nb ? fmt(nb) : 'unknown'}`); s.needBy = nb; }
+    const oc = v('origin'); if (oc && oc !== s.originCo) { changed.push(`origin → ${vendor(oc).name}`); s.originCo = oc; s.origin = ORIGIN_LABEL[oc] || vendor(oc).name; }
+    const port = v('port') || null; if (port !== s.port) { changed.push(`port → ${port || 'none'}`); s.port = port; }
+    const dest = v('dest').trim(); if (dest && dest !== s.dest) { changed.push(`destination → ${dest}`); s.dest = dest; }
+    const fw = v('forwarder') || null; if (fw !== s.forwarder) { changed.push(`forwarder → ${fw ? vendor(fw).name : 'none'}`); s.forwarder = fw; }
+    const cr = v('carrier') || null; if (cr !== s.carrier) { changed.push(`carrier → ${cr ? vendor(cr).name : 'none'}`); s.carrier = cr; }
+    const pl = v('placed') || null; if (pl !== s.placedAt) { changed.push(`placed ${s.placedAt ? fmt(s.placedAt) : 'not placed'} → ${pl ? fmt(pl) : 'not placed'}`); s.placedAt = pl; if (pl && s.stage < 0) s.stage = 0; if (!pl) { s.stage = -1; s.actual = {}; } }
+    if (!changed.length) { toast('No changes to save.'); return; }
+    p.activity.push([iso(TODAY), `${s.name}: ${changed.join('; ')}. Milestones recalculated.`]);
+    openShips.add(s.id); toast(`<b>Saved.</b> ${changed.length} change${changed.length > 1 ? 's' : ''} to ${esc(s.name)}; milestones recalculated.`); go('po-' + p.id.slice(3));
+  },
+  restoreDraft(tid) { thread(tid).draftDismissed = false; render(); },
+  threadStatus(tid, status) { const t = thread(tid); t.status = status; t.unread = false; toast(status === 'closed' ? '<b>Closed.</b> A new message from them reopens it.' : '<b>Reopened.</b>'); render(); },
+  assign(tid, who) { const t = thread(tid); t.assignee = who || null; toast(`<b>Assigned</b> to ${TEAM[who] || 'no one'}.`); render(); },
+};
+
+/* ---------- small components ---------- */
+const KB = { good:'active', warn:'pending', crit:'danger', info:'info', muted:'inactive' };
+const sb = (k, t) => `<span class="status-badge ${k}"><span class="status-dot"></span>${esc(t)}</span>`;
+const pill = h => sb(KB[h.k] || 'inactive', h.t);
+const detailCard = (title, right, body, flush) => `<div class="detail-card"><div class="detail-card-header"><h3>${title}</h3>${right ? `<span class="card-note">${right}</span>` : ''}</div><div class="detail-card-body ${flush ? 'flush' : ''}">${body}</div></div>`;
+const statCard = (label, n, icon, color, link) => link
+  ? `<a class="stat-card" href="#${link.route}" ${link.group ? `onclick="T.groupBy='${link.group}';groupBy='${link.group}'"` : ''} title="Open ${esc(link.label)}"><div class="stat-card-header"><span class="stat-label">${label}</span><div class="stat-icon ${color}"><i class="bi bi-${icon}"></i></div></div><div class="stat-value">${n}</div><div class="stat-link">${esc(link.label)} <i class="bi bi-arrow-right-short"></i></div></a>`
+  : `<div class="stat-card"><div class="stat-card-header"><span class="stat-label">${label}</span><div class="stat-icon ${color}"><i class="bi bi-${icon}"></i></div></div><div class="stat-value">${n}</div></div>`;
+
+/* ---------- performance over time (seeded sample series; real build reads the same rows from the database) ---------- */
+const perf = { mode:'weekly', year:2026, month:9 };
+const seeded = n => { const x = Math.sin(n * 9301 + 49297) * 233280; return x - Math.floor(x); };
+const DAY0 = new Date(2024, 0, 1);
+const METRIC_KEYS = ['pos','sqftOrdered','placed','delivered','late','sqftDelivered','invoiced','crs','crsApproved','compSum','daysSum','replySum','replies'];
+function dayMetrics(dt) {
+  const i = Math.round((dt - DAY0) / DAY); const r = k => seeded(i * 13 + k); const growth = 1 + i / 1100;
+  const dow = dt.getDay(); const wk = dow === 0 || dow === 6 ? 0.1 : 1;
+  const pos = (r(1) < 0.26 * wk * growth ? 1 : 0) + (r(2) < 0.07 * wk * growth ? 1 : 0);
+  const sqftOrdered = pos ? pos * Math.round((40000 + r(3) * 160000) / 1000) * 1000 : 0;
+  const placed = r(4) < 0.34 * wk * growth ? 1 : 0;
+  const delivered = r(5) < 0.32 * wk * growth ? 1 : 0;
+  const late = delivered && r(6) < (0.22 - Math.min(0.12, i / 9000)) ? 1 : 0;
+  const sqftDelivered = delivered ? (r(7) < 0.72 ? 50000 : Math.round((4000 + r(8) * 16000) / 1000) * 1000) : 0;
+  const invoiced = sqftDelivered * (2.85 + r(9) * 0.5);
+  const crs = r(10) < 0.38 * wk ? 1 : 0; const crsApproved = crs && r(11) < 0.68 ? 1 : 0;
+  const comp = pos ? (38 + r(12) * 50 + Math.min(12, i / 90)) * pos : 0;
+  const days = placed ? 2 + r(13) * 11 : 0;
+  const replies = r(14) < 0.55 * wk ? 1 : 0; const replyHrs = replies ? 1 + r(15) * 18 : 0;
+  return { pos, sqftOrdered, placed, delivered, late, sqftDelivered, invoiced, crs, crsApproved, compSum: comp, daysSum: days, replySum: replyHrs, replies };
+}
+function aggregate(from, to) {
+  const acc = Object.fromEntries(METRIC_KEYS.map(k => [k, 0]));
+  if (d(from) > TODAY) return null;
+  for (let dt = d(from); dt <= to && dt <= TODAY; dt = addDays(dt, 1)) { const m = dayMetrics(dt); METRIC_KEYS.forEach(k => acc[k] += m[k]); }
+  return acc;
+}
+const money = n => '$' + Math.round(n).toLocaleString('en-US');
+const pct = (a, b) => b ? (100 * a / b).toFixed(1) + '%' : '—';
+const PERF_ROWS = [
+  ['POs received', a => a.pos.toLocaleString(), a => a.pos],
+  ['Sq ft ordered', a => a.sqftOrdered.toLocaleString(), a => a.sqftOrdered],
+  ['Shipments placed', a => a.placed.toLocaleString(), a => a.placed],
+  ['Shipments delivered', a => a.delivered.toLocaleString(), a => a.delivered],
+  ['Sq ft delivered', a => a.sqftDelivered.toLocaleString(), a => a.sqftDelivered, 'row-highlight'],
+  ['Invoiced', a => money(a.invoiced), a => a.invoiced, 'row-highlight'],
+  ['On-time delivery', a => pct(a.delivered - a.late, a.delivered), a => a.delivered ? (a.delivered - a.late) / a.delivered : null],
+  ['Late deliveries', a => a.late.toLocaleString(), a => -a.late, 'row-negative'],
+  ['Avg days PO → placed', a => a.placed ? (a.daysSum / a.placed).toFixed(1) : '—', a => a.placed ? -(a.daysSum / a.placed) : null],
+  ['PO completeness at intake', a => a.pos ? (a.compSum / a.pos).toFixed(0) + '%' : '—', a => a.pos ? a.compSum / a.pos : null],
+  ['Change requests', a => a.crs.toLocaleString(), a => -a.crs, 'row-negative'],
+  ['Change requests approved', a => pct(a.crsApproved, a.crs), a => a.crs ? a.crsApproved / a.crs : null],
+  ['Avg reply time (hours)', a => a.replies ? (a.replySum / a.replies).toFixed(1) : '—', a => a.replies ? -(a.replySum / a.replies) : null],
+];
+const ORD = ['1st','2nd','3rd','4th','5th','6th'];
+const mdy = (dt, y) => `${MONTHS[dt.getMonth()]} ${String(dt.getDate()).padStart(2,'0')}${y ? ', ' + dt.getFullYear() : ''}`;
+function perfColumns() {
+  const { mode, year, month } = perf; const cols = [];
+  if (mode === 'weekly') {
+    const first = new Date(year, month, 1), last = new Date(year, month + 1, 0);
+    let ws = addDays(first, -((first.getDay() + 6) % 7)); let n = 0;
+    while (ws <= last) { const we = addDays(ws, 6); cols.push({ label: `${mdy(ws)} -`, label2: mdy(we, true), sub: `${ORD[n]} Week`, from: ws, to: we }); ws = addDays(ws, 7); n++; }
+  } else if (mode === 'monthly') { for (let m = 0; m < 12; m++) cols.push({ label: MONTHS[m], sub: String(year), from: new Date(year, m, 1), to: new Date(year, m + 1, 0) }); }
+  else if (mode === 'quarterly') { for (let q = 0; q < 4; q++) cols.push({ label: `Q${q + 1}`, sub: String(year), from: new Date(year, q * 3, 1), to: new Date(year, q * 3 + 3, 0) }); }
+  else if (mode === 'yearly') { for (let y = 2024; y <= 2026; y++) cols.push({ label: String(y), sub: y === 2026 ? 'year to date' : 'full year', from: new Date(y, 0, 1), to: new Date(y, 11, 31) }); }
+  else cols.push({ label: 'All time', sub: 'since Jan 2024', from: DAY0, to: TODAY });
+  return cols;
+}
+function perfTable() {
+  const cols = perfColumns(); const aggs = cols.map(c => aggregate(c.from, c.to));
+  const navLabel = perf.mode === 'weekly' ? `${['January','February','March','April','May','June','July','August','September','October','November','December'][perf.month]} ${perf.year}` : (perf.mode === 'monthly' || perf.mode === 'quarterly') ? String(perf.year) : '';
+  const nav = navLabel ? `<div class="period-nav"><button class="nav-arrow" onclick="act.perfNav(-1)" aria-label="Previous"><i class="bi bi-chevron-left"></i></button><span class="year-label">${navLabel}</span><button class="nav-arrow" onclick="act.perfNav(1)" aria-label="Next" ${(perf.mode === 'weekly' ? perf.year === 2026 && perf.month >= 9 : perf.year >= 2026) ? 'disabled' : ''}><i class="bi bi-chevron-right"></i></button></div>` : '';
+  const thisWeek = aggregate(addDays(TODAY, -6), TODAY);
+  return `<div class="period-card"><div class="period-card-header">
+    <div class="period-toggle">${[['lifetime','Lifetime'],['yearly','Yearly'],['quarterly','Quarterly'],['monthly','Monthly'],['weekly','Weekly']].map(m => `<button class="toggle-btn ${perf.mode === m[0] ? 'active' : ''}" onclick="act.perfMode('${m[0]}')">${m[1]}</button>`).join('')}</div>
+    <div class="d-flex align-items-center gap-3 flex-wrap"><span class="period-today">Last 7 days: ${thisWeek.sqftDelivered.toLocaleString()} sq ft delivered · ${money(thisWeek.invoiced)} invoiced</span>${nav}</div></div>
+    <div class="table-responsive"><table class="period-table"><thead><tr><th></th>${cols.map(c => `<th>${c.label}${c.label2 ? `<br>${c.label2}` : ''}<span class="sub">${c.sub}</span></th>`).join('')}</tr></thead><tbody>
+    ${PERF_ROWS.map(row => `<tr class="${row[3] || ''}"><td>${row[0]}</td>${aggs.map((a, i) => { if (!a) return '<td class="empty-cell">&mdash;</td>'; const prev = i > 0 ? aggs[i - 1] : null; const cur = row[2](a), was = prev ? row[2](prev) : null; const delta = (cur != null && was != null && was !== 0 && i > 0 && !(cols[i].to > TODAY)) ? (cur - was) / Math.abs(was) : null; return `<td>${row[1](a)}${delta != null && Math.abs(delta) >= 0.005 ? `<span class="delta ${delta > 0 ? 'up' : 'down'}">${delta > 0 ? '▲' : '▼'}${Math.abs(delta * 100).toFixed(0)}%</span>` : ''}</td>`; }).join('')}</tr>`).join('')}
+    </tbody></table></div></div>`;
+}
+const pageHeader = (title, sub, actions, opts = {}) => `<div class="page-header"><div class="page-header-left">${opts.back ? `<a class="back-btn" href="#${opts.back}" title="Back"><i class="bi bi-arrow-left"></i></a>` : ''}<div class="minw0"><h1>${title}${opts.id ? `<span class="record-id">${opts.id}</span>` : ''}</h1>${sub ? `<div class="page-subtitle">${sub}</div>` : ''}</div></div>${actions ? `<div class="page-header-actions">${actions}</div>` : ''}</div>`;
+const actionItem = (k, text, sub, btns, extra = '') => `<li class="action-item ${extra}"><span class="stripe ${k === 'muted' ? '' : k}"></span><div class="flex-grow-1 minw0"><div class="action-text">${text}</div>${sub ? `<div class="action-sub">${sub}</div>` : ''}</div>${btns ? `<div class="action-btns">${btns}</div>` : ''}</li>`;
+const tableFooter = (n, what) => `<div class="table-footer"><div><nav><ul class="pagination pagination-sm"><li class="page-item disabled"><a class="page-link" href="#"><i class="bi bi-chevron-left"></i></a></li><li class="page-item active"><a class="page-link" href="#">1</a></li><li class="page-item disabled"><a class="page-link" href="#"><i class="bi bi-chevron-right"></i></a></li></ul></nav></div><span>Showing ${n ? `1–${n}` : 0} of ${n} ${what}</span></div>`;
+const searchBox = placeholder => `<div class="toolbar-search"><i class="bi bi-search search-icon"></i><input type="text" class="form-control" id="q" placeholder="${placeholder}" value="${esc(q)}" oninput="act.search(this.value)"></div>`;
+/* Toolbar tools: icon only until a non-default option is chosen, then icon + label. Each opens a dropdown with a header and a check on the current choice. The first option is the default. */
+const T = { groupBy:'order', orderFilter:'all', orderSort:'default', intakeFilter:'all', intakeSort:'newest', coContext:'All', coSort:'newest', chatFilter:'all', chatSort:'newest', vendorFilter:'all', vendorSort:'default', custFilter:'all', custSort:'default', contactFilter:'all', contactSort:'default' };
+function toolDropdown(key, icon, label, options) {
+  const value = T[key]; const def = options[0][0]; const sel = options.find(o => o[0] === value) || options[0]; const on = value !== def;
+  return `<div class="dropdown"><button type="button" class="toolbar-btn dropdown-toggle ${on ? 'has-value' : ''}" data-bs-toggle="dropdown" aria-expanded="false" title="${label}"><i class="bi bi-${icon}"></i>${on ? `<span>${esc(sel[1])}</span>` : ''}</button><ul class="dropdown-menu dropdown-menu-end"><li><h6 class="dropdown-header">${label}</h6></li>${options.map(o => `<li><a class="dropdown-item d-flex justify-content-between align-items-center gap-3 ${o[0] === value ? 'active' : ''}" href="#" onclick="event.preventDefault();act.tool('${key}','${o[0]}')">${esc(o[1])}${o[0] === value ? '<i class="bi bi-check-lg"></i>' : ''}</a></li>`).join('')}</ul></div>`;
+}
+const filterTool = (key, options) => toolDropdown(key, 'funnel', 'Filter', options);
+const sortTool = (key, options) => toolDropdown(key, 'arrow-down-up', 'Sort', options);
+const groupTool = () => toolDropdown('groupBy', 'collection', 'Group by', [['order','Orders'],['shipment','Shipments']]);
+const filterSort = () => filterTool('vendorFilter', [['all','Everything']]) + sortTool('vendorSort', [['default','Default order']]);
+const byName = k => (a, b) => (a[k] || '').localeCompare(b[k] || '');
+const custOptions = () => [['all','All customers'], ...customers.map(c => [c.id, c.name])];
+/* Tabs (secondary page items) on the left, tools on the right, one row. Pass '' for tabs on pages without them. */
+const pageNav = (tabs, tools) => `<div class="page-nav">${tabs || '<span></span>'}<div class="toolbar-right">${tools}</div></div>`;
+const toolbar = (placeholder, right = '') => pageNav('', searchBox(placeholder) + right + filterSort());
+const openDesc = new Set();
+function tabDesc(html) {
+  const open = openDesc.has(route);
+  const plain = html.replace(/<[^>]+>/g, ''); const first = plain.split(/(?<=[.!?])\s+/)[0];
+  return `<button type="button" class="info-strip ${open ? 'open' : ''}" aria-expanded="${open}" title="${open ? 'Collapse' : 'Read more'}" onclick="act.toggleDesc()"><i class="bi bi-info-circle"></i><span class="info-text">${open ? html : esc(first)}</span><i class="bi bi-chevron-down info-chev"></i></button>`;
+}
+/* items: [routeId, label, count|null, color] */
+const MAX_TABS = 4;
+const tabBadge = t => t[2] != null ? ` <span class="badge bg-${t[3]||'secondary'} bg-opacity-10 text-${t[3]||'secondary'}">${t[2]}</span>` : '';
+const tabLi = (t, active) => `<li class="nav-item"><a class="nav-link ${active===t[0]?'active':''}" href="#${t[0]}">${t[1]}${tabBadge(t)}</a></li>`;
+/* More than MAX_TABS: show the first few and roll the rest into a More dropdown. The active tab always stays visible. */
+function tabsUl(items, active) {
+  if (items.length <= MAX_TABS) return `<ul class="nav nav-tabs">${items.map(t => tabLi(t, active)).join('')}</ul>`;
+  let visible = items.slice(0, MAX_TABS), more = items.slice(MAX_TABS);
+  const ai = more.findIndex(t => t[0] === active);
+  if (ai >= 0) { const swapped = visible[MAX_TABS - 1]; visible = [...visible.slice(0, MAX_TABS - 1), more[ai]]; more = [swapped, ...more.filter((_, i) => i !== ai)]; }
+  return `<ul class="nav nav-tabs">${visible.map(t => tabLi(t, active)).join('')}<li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button" aria-expanded="false" onclick="event.preventDefault()">More <span class="badge bg-secondary bg-opacity-10 text-secondary">${more.length}</span></a><ul class="dropdown-menu">${more.map(t => `<li><a class="dropdown-item d-flex justify-content-between align-items-center gap-3" href="#${t[0]}">${t[1]}${t[2] != null ? `<span class="badge bg-secondary bg-opacity-10 text-secondary">${t[2]}</span>` : ''}</a></li>`).join('')}</ul></li></ul>`;
+}
+const slug = s => s.toLowerCase().replace(/\s+/g, '-');
+const ROLE_TABS = [['Factory','Factories'],['Freight forwarder','Freight forwarders'],['Customs broker','Customs brokers'],['Drayage carrier','Drayage carriers'],['LTL carrier','LTL carriers'],['Warehouse','Warehouses']];
+const custStatus = c => !c.onboarded ? 'onboarding' : pos.some(p => p.customer === c.id) ? 'active' : 'inactive';
+const CUST_TABS = [['customers','All customers'],['customers-active','Active'],['customers-onboarding','Onboarding'],['customers-inactive','Inactive']];
+const CONTACT_TABS = [['contacts','All contacts'],['contacts-customers','Customer contacts'],['contacts-vendors','Vendor contacts']];
+const CO_TABS = [['changes','Pending','pending','warning'],['changes-approved','Approved','approved','success'],['changes-modified','Modified','modified','primary'],['changes-rejected','Rejected','rejected','danger']];
+const dateInput = id => `<input type="date" class="form-control form-control-sm mono" id="${id}" min="${iso(TODAY)}" style="max-width:11rem">`;
+const matches = (...parts) => !q || parts.join(' ').toLowerCase().includes(q);
+
+function msList(s, hideDates) {
+  const m = milestones(s);
+  return `<ul class="ms">${m.map(x => { const last = x.i === m.length - 1; const late = !x.done && s.needBy && last && diffDays(x.date, s.needBy) > 0; const hide = hideDates && !x.done && !last;
+    return `<li class="${x.done?'done':''} ${x.now?'now':''} ${(!x.done && !x.now)?'future':''} ${late?'late':''}"><span class="k"></span><span class="n">${esc(x.name)}</span><span class="dt">${hide ? '—' : (x.actual ? '' : (s.placedAt || s.needBy ? 'est. ' : '')) + fmt(x.date)}</span></li>`; }).join('')}</ul>`;
+}
+
+function shipCard(s, opts = {}) {
+  const h = health(s); const pb = placeBy(s);
+  const collapsible = !!opts.office; const open = !collapsible || openShips.has(s.id);
+  const nameBlock = renaming === s.id
+    ? `<div class="input-group input-group-sm" style="max-width:18rem"><input class="form-control" id="rn-${s.id}" value="${esc(s.name)}" onkeydown="if(event.key==='Enter')act.saveName('${s.id}');if(event.key==='Escape')act.cancelRename()"><button class="btn btn-primary" onclick="act.saveName('${s.id}')">Save</button><button class="btn btn-outline-secondary" onclick="act.cancelRename()">Cancel</button></div>`
+    : `<h4 class="ship-name">${esc(s.name)}</h4>${opts.office ? `<button class="btn btn-link btn-sm p-0 text-body-secondary" onclick="act.rename('${s.id}')" title="Rename shipment"><i class="bi bi-pencil"></i></button>` : ''}`;
+  const badges = `${pill(h)}${s.invoiced ? sb('active', 'Invoiced') : ''}<span class="ship-kind">${s.type === 'container' ? 'Ocean container' : 'LTL / pallet'}</span>`;
+  const summary = `<span class="mono">${sqft(s.sqft)}</span> · need-by <span class="mono">${s.needBy ? fmt(s.needBy) : '?'}</span> · ${esc(stageName(s))}${s.placedAt || s.needBy ? ` · est. delivery <span class="mono">${fmt(eta(s))}</span>` : ''}`;
+  const head = collapsible ? `<div class="ship-head"><button class="ship-toggle" type="button" aria-expanded="${open}" aria-label="Toggle ${esc(s.name)}" onclick="act.toggleShip('${s.id}')"><i class="bi bi-chevron-right chev"></i></button><div class="ship-sum"><div class="d-flex align-items-center gap-2 flex-wrap">${nameBlock}${badges}</div><div class="item-sub">${summary}</div></div><a class="btn btn-sm btn-outline-secondary flex-shrink-0" href="#ship-${s.id}" title="Edit shipment"><i class="bi bi-pencil-square me-1"></i>Edit</a></div>` : '';
+  const body = `<div class="ship-body" ${open ? '' : 'hidden'}>
+    <div class="minw0">
+      ${collapsible ? '' : `<div class="d-flex align-items-center gap-2 flex-wrap mb-2">${nameBlock}${badges}</div>`}
+      <div class="detail-grid">
+        <div class="detail-field"><div class="detail-label">Quantity</div><div class="detail-value mono">${sqft(s.sqft)}</div></div>
+        <div class="detail-field"><div class="detail-label">Need-by</div><div class="detail-value mono">${s.needBy ? fmtLong(s.needBy) : sb('pending', 'unknown')}</div></div>
+        <div class="detail-field full-width"><div class="detail-label">Route</div><div class="detail-value">${esc(s.origin)}${s.port ? ` → ${esc(s.port)} port` : ''} → ${esc(s.dest)}</div>${opts.office ? `<div class="item-sub mt-1">${[s.originCo, s.forwarder, s.carrier].filter(Boolean).map(v => `<a href="#vendor-${v}" class="text-decoration-none">${esc(vendor(v).name)}</a> <span class="text-body-secondary">(${esc(vendorRoleOn(v, s))})</span>`).join(' · ')}</div>` : ''}</div>
+        ${s.placedAt ? `<div class="detail-field"><div class="detail-label">Placed</div><div class="detail-value mono">${fmtLong(s.placedAt)}</div></div>` : `<div class="detail-field"><div class="detail-label">Place by</div><div class="detail-value mono">${pb ? fmtLong(pb) + ` <span class="text-body-secondary">(${rel(pb)})</span>` : '—'}</div></div>`}
+        <div class="detail-field"><div class="detail-label">Est. delivery</div><div class="detail-value mono">${s.placedAt || s.needBy ? fmtLong(eta(s)) : '—'}</div></div>
+        ${s.type === 'container' && s.placedAt && s.stage < 2 ? `<div class="detail-field full-width"><div class="detail-label">Request booking by</div><div class="detail-value mono">${fmtLong(addDays(milestones(s)[1].date, -C.bookingLead))}</div></div>` : ''}
+      </div>
+      ${opts.office && !s.placedAt && s.needBy ? `<button class="btn btn-sm btn-primary mt-3" onclick="act.completeAction('place-${s.id}','Factory PO drafted for ${esc(s.name)}.')"><i class="bi bi-send me-1"></i>Place with ${esc(s.origin.split(',')[0])}</button>` : ''}
+    </div>
+    <div class="minw0">${msList(s, opts.hideDates)}</div>
+  </div>`;
+  return `<div class="ship ${open ? 'open' : ''}">${head}${body}</div>`;
+}
+
+/* ---------- views: back office ---------- */
+function viewToday() {
+  const inProd = shipments.filter(s => s.placedAt && !isDelivered(s)).length;
+  const queued = shipments.filter(s => !s.placedAt).length;
+  const pendingCO = changes.filter(c => c.status === 'pending').length;
+  const atRisk = shipments.filter(s => health(s).k === 'crit').length;
+  const unknown = shipments.filter(s => !s.needBy).length;
+  const acts = nextActions();
+  return pageHeader('Dashboard', 'What the system proposes next. Approve to let it send; open to change it first. Nothing goes out without a click.', `<span class="proto-tag">Monday, Oct 26, 2026</span>`) +
+  `<div class="stat-cards">${statCard('Shipments in production', inProd, 'box-seam', 'blue', { route:'orders-production', group:'shipment', label:'Production shipments' })}${statCard('Shipments queued', queued, 'hourglass-split', 'gray', { route:'orders-queue', group:'shipment', label:'Queued shipments' })}${statCard('Need-by dates unknown', unknown, 'calendar-x', 'amber', { route:'orders-queue', group:'shipment', label:'Queue by shipment' })}${statCard('At risk of missing need-by', atRisk, 'exclamation-triangle', atRisk ? 'red' : 'green', { route:'orders-production', group:'shipment', label:'Production by shipment' })}${statCard('Change requests pending', pendingCO, 'arrow-left-right', pendingCO ? 'amber' : 'green', { route:'changes', label:'Pending change requests' })}</div>
+  ${perfTable()}
+  <div class="detail-card mb-3"><div class="detail-card-header"><h3>Next intended actions</h3><span class="card-note">${acts.length} proposed</span></div>
+    <ul class="action-list">${acts.length ? acts.map(a => actionItem(a.k, esc(a.t), esc(a.d), `<a class="btn btn-sm btn-outline-secondary" href="#${a.link}">Open</a>${a.open ? '' : a.fn ? `<button class="btn btn-sm btn-primary" onclick="${a.fn}">${esc(a.btn)}</button>` : `<button class="btn btn-sm btn-primary" onclick="act.completeAction('${a.id}', '${esc(a.toast).replace(/'/g, '&#39;')}')">${esc(a.btn)}</button>`}`)).join('') : '<li class="empty">Nothing waiting. The system proposes the next action as emails arrive or milestones come due.</li>'}</ul></div>
+  <div class="dashboard-grid">
+    <div class="detail-card"><div class="detail-card-header"><h3>Moving this week</h3><a class="card-action" href="#orders-production">View all</a></div>
+      <ul class="action-list">${shipments.filter(s => s.placedAt && !isDelivered(s)).map(s => { const n = nextMs(s); return actionItem(health(s).k, `<a href="#po-${s.po.slice(3)}" class="text-decoration-none">${esc(po(s.po).job)}</a> <span class="text-body-secondary fw-normal">· ${esc(s.name)}</span>`, `${esc(stageName(s))} → next: ${esc(n.name)} <span class="mono">${fmt(n.date)}</span>`, pill(health(s))); }).join('')}</ul></div>
+    <div class="detail-card"><div class="detail-card-header"><h3>Recent intake</h3><a class="card-action" href="#intake">View all</a></div>
+      <ul class="action-list">${intake.slice(0, 4).map(i => actionItem({queued:'warn',change:'info',review:'crit',resolved:'muted'}[i.result], `<span class="d-block text-truncate" style="font-size:13px">${esc(i.subject)}</span>`, `${esc(i.from)} · ${esc(i.received.slice(5))}`, intakeBadge(i))).join('')}</ul></div>
+  </div>`;
+}
+
+const intakeBadge = i => ({ queued: sb('pending', 'Queued · auto-replied'), change: sb('info', 'Change request'), review: sb('danger', 'Needs a human'), resolved: sb('inactive', 'Handled') }[i.result]);
+const ordersTabs = tab => `<ul class="nav nav-tabs">
+  <li class="nav-item"><a class="nav-link ${tab==='intake'?'active':''}" href="#intake">Intake <span class="badge bg-secondary bg-opacity-10 text-secondary">${intake.filter(i => i.result !== 'resolved').length}</span></a></li>
+  <li class="nav-item"><a class="nav-link ${tab==='queue'?'active':''}" href="#orders-queue">Queue <span class="badge bg-warning bg-opacity-10 text-warning">${pos.filter(p=>p.lane==='queue').length}</span></a></li>
+  <li class="nav-item"><a class="nav-link ${tab==='production'?'active':''}" href="#orders-production">Production <span class="badge bg-success bg-opacity-10 text-success">${pos.filter(p=>p.lane==='production').length}</span></a></li></ul>`;
+
+const ordersHeader = () => pageHeader('Orders', 'Every purchase order from the moment it arrives to the last delivery and invoice.', `<button class="btn btn-outline-secondary btn-sm" onclick="act.stub('<b>Prototype.</b> Manual entry form would open here.')"><i class="bi bi-plus-lg me-1"></i> Enter a PO by hand</button>`);
+const TAB_DESC = {
+  intake: 'Everything that arrives at <span class="mono">orders@surfaceedge.com</span>. The system reads the email and attachments, matches the customer, finds gaps, and replies before anyone touches it. New customers start their account package here.',
+  queue: 'Captured but not actionable yet: waiting on a need-by date or paperwork, paused by the customer, or too far out to place with the factory.',
+  production: 'The production line: orders placed with a factory or warehouse and moving through milestones to delivery and invoice.',
+};
+const ORDER_SORTS = [['default','Default order'],['customer','Customer A–Z'],['sqft','Sq ft, largest first'],['needby','Need-by, soonest first']];
+const orderTools = () => groupTool() + filterTool('orderFilter', custOptions()) + sortTool('orderSort', ORDER_SORTS);
+
+function viewIntake() {
+  const rows = intake.filter(i => (T.intakeFilter === 'all' || i.result === T.intakeFilter) && matches(i.subject, i.from, i.match)).sort((a, b) => T.intakeSort === 'oldest' ? (a.received > b.received ? 1 : -1) : (b.received > a.received ? 1 : -1));
+  const tools = searchBox('Search intake…') + filterTool('intakeFilter', [['all','All results'],['queued','Queued · auto-replied'],['change','Change requests'],['review','Needs a human'],['resolved','Handled']]) + sortTool('intakeSort', [['newest','Newest first'],['oldest','Oldest first']]);
+  return ordersHeader() + pageNav(ordersTabs('intake'), tools) + tabDesc(TAB_DESC.intake) +
+  `<div class="data-table-wrapper mb-4"><div class="table-responsive"><table class="table table-hover"><thead><tr><th>Received</th><th>Email</th><th>Customer match</th><th>What the system found</th><th>Result</th><th style="width:1%"></th></tr></thead><tbody>
+    ${rows.map(i => `<tr class="${i.result==='resolved'?'opacity-50':''}"><td class="mono text-nowrap">${esc(i.received.slice(5))}</td><td class="item-name" style="min-width:220px">${esc(i.subject)}<div class="item-sub">${esc(i.from)} · ${esc(i.attach)}</div></td><td>${esc(i.match)}</td><td style="min-width:220px"><div class="tag-list">${i.flags.map(f => `<span class="tag">${esc(f)}</span>`).join('')}</div><div class="item-sub mt-1">Auto-reply: ${esc(i.reply)}</div></td><td>${intakeBadge(i)}</td><td>${i.link ? `<a class="btn btn-sm btn-outline-secondary text-nowrap" href="#${i.link.startsWith('CO') ? 'changes' : 'po-' + i.link.slice(3)}">Open ${esc(i.link)}</a>` : (i.result === 'review' ? `<button class="btn btn-sm btn-primary text-nowrap" onclick="act.intakeResolve('${i.id}')">Mark handled</button>` : '')}</td></tr>`).join('')}
+  </tbody></table></div>${tableFooter(rows.length, 'emails')}</div>
+  ${detailCard('Example auto-reply', 'sent for PO-4515 at 6:53 am, no human involved', `<div class="email"><div class="hd">To: Luis Ortega (TCC) · Cc: Isaac Reyes · Subject: We received TCC PO 2026-0502 (Sugarloaf Student Housing)</div>
+    <p>Hi Luis, we received PO 2026-0502 for 150,000 sq ft of Summit Hickory and added it to your queue. Before we can place it with the factory we need:</p>
+    <p>1. Ship-to address for the Sugarloaf job site<br>2. Need-by dates for shipments 2 and 3 (shipment 1 is set for Mar 1, 2027)</p>
+    <p>You can add these in your portal: <a href="#portal">surfaceedge.com/orders</a>. Shipment 1 must be placed by <b>Nov 23</b> to arrive by Mar 1.</p>
+    <p>Still open on your other orders: Peachtree Commons balance pull-in is under review.</p></div>`)}`;
+}
+
+function viewOrdersByShipment(tab) {
+  const FAR = new Date(2100,0,1);
+  let list = shipments.filter(s => (tab === 'queue' ? !s.placedAt : !!s.placedAt)).map(s => ({ s, p: po(s.po) })).filter(({ s, p }) => (T.orderFilter === 'all' || p.customer === T.orderFilter) && matches(s.name, p.id, p.job, cust(p.customer).name, p.site))
+    .sort((a, b) => tab === 'queue' ? ((placeBy(a.s) || FAR) - (placeBy(b.s) || FAR)) : ((nextMs(a.s)?.date || FAR) - (nextMs(b.s)?.date || FAR)));
+  if (T.orderSort === 'customer') list.sort((a, b) => cust(a.p.customer).name.localeCompare(cust(b.p.customer).name));
+  if (T.orderSort === 'sqft') list.sort((a, b) => b.s.sqft - a.s.sqft);
+  if (T.orderSort === 'needby') list.sort((a, b) => (a.s.needBy ? d(a.s.needBy) : FAR) - (b.s.needBy ? d(b.s.needBy) : FAR));
+  return `<div class="data-table-wrapper"><div class="table-responsive"><table class="table table-hover"><thead><tr><th>Shipment</th><th>Customer · Job</th><th>Kind</th><th class="num">Sq ft</th><th>Need-by</th><th>Status</th><th>${tab==='queue'?'Place by':'Stage → next milestone'}</th></tr></thead><tbody>
+    ${list.map(({ s, p }) => { const h = health(s); const pb = placeBy(s); const n = nextMs(s);
+      const last = tab === 'queue'
+        ? (pb ? `<span class="mono">${fmt(pb)}</span> <span class="item-sub">${rel(pb)}</span>` : '<span class="text-body-secondary">unknown</span>')
+        : (isDelivered(s) ? `<span class="text-body-secondary">Delivered ${fmt(eta(s))}</span>` : `${esc(stageName(s))}<div class="item-sub">→ ${esc(n.name)} <span class="mono">${fmt(n.date)}</span></div>`);
+      return `<tr class="link" onclick="go('po-${p.id.slice(3)}')"><td class="item-name"><a href="#po-${p.id.slice(3)}">${esc(s.name)}</a><div class="item-sub mono">${p.id}</div></td><td>${esc(cust(p.customer).name)}<div class="item-sub">${esc(p.job)} · ${esc(p.site)}</div></td><td><span class="ship-kind">${s.type === 'container' ? 'Ocean container' : 'LTL / pallet'}</span><div class="item-sub">${esc(s.origin)}${s.port ? ' → ' + esc(s.port) : ''}</div></td><td class="num">${s.sqft.toLocaleString()}</td><td class="mono">${s.needBy ? fmt(s.needBy) : sb('pending', 'no date')}</td><td>${pill(h)}</td><td>${last}</td></tr>`; }).join('')}
+    ${list.length ? '' : '<tr><td colspan="7" class="empty">No shipments match.</td></tr>'}
+  </tbody></table></div>${tableFooter(list.length, 'shipments')}</div>`;
+}
+
+function viewOrders(tab) {
+  const head = ordersHeader() + pageNav(ordersTabs(tab), searchBox(groupBy === 'shipment' ? 'Search shipments…' : 'Search orders…') + orderTools()) + tabDesc(TAB_DESC[tab]);
+  if (groupBy === 'shipment') return head + viewOrdersByShipment(tab);
+  const FAR = new Date(2100,0,1);
+  const list = pos.filter(p => (tab === 'queue' ? p.lane === 'queue' : p.lane === 'production') && (T.orderFilter === 'all' || p.customer === T.orderFilter) && matches(p.id, p.job, cust(p.customer).name, p.site));
+  if (T.orderSort === 'customer') list.sort((a, b) => cust(a.customer).name.localeCompare(cust(b.customer).name));
+  if (T.orderSort === 'sqft') list.sort((a, b) => b.sqft - a.sqft);
+  if (T.orderSort === 'needby') { const first = p => { const ds = shipsOf(p.id).filter(s => s.needBy).map(s => d(s.needBy)); return ds.length ? Math.min(...ds) : FAR; }; list.sort((a, b) => first(a) - first(b)); }
+  return head +
+  `<div class="data-table-wrapper"><div class="table-responsive"><table class="table table-hover"><thead><tr><th>PO</th><th>Customer · Job</th><th class="num">Sq ft</th><th>Shipments</th><th>${tab==='queue'?'Waiting on':'Status'}</th><th>${tab==='queue'?'Place by':'Next milestone'}</th></tr></thead><tbody>
+    ${list.map(p => { const sh = shipsOf(p.id); const h = poHealth(p);
+      const nextCol = tab === 'queue'
+        ? (() => { const dated = sh.filter(s => s.needBy && !s.placedAt).map(placeBy).sort((a,b)=>a-b); return dated.length ? `<span class="mono">${fmt(dated[0])}</span> <span class="item-sub">${rel(dated[0])}</span>` : '<span class="text-body-secondary">unknown</span>'; })()
+        : (() => { const live = sh.filter(s => s.placedAt && !isDelivered(s)).map(s => ({s, n: nextMs(s)})).sort((a,b)=>a.n.date-b.n.date)[0]; return live ? `${esc(live.n.name)} <span class="mono">${fmt(live.n.date)}</span><div class="item-sub">${esc(live.s.name)}</div>` : '<span class="text-body-secondary">—</span>'; })();
+      const statusCol = tab === 'queue' ? queueReasons(p).map(r => `<div style="font-size:13px">${esc(r)}</div>`).join('') : `${pill({k:h, t:PO_LABEL[h]})}<div class="item-sub mt-1">${sh.filter(isDelivered).length} of ${sh.length} delivered</div>`;
+      return `<tr class="link" onclick="go('po-${p.id.slice(3)}')"><td class="mono">${p.id}</td><td class="item-name"><a href="#po-${p.id.slice(3)}">${esc(cust(p.customer).name)}</a><div class="item-sub">${esc(p.job)} · ${esc(p.site)}</div></td><td class="num">${p.sqft.toLocaleString()}</td><td>${sh.map(s => `<div style="font-size:13px">${esc(s.name)} ${s.needBy ? `<span class="mono text-body-secondary">${fmt(s.needBy)}</span>` : sb('pending', 'no date')}</div>`).join('')}</td><td>${statusCol}</td><td>${nextCol}</td></tr>`; }).join('')}
+    ${list.length ? '' : '<tr><td colspan="6" class="empty">No orders match.</td></tr>'}
+  </tbody></table></div>${tableFooter(list.length, 'orders')}</div>`;
+}
+
+const CO_STATUS = { pending: ['pending', 'Pending'], approved: ['active', 'Approved'], rejected: ['danger', 'Rejected'], modified: ['info', 'Modified'] };
+const CONTEXT_ICON = { Shipment:'box-seam', Order:'file-earmark-text', Customer:'building', Vendor:'truck', Contact:'person' };
+function coRow(c, opts = {}) {
+  const st = sb(...CO_STATUS[c.status]); const t = coTarget(c);
+  return actionItem(c.status === 'pending' ? 'warn' : 'muted',
+    `<span class="mono">${c.id}</span> ${esc(c.type)} · ${t.html} ${st}${opts.showContext === false ? '' : ` <span class="tag"><i class="bi bi-${CONTEXT_ICON[c.context]} me-1"></i>${c.context}</span>`}`,
+    `<span class="mono">${esc(c.from)} → ${esc(c.to)}</span> · ${esc(c.by)} via ${esc(c.via)} · ${fmt(c.received)}${c.impact ? `<div class="mt-1"><b>Impact:</b> ${esc(c.impact)}</div>` : ''}${c.note ? `<div class="text-body-secondary">${CO_STATUS[c.status][1]} by ${esc(c.note)}</div>` : ''}`,
+    c.status === 'pending' ? `<button class="btn btn-sm btn-primary" onclick="act.decideCO('${c.id}','approved')"><i class="bi bi-check-lg me-1"></i>Approve</button><button class="btn btn-sm btn-outline-secondary" onclick="act.decideCO('${c.id}','modified')"><i class="bi bi-pencil me-1"></i>Modify</button><button class="btn btn-sm btn-outline-danger" onclick="act.decideCO('${c.id}','rejected')"><i class="bi bi-x-lg me-1"></i>Reject</button>` : '',
+    c.status !== 'pending' ? 'done' : '');
+}
+function viewChanges() {
+  const count = s => changes.filter(c => c.status === s).length;
+  let list = changes.filter(c => c.status === coTab && (coContext === 'All' || c.context === coContext) && matches(c.id, c.type, c.by, coTarget(c).label, c.from, c.to));
+  list = coSort === 'context' ? [...list].sort((a, b) => CONTEXTS.indexOf(a.context) - CONTEXTS.indexOf(b.context) || (b.received > a.received ? 1 : -1)) : [...list].sort((a, b) => b.received > a.received ? 1 : -1);
+  const contextSelect = filterTool('coContext', [['All','All contexts'], ...CONTEXTS.map(x => [x, `${x} (${changes.filter(c => c.status === coTab && c.context === x).length})`])]);
+  const sortToggle = sortTool('coSort', [['newest','Newest first'],['context','By context']]);
+  return pageHeader('Change requests', 'Every requested change, about anything and from anyone, lands here instead of an inbox. Approve, Modify, or Reject; the decision recalculates what it touches and sends the right email with the right emphasis.') +
+  pageNav(tabsUl(CO_TABS.map(t => [t[0], t[1], count(t[2]), t[3]]), CO_TABS.find(t => t[2] === coTab)[0]), searchBox('Search change requests…') + contextSelect + sortToggle) +
+  tabDesc({ pending:'Waiting on a decision from Surface Edge. The system drafts the impact; a person clicks.', approved:'Accepted as requested. Milestones, constraints, or records were updated and the requester was told.', modified:'Accepted with changes. A counter-proposal went back to the requester.', rejected:'Declined with a reason. The requester was told what would make it workable.' }[coTab]) +
+  `<div class="detail-card grow"><ul class="action-list">${list.length ? list.map(c => coRow(c)).join('') : `<li class="empty">No ${coTab} change requests${coContext !== 'All' ? ' for ' + coContext.toLowerCase() + 's' : ''}.</li>`}</ul>${tableFooter(list.length, 'change requests')}</div>`;
+}
+
+/* Sidebar shared by the order page and its shipment edit page: gate checklist, source, attachment. */
+function poSidebar(p, c) {
+  const gateDone = p.gate.filter(g => g[3] !== 'pending').length;
+  return `<div class="detail-card"><div class="detail-card-header"><h3>Before we can proceed</h3><span class="card-note">${gateDone} of ${p.gate.length}</span></div>
+      <ul class="check-list">${p.gate.map(g => `<li class="check-item ${g[3]==='na'?'na':''} ${g[3]==='over'?'over':''}"><input class="form-check-input" type="checkbox" disabled ${g[3]==='done'||g[3]==='over'?'checked':''} aria-label="${esc(g[1])}"><div class="check-label">${esc(g[1])}<div class="check-sub">${g[3]==='na'?'Not required':g[3]==='over'?'Overridden by Rob':g[3]==='done'?'Complete':'Waiting on ' + esc(g[2])}</div></div>${g[3]==='pending' ? `<div class="btn-group btn-group-sm"><button class="btn btn-outline-secondary" onclick="act.gate('${p.id}','${g[0]}','done')">Done</button><button class="btn btn-outline-secondary" title="Proceed without it; logged on the order" onclick="act.gate('${p.id}','${g[0]}','over')">Override</button></div>` : ''}</li>`).join('')}</ul>
+      <div class="detail-card-footer">Override is the sanctioned version of "go ahead anyway." It is logged on the order and counted per person.</div></div>
+    ${detailCard('Source', '', `<ul class="meta-list">
+      <li class="meta-item"><span class="meta-label">Received</span><span class="meta-value mono">${fmtLong(p.received)}</span></li>
+      <li class="meta-item"><span class="meta-label">Format</span><span class="meta-value">${esc(p.source)}</span></li>
+      <li class="meta-item"><span class="meta-label">Contact</span><span class="meta-value">${esc(c.contact)}<div class="fw-normal text-body-secondary mono">${esc(c.email)}</div></span></li>
+      <li class="meta-item"><span class="meta-label">Sales rep</span><span class="meta-value">${esc(p.rep)}</span></li>
+      <li class="meta-item"><span class="meta-label">Lead times in portal</span><span class="meta-value">${c.showLeadTimes ? 'Visible' : 'Hidden'} <a href="#po-${p.id.slice(3)}" onclick="act.toggleLead('${c.id}')" class="fw-normal">change</a></span></li></ul>`)}
+    ${detailCard('Attachments', '', `<div class="d-flex align-items-center gap-2"><div class="stat-icon gray" style="width:36px;height:36px"><i class="bi bi-file-earmark-pdf"></i></div><div class="minw0 flex-grow-1"><div class="text-truncate" style="font-size:13px;font-weight:500">${esc(p.source.replace(/^PDF \(|\)$/g, '') || 'Email body')}</div><div class="item-sub">Original as received · ${fmt(p.received)}</div></div><a href="#po-${p.id.slice(3)}" class="card-action" style="font-size:13px;font-weight:500;text-decoration:none" onclick="act.stub('<b>Prototype.</b> The original would open here.')">Open</a></div>`)}`;
+}
+const activityIcon = text => { const ic = /approved|delivered|complete|moved/i.test(text) ? 'green' : /rejected|missed|late|override/i.test(text) ? 'amber' : /received|sent|reminder/i.test(text) ? 'blue' : 'gray'; return [ic, { green:'check-lg', amber:'exclamation-lg', blue:'envelope', gray:'dot' }[ic]]; };
+
+function viewPO(id, tab = 'shipments') {
+  const p = po(id); if (!p) return `<div class="status-banner pending"><i class="bi bi-exclamation-circle"></i> No order ${esc(id)}.</div>`;
+  const c = cust(p.customer); const sh = shipsOf(id); const cos = changes.filter(x => x.po === id); const ths = threadsOnPO(id);
+  const reasons = queueReasons(p); const h = poHealth(p); const n = p.id.slice(3);
+  const banner = reasons.length ? `<div class="status-banner pending"><i class="bi bi-hourglass-split"></i><span>This order is <strong>in queue</strong>. Waiting on: ${reasons.join(' · ')}.</span></div>`
+    : h === 'crit' ? `<div class="status-banner danger"><i class="bi bi-exclamation-triangle-fill"></i><span>This order is <strong>at risk</strong>. At least one shipment will miss its need-by date on current lead times.</span></div>`
+    : `<div class="status-banner active"><i class="bi bi-check-circle-fill"></i><span>This order is <strong>in production</strong> and on track. ${sh.filter(isDelivered).length} of ${sh.length} shipments delivered.</span></div>`;
+  const tabs = tabsUl([[`po-${n}`, 'Shipments', sh.length], [`po-${n}-changes`, 'Change requests', cos.length, cos.some(x => x.status === 'pending') ? 'warning' : 'secondary'], [`po-${n}-chats`, 'Chats', ths.length, ths.some(t => t.status === 'open') ? 'warning' : 'secondary'], [`po-${n}-activity`, 'Activity', p.activity.length]], tab === 'shipments' ? `po-${n}` : `po-${n}-${tab}`);
+  const tools = { shipments: `<button class="btn btn-sm btn-outline-secondary" onclick="act.expandAll('${p.id}', true)">Expand all</button><button class="btn btn-sm btn-outline-secondary" onclick="act.expandAll('${p.id}', false)">Collapse all</button><button class="btn btn-sm btn-primary" onclick="act.stub('<b>Prototype.</b> Add shipment form would open here.')"><i class="bi bi-plus-lg me-1"></i>Add shipment</button>`,
+    changes: `<a class="btn btn-sm btn-outline-secondary" href="#changes">All change requests</a>`, chats: `<a class="btn btn-sm btn-outline-secondary" href="#chats-open">All chats</a>`, activity: '' }[tab] || '';
+  const main = tab === 'changes' ? `<div class="detail-card"><ul class="action-list">${cos.length ? cos.map(x => coRow(x)).join('') : '<li class="empty">None on this order.</li>'}</ul></div>`
+    : tab === 'chats' ? `<div class="detail-card"><ul class="thread-list">${ths.length ? ths.map(t => threadListItem(t, false)).join('') : '<li class="empty">No conversations on this order.</li>'}</ul></div>`
+    : tab === 'activity' ? `<div class="detail-card"><div class="detail-card-body" style="padding:6px 20px"><ul class="timeline">${[...p.activity].reverse().map(a => { const [ic, icon] = activityIcon(a[1]); return `<li class="timeline-item"><div class="timeline-icon ${ic}"><i class="bi bi-${icon}"></i></div><div class="minw0"><div class="timeline-text">${esc(a[1])}</div><div class="timeline-time">${fmtLong(a[0])}</div></div></li>`; }).join('')}</ul></div></div>`
+    : `<div class="stack" style="gap:10px">${sh.map(s => shipCard(s, {office:true})).join('')}</div>`;
+  return pageHeader(esc(p.job), `${esc(c.name)} · ${esc(p.site)} · ${sqft(p.sqft)} · ${esc(p.product)}`,
+    `${pill({k:h, t:PO_LABEL[h]})}<button class="btn btn-outline-secondary btn-sm" onclick="act.remind('${p.id}')"><i class="bi bi-bell me-1"></i> Remind customer</button><a class="btn btn-outline-secondary btn-sm" href="#portal-po-${n}"><i class="bi bi-eye me-1"></i> View as customer</a><div class="dropdown"><button class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></button><ul class="dropdown-menu dropdown-menu-end"><li><a class="dropdown-item" href="#po-${n}" onclick="act.stub('<b>Prototype.</b> Add shipment form would open here.')"><i class="bi bi-plus-lg me-2"></i>Add shipment</a></li><li><a class="dropdown-item" href="#po-${n}" onclick="act.stub('<b>Prototype.</b> Original email would open here.')"><i class="bi bi-envelope me-2"></i>View original email</a></li><li><hr class="dropdown-divider"></li><li><a class="dropdown-item text-danger" href="#po-${n}" onclick="act.stub('<b>Prototype.</b> Cancellation would need a reason and a customer notice.')"><i class="bi bi-x-circle me-2"></i>Cancel order</a></li></ul></div>`,
+    { back: p.lane === 'queue' ? 'orders-queue' : 'orders-production', id: p.id }) + banner + pageNav(tabs, tools) +
+  `<div class="show-layout"><div class="show-main">${main}</div><div class="show-sidebar">${poSidebar(p, c)}</div></div>`;
+}
+
+const ORIGIN_LABEL = { daizhin:'Daizhin, Korea', vina:'Vina Floor, Vietnam', 'wanke-ga':'Wanke Georgia', 'wanke-pdx':'Wanke Portland' };
+function viewShipEdit(sid) {
+  const s = ship(sid); if (!s) return `<div class="status-banner pending"><i class="bi bi-exclamation-circle"></i> No shipment ${esc(sid)}.</div>`;
+  const p = po(s.po); const c = cust(p.customer);
+  const origins = vendors.filter(v => v.roles.includes('Factory') || v.roles.includes('Warehouse'));
+  const fwds = vendors.filter(v => v.roles.includes('Freight forwarder'));
+  const carriers = vendors.filter(v => v.roles.some(r => /carrier/i.test(r)));
+  const field = (label, input, full) => `<div class="${full ? 'col-12' : 'col-md-6'}"><label class="form-label small" for="${input.match(/id="([^"]+)"/)[1]}">${label}</label>${input}</div>`;
+  const sel = (id, opts, val, blank) => `<select class="form-select form-select-sm" id="${id}">${blank ? '<option value="">—</option>' : ''}${opts.map(o => `<option value="${o[0]}" ${o[0] === val ? 'selected' : ''}>${esc(o[1])}</option>`).join('')}</select>`;
+  const txt = (id, val, type = 'text') => `<input class="form-control form-control-sm ${type !== 'text' ? 'mono' : ''}" id="${id}" type="${type}" value="${esc(val ?? '')}">`;
+  return pageHeader(`Edit ${esc(s.name)}`, `${esc(p.job)} · ${esc(c.name)} · ${esc(stageName(s))}`,
+    `<a class="btn btn-outline-secondary btn-sm" href="#po-${p.id.slice(3)}">Cancel</a><button class="btn btn-primary btn-sm" onclick="act.saveShip('${s.id}')"><i class="bi bi-check-lg me-1"></i> Save shipment</button>`,
+    { back: 'po-' + p.id.slice(3), id: p.id }) +
+  `<div class="show-layout"><div class="show-main">
+    ${detailCard('Shipment', `${s.type === 'container' ? 'Ocean container' : 'LTL / pallet'}`, `<div class="row g-3">
+      ${field('Name', txt('f-name', s.name))}
+      ${field('Kind', sel('f-type', [['container','Ocean container'],['ltl','LTL / pallet']], s.type))}
+      ${field('Quantity (sq ft)', txt('f-sqft', s.sqft, 'number'))}
+      ${field('Need-by date', txt('f-needby', s.needBy || '', 'date'))}
+      ${field('Origin', sel('f-origin', origins.map(v => [v.id, `${v.name} · ${v.roles[0]}`]), s.originCo))}
+      ${field('US port (ocean only)', sel('f-port', Object.keys(C.ocean).map(k => [k, `${k} · ${C.ocean[k]} days`]), s.port, true))}
+      ${field('Destination', txt('f-dest', s.dest), true)}
+      ${field('Freight forwarder', sel('f-forwarder', fwds.map(v => [v.id, v.name]), s.forwarder, true))}
+      ${field('Carrier (last leg)', sel('f-carrier', carriers.map(v => [v.id, `${v.name} · ${v.roles[0]}`]), s.carrier, true))}
+      ${field('Placed / released on', txt('f-placed', s.placedAt || '', 'date'))}
+    </div>`)}
+    ${detailCard('What saving changes', '', `<div style="font-size:13px;color:var(--text-2);line-height:1.6">Changing the need-by, origin, port, or placed date recalculates every milestone from the lead times in Constraints. The customer sees the new dates in their portal${c.showLeadTimes ? '' : ' (lead times are hidden for this customer, so only the need-by and status)'}. Changing the kind switches between the ocean and domestic milestone chains. Renaming is cosmetic and logged.</div>`)}
+    ${detailCard('Milestones at current values', '', msList(s))}
+  </div><div class="show-sidebar">${poSidebar(p, c)}</div></div>`;
+}
+
+function viewCustomers(tab) {
+  const rows = customers.filter(c => (!tab || custStatus(c) === tab) && (T.custFilter === 'all' || c.rep === T.custFilter) && matches(c.name, c.hq, c.contact, c.rep));
+  if (T.custSort === 'name') rows.sort(byName('name'));
+  if (T.custSort === 'completeness') rows.sort((a, b) => a.completeness - b.completeness);
+  if (T.custSort === 'changes') rows.sort((a, b) => b.cos90 - a.cos90);
+  const tools = searchBox('Search customers…') + filterTool('custFilter', [['all','All reps'], ...[...new Set(customers.map(c => c.rep))].map(r => [r, 'Rep: ' + r])]) + sortTool('custSort', [['default','Default order'],['name','Name A–Z'],['completeness','PO completeness, lowest first'],['changes','Most change requests']]);
+  const tabs = tabsUl(CUST_TABS.map(t => [t[0], t[1], t[0] === 'customers' ? customers.length : customers.filter(c => custStatus(c) === t[0].slice(10)).length, t[0] === 'customers-onboarding' ? 'warning' : t[0] === 'customers-active' ? 'success' : 'secondary']), tab ? 'customers-' + tab : 'customers');
+  const desc = { active:'Onboarded and holding at least one open order.', onboarding:'First order received; account package, credit, preliminary notice, or tax status still open.', inactive:'Onboarded with no open orders. Standing emails pause until the next PO.' }[tab] || 'Who we sell to, what they owe us, and how clean their orders arrive. Matched against the customer list export until the new system lands in February.';
+  return pageHeader('Customers', 'Companies that buy from Surface Edge. One customer can front many jobs, salespeople, and sub-customers.', `<button class="btn btn-primary btn-sm" onclick="act.stub('<b>Prototype.</b> New customer form would open here.')"><i class="bi bi-plus-lg me-1"></i> New customer</button>`) + pageNav(tabs, tools) + tabDesc(desc) +
+  `<div class="data-table-wrapper"><div class="table-responsive"><table class="table table-hover"><thead><tr><th>Customer</th><th>Contact</th><th class="num">Active</th><th class="num">Queued</th><th class="num">Open changes</th><th class="num">PO completeness</th><th class="num">Changes / 90d</th><th>Status</th></tr></thead><tbody>
+    ${rows.map(c => { const cp = pos.filter(p => p.customer === c.id); return `<tr class="link" onclick="go('customer-${c.id}')"><td class="item-name"><a href="#customer-${c.id}">${esc(c.name)}</a><div class="item-sub">${esc(c.hq)} · rep ${esc(c.rep)}</div></td><td>${esc(c.contact)}</td><td class="num">${cp.filter(p=>p.lane==='production').length}</td><td class="num">${cp.filter(p=>p.lane==='queue').length}</td><td class="num">${companyChanges(c.id).filter(x=>x.status==='pending').length}</td><td class="num">${c.completeness}%</td><td class="num">${c.cos90}</td><td>${{ active: sb('active', 'Active'), onboarding: sb('pending', 'Onboarding'), inactive: sb('inactive', 'Inactive') }[custStatus(c)]}</td></tr>`; }).join('')}
+    ${rows.length ? '' : '<tr><td colspan="8" class="empty">No customers match.</td></tr>'}
+  </tbody></table></div>${tableFooter(rows.length, 'customers')}</div>
+  <p class="item-sub mt-2">PO completeness: share of required fields present when the PO first arrived. Changes / 90d: change requests received in the last 90 days. Both are also available per salesperson.</p>`;
+}
+const contactRow = (ct, opts = {}) => actionItem(ct.status === 'left' ? 'crit' : ct.primary ? 'good' : 'muted',
+  `<a href="#contact-${ct.id}" class="text-decoration-none">${esc(ct.name)}</a> <span class="text-body-secondary fw-normal">· ${esc(ct.title)}</span>${ct.primary ? ' ' + sb('active', 'Primary') : ''}${ct.status === 'left' ? ' ' + sb('danger', 'Left') : ''}${opts.company ? ` <span class="text-body-secondary fw-normal">· <a href="${companyLink(company(ct.company))}" class="text-decoration-none">${esc(company(ct.company).name)}</a></span>` : ''}`,
+  `<span class="mono">${esc(ct.email)}</span>${ct.phone ? ` · ${esc(ct.phone)}` : ''}${ct.note ? `<div>${esc(ct.note)}</div>` : ''}`,
+  ct.status === 'active' && !ct.primary ? `<button class="btn btn-sm btn-outline-secondary" onclick="act.setPrimary('${ct.id}')">Make primary</button>` : '');
+const companyChanges = id => changes.filter(c => c.target === id || (c.po && po(c.po).customer === id) || (c.ship && vendorRoleOn(id, ship(c.ship))));
+
+function viewCustomer(id) {
+  const c = cust(id); if (!c) return '';
+  const cp = pos.filter(p => p.customer === id); const cos = companyChanges(id);
+  return pageHeader(esc(c.name), `Customer · ${esc(c.hq)} · rep ${esc(c.rep)}`, `${c.onboarded ? sb('active', 'Onboarded') : sb('pending', 'Onboarding')}<a class="btn btn-outline-secondary btn-sm" href="#portal" onclick="act.portalCustomer('${c.id}')"><i class="bi bi-eye me-1"></i> View their portal</a>`, { back: 'customers' }) +
+  `<div class="show-layout"><div class="show-main">
+    <div class="detail-card"><div class="detail-card-header"><h3>Orders</h3><span class="card-note">${cp.length}</span></div><ul class="action-list">${cp.map(p => { const h = poHealth(p); return actionItem(h, `<a href="#po-${p.id.slice(3)}" class="text-decoration-none">${esc(p.job)}</a> <span class="mono text-body-secondary fw-normal">${p.id}</span>`, `${sqft(p.sqft)} · ${shipsOf(p.id).length} shipments · ${p.lane === 'queue' ? queueReasons(p).join(' · ') : 'in production'}`, pill({k:h, t:PO_LABEL[h]})); }).join('')}</ul></div>
+    <div class="detail-card"><div class="detail-card-header"><h3>Contacts</h3><a class="card-action" href="#contacts" onclick="act.stub('<b>Prototype.</b> New contact form would open here.')"><i class="bi bi-plus-lg me-1"></i>Add contact</a></div><ul class="action-list">${contactsOf(id).map(ct => contactRow(ct)).join('')}</ul></div>
+    <div class="detail-card"><div class="detail-card-header"><h3>Change requests</h3><a class="card-action" href="#changes">All change requests</a></div><ul class="action-list">${cos.length ? cos.map(x => coRow(x)).join('') : '<li class="empty">None.</li>'}</ul></div>
+  </div><div class="show-sidebar">
+    ${detailCard('Account', '', `<ul class="meta-list">
+      <li class="meta-item"><span class="meta-label">Onboarding</span><span class="meta-value">${c.onboarded ? 'Complete' : 'In progress (see first PO)'}</span></li>
+      <li class="meta-item"><span class="meta-label">Lead times in portal</span><span class="meta-value">${c.showLeadTimes ? 'Visible' : 'Hidden'} <a href="#customer-${c.id}" onclick="act.toggleLead('${c.id}')" class="fw-normal">change</a></span></li>
+      <li class="meta-item"><span class="meta-label">Standing email</span><span class="meta-value">Every ${C.standingEmailDays} days<div class="fw-normal text-body-secondary">last opened ${c.id==='fantasia' ? sb('danger', 'never') : 'Oct 19'}</div></span></li>
+      <li class="meta-item"><span class="meta-label">PO completeness</span><span class="meta-value mono">${c.completeness}%</span></li>
+      <li class="meta-item"><span class="meta-label">Changes / 90d</span><span class="meta-value mono">${c.cos90}</span></li></ul>`)}
+    ${detailCard('Notes', '', `<div style="font-size:14px;color:var(--text-2);line-height:1.6">${esc(c.notes)}</div>`)}
+  </div></div>`;
+}
+
+function factoryForecast(vendorId) {
+  const months = []; for (let i = 0; i < 9; i++) { const m = new Date(2026, 10 + i, 1); months.push({ y:m.getFullYear(), m:m.getMonth(), label:`${MONTHS[m.getMonth()]} ${String(m.getFullYear()).slice(2)}` }); }
+  const key = dt => `${d(dt).getFullYear()}-${d(dt).getMonth()}`;
+  const mine = s => s.originCo === vendorId;
+  const rows = months.map(mo => { const k = `${mo.y}-${mo.m}`;
+    return { ...mo, placed: shipments.filter(s => mine(s) && s.placedAt && !isDelivered(s) && key(milestones(s)[1].date) === k).length, toplace: shipments.filter(s => mine(s) && !s.placedAt && s.needBy && key(placeBy(s)) === k).length }; });
+  const unknown = shipments.filter(s => mine(s) && !s.needBy).length;
+  const max = Math.max(3, ...rows.map(r => r.placed + r.toplace));
+  const unplaced = shipments.filter(s => mine(s) && !s.placedAt).sort((a,b) => (placeBy(a)||new Date(2100,0,1)) - (placeBy(b)||new Date(2100,0,1)));
+  return `<div class="detail-card"><div class="detail-card-header"><h3>Factory forecast</h3><div class="legend"><span><i style="background:var(--accent-2)"></i>Placed, finishing production</span><span><i style="background:var(--warn-dot)"></i>Must be placed this month</span></div></div>
+    <div class="detail-card-body">${rows.map(r => `<div class="bar-row"><span class="lbl">${r.label}</span><div class="bar-track">${Array.from({length:r.placed}).map(()=>`<span class="bar-seg placed" style="width:${100/max}%"></span>`).join('')}${Array.from({length:r.toplace}).map(()=>`<span class="bar-seg toplace" style="width:${100/max}%"></span>`).join('')}</div><span class="mono item-sub" style="width:1.5rem;text-align:right">${r.placed + r.toplace || ''}</span></div>`).join('')}
+    <p class="item-sub mt-3 mb-0">Ryan's two spreadsheets in one place: what is placed with the mill by the month it finishes production, and what the queue says must be placed each month. Plus <b>${unknown}</b> shipments with no need-by date that cannot be scheduled yet.</p></div></div>
+  <div class="data-table-wrapper"><div class="detail-card-header"><h3>Not yet placed</h3><span class="card-note">sorted by place-by date</span></div><div class="table-responsive"><table class="table table-hover"><thead><tr><th>Customer · Job</th><th>Shipment</th><th>Need-by</th><th>Place by</th><th>Est. delivery if placed today</th><th>Status</th></tr></thead><tbody>
+    ${unplaced.map(s => { const p = po(s.po); const pb = placeBy(s); return `<tr class="link" onclick="go('po-${p.id.slice(3)}')"><td class="item-name"><a href="#po-${p.id.slice(3)}">${esc(cust(p.customer).name)}</a><div class="item-sub">${esc(p.job)}</div></td><td>${esc(s.name)} <span class="item-sub">→ ${esc(s.port)}</span></td><td class="mono">${s.needBy ? fmt(s.needBy) : sb('pending', 'unknown')}</td><td class="mono">${pb ? fmt(pb) : '—'}</td><td class="mono">${fmt(addDays(TODAY, totalDays(s)))}</td><td>${pill(health(s))}</td></tr>`; }).join('')}
+    ${unplaced.length ? '' : '<tr><td colspan="6" class="empty">Nothing waiting to be placed.</td></tr>'}
+  </tbody></table></div>${tableFooter(unplaced.length, 'shipments')}</div>`;
+}
+
+/* ---------- views: chats ---------- */
+const CHAT_TABS = [['inbox','My inbox'],['open','Open'],['awaiting','Awaiting reply'],['closed','Closed']];
+const CHAT_DESC = { inbox:`Threads assigned to ${TEAM[ME]} that are not closed. Your work list.`, open:'The other party spoke last. A reply is drafted for you from the order and the change request; edit it or send it as written.', awaiting:'We replied last. Waiting on the customer or vendor; reminders go out on the cadence in Constraints.', closed:'Resolved. A new message from them reopens the thread automatically.' };
+const threadStatusBadge = t => ({ open: sb('pending', 'Open'), awaiting: sb('info', 'Awaiting reply'), closed: sb('inactive', 'Closed') }[t.status]);
+const initials = n => n.split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+function threadListItem(t, selected) {
+  const last = t.msgs[t.msgs.length - 1]; const co = t.company ? company(t.company) : null; const ct = t.contact ? contact(t.contact) : null;
+  const who = ct ? ct.name : (t.id === 'T5' ? 'orders@apexbuildgroup.com' : 'Unknown');
+  return `<a class="thread-item ${selected ? 'active' : ''}" href="#chat-${t.id}"><div class="avatar ${co ? (co.roles ? 'vendor' : 'customer') : ''}">${initials(who)}</div><div class="minw0 flex-grow-1"><div class="subj">${esc(t.subject)}${t.unread ? '<span class="unread"></span>' : ''}</div><div class="prev">${esc(who)}${co ? ' · ' + esc(co.name) : ''}</div><div class="prev">${last[0] === 'us' ? 'You: ' : last[0] === 'system' ? 'System: ' : ''}${esc(last[2].slice(0, 90))}</div></div><div class="meta">${esc(last[1].slice(5, 10).replace('-', '/'))}<div>${t.assignee ? esc(TEAM[t.assignee].split(' ')[0]) : '<span class="text-danger">unassigned</span>'}</div></div></a>`;
+}
+function threadView(t) {
+  const co = t.company ? company(t.company) : null; const ct = t.contact ? contact(t.contact) : null;
+  const links = [t.po ? `<a class="tag blue" href="#po-${t.po.slice(3)}" style="text-decoration:none"><i class="bi bi-file-earmark-text me-1"></i>${esc(po(t.po).job)}</a>` : '', t.co ? `<a class="tag amber" href="#changes" style="text-decoration:none"><i class="bi bi-arrow-left-right me-1"></i>${t.co} · ${esc(changes.find(c => c.id === t.co).type)}</a>` : '', co ? `<a class="tag" href="${companyLink(co)}" style="text-decoration:none"><i class="bi bi-${co.roles ? 'truck' : 'building'} me-1"></i>${esc(co.name)}</a>` : '<span class="tag red"><i class="bi bi-question-circle me-1"></i>No company match</span>', ct ? `<a class="tag" href="#contact-${ct.id}" style="text-decoration:none"><i class="bi bi-person me-1"></i>${esc(ct.name)}</a>` : ''].filter(Boolean).join('');
+  const msgs = t.msgs.map(m => { const [side, at, body, atts, label] = m; const who = side === 'us' ? (label || TEAM[t.assignee] || 'Surface Edge') : side === 'system' ? 'System' : (ct ? ct.name : 'Sender');
+    return `<div class="msg ${side}"><div class="who">${side === 'system' ? '<i class="bi bi-robot me-1"></i>' : ''}${esc(who)} · ${esc(at)}</div><div class="bubble">${esc(body)}</div>${atts ? atts.map(a => `<span class="att"><i class="bi bi-paperclip"></i>${esc(a)}</span>`).join('') : ''}</div>`; }).join('');
+  return `<div class="detail-card"><div class="thread-head"><div class="minw0"><h3>${esc(t.subject)}</h3><div class="tag-list">${links}</div></div>
+    <div class="d-flex gap-2 align-items-center flex-wrap">${threadStatusBadge(t)}<select class="form-select form-select-sm" style="width:auto" id="assign-${t.id}" onchange="act.assign('${t.id}', this.value)" aria-label="Assignee"><option value="">Unassigned</option>${Object.entries(TEAM).map(([k, v]) => `<option value="${k}" ${t.assignee === k ? 'selected' : ''}>${v}${k === ME ? ' (me)' : ''}</option>`).join('')}</select>${t.status === 'closed' ? `<button class="btn btn-sm btn-outline-secondary" onclick="act.threadStatus('${t.id}','open')"><i class="bi bi-arrow-counterclockwise me-1"></i>Reopen</button>` : `<button class="btn btn-sm btn-outline-secondary" onclick="act.threadStatus('${t.id}','closed')"><i class="bi bi-check2 me-1"></i>Close</button>`}</div></div>
+    <div class="msgs">${msgs}</div>
+    ${composer(t, ct)}</div>`;
+}
+function composer(t, ct) {
+  const drafted = t.status === 'open' && t.draft && !t.draftDismissed;
+  const sources = [t.po ? po(t.po).job : null, t.co ? t.co : null, 'this thread'].filter(Boolean).join(', ');
+  return `<div class="composer ${drafted ? 'drafted' : ''}">
+    ${drafted ? `<div class="draft-note"><i class="bi bi-magic"></i><span><b>Reply drafted for you</b> from ${esc(sources)}. Edit anything, then send. Nothing goes out until you click.</span></div>` : ''}
+    <textarea class="form-control" id="reply-${t.id}" placeholder="Reply to ${ct ? esc(ct.name) : 'the sender'}… Sent as email; they can also answer in the portal.">${drafted ? esc(t.draft) : ''}</textarea>
+    <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap"><div class="d-flex gap-2 flex-wrap">
+      <button class="btn btn-sm btn-outline-secondary" onclick="act.stub('<b>Prototype.</b> A change request form, pre-filled from this thread, would open here.')"><i class="bi bi-arrow-left-right me-1"></i>Create change request</button>
+      ${drafted ? `<button class="btn btn-sm btn-outline-secondary" onclick="act.discardDraft('${t.id}')"><i class="bi bi-x-lg me-1"></i>Discard draft</button>` : (t.draft && t.status === 'open' ? `<button class="btn btn-sm btn-outline-secondary" onclick="act.restoreDraft('${t.id}')"><i class="bi bi-magic me-1"></i>Redraft</button>` : `<button class="btn btn-sm btn-outline-secondary" onclick="act.stub('<b>Prototype.</b> A draft from the order, the change request, and this thread would appear here.')"><i class="bi bi-magic me-1"></i>Draft a reply</button>`)}
+    </div><button class="btn btn-sm btn-primary" onclick="act.reply('${t.id}', ${drafted})"><i class="bi bi-send me-1"></i>Send reply</button></div></div>`;
+}
+function viewChats(tab, selectedId) {
+  let list = threadsFor(tab).filter(t => (T.chatFilter === 'all' || (T.chatFilter === 'me' ? t.assignee === ME : !t.assignee)) && matches(t.subject, t.company ? company(t.company).name : '', t.contact ? contact(t.contact).name : '', t.msgs.map(m => m[2]).join(' ')));
+  if (T.chatSort === 'oldest') list = [...list].reverse();
+  const sel = selectedId ? thread(selectedId) : list[0];
+  if (sel && sel.unread && selectedId) sel.unread = false;
+  const count = k => threadsFor(k).length;
+  const head = pageHeader('Chats', 'Every email and portal message, merged into threads by sender and subject. Reply here instead of in Outlook; the system keeps the order, the contact, and any change request linked.', `<button class="btn btn-primary btn-sm" onclick="act.stub('<b>Prototype.</b> A new message form would open here.')"><i class="bi bi-pencil-square me-1"></i> New message</button>`) +
+  pageNav(`<ul class="nav nav-tabs">${CHAT_TABS.map(x => `<li class="nav-item"><a class="nav-link ${tab===x[0]?'active':''}" href="#chats-${x[0]}">${x[1]} ${x[0] === 'closed' ? '' : `<span class="badge bg-${x[0]==='open'?'warning':x[0]==='awaiting'?'primary':'secondary'} bg-opacity-10 text-${x[0]==='open'?'warning':x[0]==='awaiting'?'primary':'secondary'}">${count(x[0])}</span>`}</a></li>`).join('')}</ul>`, searchBox('Search threads…') + filterTool('chatFilter', [['all','Everyone'],['me','Assigned to me'],['unassigned','Unassigned']]) + sortTool('chatSort', [['newest','Newest first'],['oldest','Oldest first']])) +
+  tabDesc(CHAT_DESC[tab]);
+  return head + `
+  <div class="chat-layout grow"><div class="detail-card"><ul class="thread-list">${list.length ? list.map(t => threadListItem(t, sel && t.id === sel.id)).join('') : '<li class="empty">No threads here.</li>'}</ul>${tableFooter(list.length, 'threads')}</div>
+  ${sel ? threadView(sel) : '<div class="detail-card"><div class="empty">Select a thread.</div></div>'}</div>`;
+}
+
+const CONSTRAINT_LABEL = { production:'Factory production', bookingLead:'Booking lead', drayage:'Drayage to destination', ground:'Ground to job site', pick:'Pick' };
+const ROLE_DESC = { Factory:'Mills that produce the flooring. Production lead time starts the milestone chain, and a mill makes everything you send it.', 'Freight forwarder':'Book the ocean freight. About three weeks from booking request to a confirmed booking.', 'Customs broker':'Clear containers at the US port.', 'Drayage carrier':'Move containers from the port to the job site or warehouse.', 'LTL carrier':'Third-party trucking for pallets out of Wanke warehouses. The small shipments that cause the most pain.', Warehouse:'Wanke-owned or third-party warehouses that stock product and ship balances.' };
+function viewVendors(roleSlug) {
+  const role = roleSlug ? ROLE_TABS.find(r => slug(r[0]) === roleSlug)?.[0] : null;
+  const rows = vendors.filter(v => (!role || v.roles.includes(role)) && (T.vendorFilter === 'all' || (T.vendorFilter === 'active' ? vendorShipments(v.id).some(s => !isDelivered(s)) : companyChanges(v.id).some(c => c.status === 'pending'))) && matches(v.name, v.hq, v.roles.join(' ')));
+  if (T.vendorSort === 'name') rows.sort(byName('name'));
+  const tools = searchBox('Search vendors…') + filterTool('vendorFilter', [['all','All vendors'],['active','With active shipments'],['changes','With pending change requests']]) + sortTool('vendorSort', [['default','Default order'],['name','Name A–Z']]);
+  const tabs = tabsUl([['vendors', 'All', vendors.length], ...ROLE_TABS.map(r => ['vendors-' + slug(r[0]), r[1], vendors.filter(v => v.roles.includes(r[0])).length])], role ? 'vendors-' + slug(role) : 'vendors');
+  return pageHeader('Vendors', 'Companies that play a vendor role on orders and shipments. Each role owns a lead time the milestone engine uses.', `<button class="btn btn-primary btn-sm" onclick="act.stub('<b>Prototype.</b> New vendor form would open here.')"><i class="bi bi-plus-lg me-1"></i> New vendor</button>`) + pageNav(tabs, tools) +
+  tabDesc(role ? ROLE_DESC[role] : 'Factories, forwarders, brokers, carriers, and warehouses. A company can hold more than one role.') +
+  `<div class="data-table-wrapper"><div class="table-responsive"><table class="table table-hover"><thead><tr><th>Vendor</th><th>Roles</th><th>Primary contact</th><th class="num">Active shipments</th><th class="num">Open changes</th><th>Lead time</th></tr></thead><tbody>
+    ${rows.map(v => { const vs = vendorShipments(v.id).filter(s => !isDelivered(s)); const pc = contactsOf(v.id).find(c => c.primary); return `<tr class="link" onclick="go('vendor-${v.id}')"><td class="item-name"><a href="#vendor-${v.id}">${esc(v.name)}</a><div class="item-sub">${esc(v.hq)}</div></td><td><div class="tag-list">${v.roles.map(r => `<span class="tag blue">${esc(r)}</span>`).join('')}</div></td><td>${pc ? `${esc(pc.name)}<div class="item-sub mono">${esc(pc.email)}</div>` : '<span class="text-body-secondary">—</span>'}</td><td class="num">${vs.length}</td><td class="num">${companyChanges(v.id).filter(c => c.status === 'pending').length}</td><td><span class="mono">${v.constraint === 'production' ? C.production : C[v.constraint]} days</span><div class="item-sub">${CONSTRAINT_LABEL[v.constraint]}</div></td></tr>`; }).join('')}
+  </tbody></table></div>${tableFooter(rows.length, 'vendors')}</div>`;
+}
+function viewVendor(id) {
+  const v = vendor(id); if (!v) return '';
+  const vs = vendorShipments(id); const cos = companyChanges(id); const isFactory = v.roles.includes('Factory');
+  return pageHeader(esc(v.name), `${v.roles.join(' · ')} · ${esc(v.hq)}`, `<a class="btn btn-outline-secondary btn-sm" href="#settings"><i class="bi bi-sliders me-1"></i> Lead times</a><button class="btn btn-outline-secondary btn-sm" onclick="act.stub('<b>Prototype.</b> A rate or booking request email would be drafted here.')"><i class="bi bi-envelope me-1"></i> Email vendor</button>`, { back: 'vendors' }) +
+  `<div class="show-layout"><div class="show-main">
+    ${isFactory ? factoryForecast(id) : ''}
+    <div class="detail-card"><div class="detail-card-header"><h3>Shipments</h3><span class="card-note">${vs.length} · ${vs.filter(s => !isDelivered(s)).length} active</span></div><ul class="action-list">${vs.length ? vs.map(s => { const p = po(s.po); return actionItem(health(s).k, `<a href="#po-${p.id.slice(3)}" class="text-decoration-none">${esc(p.job)}</a> <span class="text-body-secondary fw-normal">· ${esc(s.name)}</span> <span class="tag">${esc(vendorRoleOn(id, s))}</span>`, `${esc(cust(p.customer).name)} · ${sqft(s.sqft)} · ${esc(stageName(s))}${s.needBy ? ` · need-by <span class="mono">${fmt(s.needBy)}</span>` : ''}`, pill(health(s))); }).join('') : '<li class="empty">No shipments involve this vendor.</li>'}</ul></div>
+    <div class="detail-card"><div class="detail-card-header"><h3>Change requests</h3><a class="card-action" href="#changes">All change requests</a></div><ul class="action-list">${cos.length ? cos.map(x => coRow(x)).join('') : '<li class="empty">None.</li>'}</ul></div>
+  </div><div class="show-sidebar">
+    ${detailCard('Details', '', `<ul class="meta-list">
+      <li class="meta-item"><span class="meta-label">Roles</span><span class="meta-value"><div class="tag-list justify-content-end">${v.roles.map(r => `<span class="tag blue">${esc(r)}</span>`).join('')}</div></span></li>
+      <li class="meta-item"><span class="meta-label">Location</span><span class="meta-value">${esc(v.hq)}</span></li>
+      <li class="meta-item"><span class="meta-label">${CONSTRAINT_LABEL[v.constraint]}</span><span class="meta-value mono">${C[v.constraint]} days <a href="#settings" class="fw-normal">change</a></span></li>
+      ${isFactory ? `<li class="meta-item"><span class="meta-label">Booking lead</span><span class="meta-value mono">${C.bookingLead} days</span></li>` : ''}
+      <li class="meta-item"><span class="meta-label">Active shipments</span><span class="meta-value mono">${vs.filter(s => !isDelivered(s)).length}</span></li></ul>`)}
+    <div class="detail-card"><div class="detail-card-header"><h3>Contacts</h3><a class="card-action" href="#contacts" onclick="act.stub('<b>Prototype.</b> New contact form would open here.')"><i class="bi bi-plus-lg me-1"></i>Add</a></div><ul class="action-list">${contactsOf(id).map(ct => contactRow(ct)).join('') || '<li class="empty">No contacts yet.</li>'}</ul></div>
+    ${detailCard('Notes', '', `<div style="font-size:14px;color:var(--text-2);line-height:1.6">${esc(v.notes)}</div>`)}
+  </div></div>`;
+}
+function viewContacts(tab) {
+  const isVendorContact = ct => !!company(ct.company).roles;
+  const rows = contacts.filter(ct => (!tab || (tab === 'vendors') === isVendorContact(ct)) && (T.contactFilter === 'all' || (T.contactFilter === 'primary' ? ct.primary : ct.status === 'left')) && matches(ct.name, ct.title, ct.email, company(ct.company).name));
+  if (T.contactSort === 'name') rows.sort(byName('name'));
+  if (T.contactSort === 'company') rows.sort((a, b) => company(a.company).name.localeCompare(company(b.company).name));
+  const tools = searchBox('Search contacts…') + filterTool('contactFilter', [['all','All contacts'],['primary','Primary only'],['left','Left their company']]) + sortTool('contactSort', [['default','Default order'],['name','Name A–Z'],['company','Company A–Z']]);
+  const tabs = tabsUl(CONTACT_TABS.map(t => [t[0], t[1], t[0] === 'contacts' ? contacts.length : contacts.filter(ct => (t[0] === 'contacts-vendors') === isVendorContact(ct)).length]), tab ? 'contacts-' + tab : 'contacts');
+  const desc = { customers:'People at the companies that buy from us. The primary contact gets standing emails, reminders, and departure notices.', vendors:'People at factories, forwarders, carriers, and warehouses. Booking requests and lead-time changes go through them.' }[tab] || 'The people behind every company: who to email, who gave which date, and who has left. Turnover at big customers is why a date is tied to a person.';
+  return pageHeader('Contacts', 'People attached to customers and vendors.', `<button class="btn btn-primary btn-sm" onclick="act.stub('<b>Prototype.</b> New contact form would open here.')"><i class="bi bi-plus-lg me-1"></i> New contact</button>`) + pageNav(tabs, tools) + tabDesc(desc) +
+  `<div class="data-table-wrapper"><div class="table-responsive"><table class="table table-hover"><thead><tr><th>Name</th><th>Company</th><th>Title</th><th>Email</th><th>Phone</th><th>Status</th></tr></thead><tbody>
+    ${rows.map(ct => { const co = company(ct.company); return `<tr class="link" onclick="go('contact-${ct.id}')"><td class="item-name"><a href="#contact-${ct.id}">${esc(ct.name)}</a>${ct.primary ? '<div class="item-sub">Primary contact</div>' : ''}</td><td><a href="${companyLink(co)}" class="text-decoration-none">${esc(co.name)}</a><div class="item-sub">${companyRoles(co).join(', ')}</div></td><td>${esc(ct.title)}</td><td class="mono">${esc(ct.email)}</td><td class="mono">${ct.phone ? esc(ct.phone) : '—'}</td><td>${ct.status === 'left' ? sb('danger', 'Left') : sb('active', 'Active')}</td></tr>`; }).join('')}
+  </tbody></table></div>${tableFooter(rows.length, 'contacts')}</div>`;
+}
+function viewContact(id) {
+  const ct = contact(id); if (!ct) return '';
+  const co = company(ct.company); const isCust = !co.roles;
+  const cp = isCust ? pos.filter(p => p.customer === co.id) : [];
+  const cos = changes.filter(c => c.by.includes(ct.name.split(' ')[0]) && c.by.includes(ct.name.split(' ').slice(-1)[0]));
+  const mentions = pos.flatMap(p => p.activity.filter(a => a[1].includes(ct.name)).map(a => [a[0], a[1], p]));
+  return pageHeader(esc(ct.name), `${esc(ct.title)} · <a href="${companyLink(co)}">${esc(co.name)}</a>`, `${ct.status === 'left' ? sb('danger', 'Left') : sb('active', 'Active')}${ct.primary ? sb('active', 'Primary contact') : (ct.status === 'active' ? `<button class="btn btn-outline-secondary btn-sm" onclick="act.setPrimary('${ct.id}')">Make primary</button>` : '')}<button class="btn btn-outline-secondary btn-sm" onclick="act.stub('<b>Prototype.</b> An email to ${esc(ct.name)} would be drafted here.')"><i class="bi bi-envelope me-1"></i> Email</button>`, { back: 'contacts' }) +
+  (ct.note ? `<div class="status-banner danger"><i class="bi bi-person-x"></i><span>${esc(ct.note)}</span></div>` : '') +
+  `<div class="show-layout"><div class="show-main">
+    ${isCust ? `<div class="detail-card"><div class="detail-card-header"><h3>Orders at ${esc(co.name)}</h3><span class="card-note">${cp.length}</span></div><ul class="action-list">${cp.map(p => { const h = poHealth(p); return actionItem(h, `<a href="#po-${p.id.slice(3)}" class="text-decoration-none">${esc(p.job)}</a> <span class="mono text-body-secondary fw-normal">${p.id}</span>`, `${sqft(p.sqft)} · ${shipsOf(p.id).length} shipments`, pill({k:h, t:PO_LABEL[h]})); }).join('') || '<li class="empty">No orders.</li>'}</ul></div>` : ''}
+    <div class="detail-card"><div class="detail-card-header"><h3>Change requests from ${esc(ct.name.split(' ')[0])}</h3></div><ul class="action-list">${cos.length ? cos.map(x => coRow(x)).join('') : '<li class="empty">None.</li>'}</ul></div>
+    <div class="detail-card"><div class="detail-card-header"><h3>Activity</h3></div><div class="detail-card-body" style="padding:6px 20px"><ul class="timeline">${mentions.length ? mentions.reverse().map(a => `<li class="timeline-item"><div class="timeline-icon blue"><i class="bi bi-envelope"></i></div><div class="minw0"><div class="timeline-text">${esc(a[1])} <a href="#po-${a[2].id.slice(3)}">${esc(a[2].job)}</a></div><div class="timeline-time">${fmtLong(a[0])}</div></div></li>`).join('') : '<li class="timeline-item"><div class="timeline-text text-body-secondary">No activity recorded.</div></li>'}</ul></div></div>
+  </div><div class="show-sidebar">
+    ${detailCard('Details', '', `<ul class="meta-list">
+      <li class="meta-item"><span class="meta-label">Company</span><span class="meta-value"><a href="${companyLink(co)}">${esc(co.name)}</a><div class="fw-normal text-body-secondary">${companyRoles(co).join(', ')}</div></span></li>
+      <li class="meta-item"><span class="meta-label">Email</span><span class="meta-value mono">${esc(ct.email)}</span></li>
+      <li class="meta-item"><span class="meta-label">Phone</span><span class="meta-value mono">${ct.phone ? esc(ct.phone) : '—'}</span></li>
+      <li class="meta-item"><span class="meta-label">Receives</span><span class="meta-value">${ct.primary ? 'Standing emails, reminders, departure notices' : 'Only threads they started'}</span></li></ul>`)}
+    <div class="detail-card"><div class="detail-card-header"><h3>Others at ${esc(co.name.split(' ')[0])}</h3></div><ul class="action-list">${contactsOf(co.id).filter(x => x.id !== id).map(x => contactRow(x)).join('') || '<li class="empty">No one else on file.</li>'}</ul></div>
+  </div></div>`;
+}
+
+function viewSettings() {
+  const f = (label, key, port) => { const id = `c-${port ? ('ocean-' + port.replace(/\s/g,'')) : key}`; return `<div class="col"><label class="form-label small" for="${id}">${label}</label><input class="form-control form-control-sm mono" type="number" id="${id}" value="${port ? C.ocean[port] : C[key]}" onchange="act.setC('${key}', this.value${port ? `, '${port}'` : ''})"></div>`; };
+  const grid = inner => `<div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">${inner}</div>`;
+  return pageHeader('Constraints', 'The lead times the milestone engine uses. Change one and every planned date on every order recalculates. Numbers here are placeholders until Ryan sends the real ones.') +
+  `<div class="stack">
+  ${detailCard('Ocean shipment legs (days)', '', grid(f('Factory production','production') + f('Booking lead (request before ready)','bookingLead') + f('Load-out to departure','loadout') + f('Port clearance','clearance') + f('Drayage to destination','drayage')))}
+  ${detailCard('Ocean transit from Korea by US port (days)', '', grid(Object.keys(C.ocean).map(p => f(p, 'ocean', p)).join('')))}
+  ${detailCard('Domestic from Wanke warehouse (days)', '', grid(f('Pick','pick') + f('Ground to job site','ground')))}
+  ${detailCard('Communication cadence (days)', '', grid(f('Reminder for missing info, every','reminderDays') + f('"Stop us or it ships" before departure','stopUsDays') + f('Customer standing email, every','standingEmailDays')))}
+  <div class="detail-card"><div class="detail-card-header"><h3>Auto-approve</h3><span class="card-note">actions people approve almost every time can run on their own</span></div>
+    <ul class="action-list">${[['Send intake acknowledgement and missing-info list','100%',true],['Send reminder for missing need-by dates','98%',true],['Send departure notice 10 days before ship','96%',true],['Place with factory on go/no-go date','62%',false],['Approve customer need-by change with no production impact','81%',false]].map((r, i) => actionItem(r[2] ? 'good' : 'muted', esc(r[0]), `Approved without edits ${r[1]} of the time`, `<div class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" role="switch" id="auto-${i}" ${r[2]?'checked':''} onchange="act.stub('<b>Saved.</b> ' + (this.checked ? 'Now automatic.' : 'Now needs approval.'))"><label class="form-check-label" style="font-size:13px" for="auto-${i}">${r[2]?'Automatic':'Needs approval'}</label></div>`)).join('')}</ul></div>
+  </div>`;
+}
+
+/* ---------- views: portal ---------- */
+function portalShell(body) {
+  const c = cust(portalCustomer);
+  return `<header class="portal-topbar"><div class="d-flex align-items-center gap-2"><div class="logo-icon" style="width:32px;height:32px;background:linear-gradient(135deg,#818cf8,#6366f1);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px">SE</div><div><div style="font-weight:600;line-height:1.1">Surface Edge</div><div class="item-sub">Your orders</div></div></div>
+    <div class="topbar-right">${themeButton()}<label class="item-sub me-1 d-none d-sm-inline" for="portal-cust">Preview as</label><select class="form-select form-select-sm" id="portal-cust" style="width:auto" onchange="act.portalCustomer(this.value)">${customers.map(x => `<option value="${x.id}" ${x.id===portalCustomer?'selected':''}>${esc(x.name)}</option>`).join('')}</select><a class="btn btn-outline-secondary btn-sm" href="#today" title="Back to back office"><i class="bi bi-box-arrow-left"></i></a></div></header>
+  <div class="page-content"><div class="portal-wrap">
+    <div class="page-header"><div><div class="item-sub text-uppercase" style="letter-spacing:.5px;font-weight:600">Signed in via email link</div><h1>${esc(c.name)}</h1><div class="page-subtitle">${esc(c.contact)} · ${esc(c.email)}</div></div></div>
+    ${body}
+  </div></div>`;
+}
+function viewPortal() {
+  const c = cust(portalCustomer); const cp = pos.filter(p => p.customer === c.id);
+  const active = cp.filter(p => p.lane === 'production'), queued = cp.filter(p => p.lane === 'queue');
+  const needs = [];
+  cp.forEach(p => { shipsOf(p.id).filter(s => !s.needBy && !changes.some(x => x.ship === s.id && x.status === 'pending')).forEach(s => needs.push({ p, s, kind:'date' })); p.gate.filter(g => g[3]==='pending' && g[2]==='Customer').forEach(g => needs.push({ p, g, kind:'gate' })); shipsOf(p.id).filter(s => /missing/i.test(s.dest)).slice(0,1).forEach(s => needs.push({ p, s, kind:'address' })); });
+  const pendingCOs = changes.filter(x => x.status === 'pending' && po(x.po).customer === c.id);
+  return portalShell(`
+    <div class="stat-cards">${statCard('Orders in production', active.length, 'box-seam', 'blue')}${statCard('Orders in queue', queued.length, 'hourglass-split', 'gray')}${statCard('Things we need from you', needs.length, 'clipboard-check', needs.length ? 'amber' : 'green')}${statCard('Changes awaiting our confirmation', pendingCOs.length, 'arrow-left-right', 'blue')}</div>
+    <div class="stack">
+    <div class="detail-card"><div class="detail-card-header"><h3>What we need from you</h3><span class="card-note">Orders in queue cannot be placed with the factory until these are in</span></div>
+      <ul class="action-list">${needs.length ? needs.map(n => n.kind === 'date'
+        ? actionItem('warn', `Need-by date for ${esc(n.s.name)} · ${esc(n.p.job)}`, `${sqft(n.s.sqft)}. Allow at least ${Math.ceil(totalDays(n.s)/7)} weeks from the date we place it. If you do not know yet, leave it and we keep it in your queue.`, `<div class="input-group input-group-sm" style="width:auto">${dateInput('nb-'+n.s.id)}<button class="btn btn-primary" onclick="act.setNeedBy('${n.s.id}', document.getElementById('nb-${n.s.id}').value)">Set date</button></div>`)
+        : n.kind === 'gate' ? actionItem('warn', `${esc(n.g[1])} · ${esc(n.p.job)}`, 'Required before your first order can be placed.', `<button class="btn btn-sm btn-primary" onclick="act.stub('<b>Form opened.</b> (Prototype: the new account package would open here.)')">Open form</button>`)
+        : actionItem('warn', `Ship-to address · ${esc(n.p.job)}`, `Where should ${esc(n.s.name)} be delivered?`, `<button class="btn btn-sm btn-primary" onclick="act.stub('<b>Address form opened.</b> (Prototype.)')">Add address</button>`)).join('')
+      : '<li class="empty"><div class="status-banner active mb-0"><i class="bi bi-check-circle-fill"></i> Nothing outstanding. We have what we need to keep your orders moving.</div></li>'}</ul></div>
+    <div class="detail-card"><div class="detail-card-header"><h3>In production</h3></div><ul class="action-list">${active.length ? active.map(portalPORow).join('') : '<li class="empty">No orders in production.</li>'}</ul></div>
+    <div class="detail-card"><div class="detail-card-header"><h3>In queue</h3><span class="card-note">captured, waiting on dates or paperwork</span></div><ul class="action-list">${queued.length ? queued.map(portalPORow).join('') : '<li class="empty">Nothing in queue.</li>'}</ul></div>
+    <p class="item-sub">Something not right? Change the date or address on the order itself. We will confirm, and you will get an email either way. You do not need to reply to this page by email.</p>
+    </div>`);
+}
+function portalPORow(p) {
+  const sh = shipsOf(p.id); const c = cust(p.customer); const h = poHealth(p);
+  return actionItem(h, `<a href="#portal-po-${p.id.slice(3)}" class="text-decoration-none">${esc(p.job)}</a> <span class="mono text-body-secondary fw-normal">${p.id}</span>`,
+    `${sqft(p.sqft)} · ${sh.length} shipments · ${sh.filter(isDelivered).length} delivered<div class="tag-list mt-1">${sh.map(s => `<span class="tag ${ {good:'green',warn:'amber',crit:'red',info:'blue',muted:'amber'}[health(s).k] }">${esc(s.name)}: ${s.needBy ? (isDelivered(s) ? 'delivered' : (c.showLeadTimes ? 'est. ' + fmt(eta(s)) : stageName(s).toLowerCase())) : 'need-by?'}</span>`).join('')}</div>`,
+    `<a class="btn btn-sm btn-outline-secondary" href="#portal-po-${p.id.slice(3)}">Details</a>`);
+}
+function viewPortalPO(id) {
+  const p = po(id); if (!p) return portalShell('<div class="status-banner pending"><i class="bi bi-exclamation-circle"></i> Order not found.</div>');
+  if (p.customer !== portalCustomer) portalCustomer = p.customer;
+  const c = cust(p.customer); const sh = shipsOf(id); const cos = changes.filter(x => x.po === id && x.status === 'pending');
+  return portalShell(`
+    <div class="page-header"><div class="page-header-left"><a class="back-btn" href="#portal" title="Back"><i class="bi bi-arrow-left"></i></a><div><h1 style="font-size:20px">${esc(p.job)}<span class="record-id">${p.id}</span></h1><div class="page-subtitle">${esc(p.site)} · ${sqft(p.sqft)} · ${esc(p.product)} · received ${fmtLong(p.received)}</div></div></div></div>
+    ${p.lane === 'queue' ? `<div class="status-banner pending"><i class="bi bi-hourglass-split"></i><span><strong>In queue.</strong> We have this order but cannot place it yet: ${queueReasons(p).join(' · ')}.</span></div>` : ''}
+    ${cos.length ? `<div class="status-banner info"><i class="bi bi-arrow-left-right"></i><span>${cos.map(x => `<strong>${esc(x.type)}</strong> on ${esc(ship(x.ship).name)} (${esc(x.from)} → ${esc(x.to)}) is with Surface Edge for confirmation.`).join('<br>')}</span></div>` : ''}
+    <div class="detail-card"><div class="detail-card-header"><h3>Shipments</h3>${c.showLeadTimes ? '' : '<span class="card-note">Dates shown once confirmed</span>'}</div><div class="detail-card-body stack" style="gap:12px">${sh.map(s => portalShipCard(s, c)).join('')}</div></div>`);
+}
+function portalShipCard(s, c) {
+  const h = health(s); const pendingCO = changes.find(x => x.ship === s.id && x.status === 'pending');
+  const shown = h.k === 'muted' ? {k:'warn', t:'Need-by date needed'} : ((h.k === 'info' || h.k === 'warn') && !s.placedAt ? {k:'info', t:'Queued'} : h);
+  return `<div class="ship"><div class="ship-body">
+    <div class="minw0"><div class="d-flex align-items-center gap-2 flex-wrap mb-2"><h4 class="ship-name">${esc(s.name)}</h4>${pill(shown)}</div>
+      <div class="detail-grid">
+        <div class="detail-field"><div class="detail-label">Quantity</div><div class="detail-value mono">${sqft(s.sqft)}</div></div>
+        <div class="detail-field"><div class="detail-label">Deliver to</div><div class="detail-value">${esc(s.dest)}</div></div>
+        <div class="detail-field full-width"><div class="detail-label">Need-by</div><div class="detail-value d-flex align-items-center gap-2 flex-wrap">${s.needBy ? `<span class="mono">${fmtLong(s.needBy)}</span>` : ''}${pendingCO ? sb('info', 'Pending: ' + pendingCO.to) : ''}${isDelivered(s) ? '' : `<div class="input-group input-group-sm" style="width:auto">${dateInput('pnb-'+s.id)}<button class="btn btn-outline-secondary" onclick="act.setNeedBy('${s.id}', document.getElementById('pnb-${s.id}').value)">${s.needBy ? 'Request change' : 'Set date'}</button></div>`}</div></div>
+        ${s.placedAt || !s.needBy ? '' : `<div class="detail-field"><div class="detail-label">Must be placed by</div><div class="detail-value mono">${fmtLong(placeBy(s))}</div></div>`}
+        ${(s.placedAt || s.needBy) && c.showLeadTimes ? `<div class="detail-field"><div class="detail-label">Est. delivery</div><div class="detail-value mono">${fmtLong(eta(s))}</div></div>` : ''}
+      </div></div>
+    <div class="minw0">${msList(s, !c.showLeadTimes)}</div>
+  </div></div>`;
+}
+
+/* ---------- sidebar & shell ---------- */
+const NAV = [
+  { id:'today', label:'Dashboard', icon:'grid-1x2', count: () => nextActions().length, badge:'danger' },
+  { id:'orders', label:'Orders', icon:'box-seam', link:'orders-production', count: () => pos.filter(p => p.lane === 'queue').length + intake.filter(i => i.result === 'review').length, children: [
+      { id:'intake', label:'Intake', count: () => intake.filter(i => i.result === 'review').length, badge:'danger', hint:'new POs, new customers' },
+      { id:'orders-queue', label:'Queue', count: () => pos.filter(p => p.lane === 'queue').length, badge:'warn', hint:'waiting or paused' },
+      { id:'orders-production', label:'Production', count: () => pos.filter(p => p.lane === 'production').length, badge:'soft', hint:'moving through milestones' },
+    ] },
+  { id:'chats', label:'Chats', icon:'chat-left-text', link:'chats-inbox', count: () => threadsFor('inbox').length, children: [
+      { id:'chats-inbox', label:'My inbox', count: () => threadsFor('inbox').length, badge:'danger', hint:'assigned to you, not closed' },
+      { id:'chats-open', label:'Open', count: () => threadsFor('open').length, badge:'warn', hint:'they spoke last; we owe a reply' },
+      { id:'chats-awaiting', label:'Awaiting reply', count: () => threadsFor('awaiting').length, badge:'soft', hint:'we spoke last; waiting on them' },
+      { id:'chats-closed', label:'Closed', hint:'resolved' },
+    ] },
+  { id:'vendors', label:'Vendors', icon:'truck', link:'vendors', children: [ { id:'vendors', label:'All vendors' }, ...ROLE_TABS.map(r => ({ id:'vendors-' + slug(r[0]), label:r[1], count: () => vendors.filter(v => v.roles.includes(r[0])).length, badge:'soft' })) ] },
+  { id:'customers', label:'Customers', icon:'building', link:'customers', children: CUST_TABS.map(t => ({ id:t[0], label:t[1], count: t[0] === 'customers' ? null : () => customers.filter(c => custStatus(c) === t[0].slice(10)).length, badge: t[0] === 'customers-onboarding' ? 'warn' : 'soft' })) },
+  { id:'contacts', label:'Contacts', icon:'people', link:'contacts', children: CONTACT_TABS.map(t => ({ id:t[0], label:t[1], count: t[0] === 'contacts' ? null : () => contacts.filter(ct => (t[0] === 'contacts-vendors') === !!company(ct.company).roles).length, badge:'soft' })) },
+  { id:'changes', label:'Change requests', icon:'arrow-left-right', link:'changes', count: () => changes.filter(c => c.status === 'pending').length, badge:'warn', children: CO_TABS.map(t => ({ id:t[0], label:t[1], count: () => changes.filter(c => c.status === t[2]).length, badge: t[2] === 'pending' ? 'warn' : 'soft' })) },
+];
+const BADGE = { danger:'bg-danger', warn:'bg-warning text-dark', soft:'bg-primary bg-opacity-25 text-white' };
+function activeNav() {
+  const pm = route.match(/^po-(\d+)/); if (pm) { const p = po('PO-' + pm[1]); return p && p.lane === 'queue' ? 'orders-queue' : 'orders-production'; }
+  if (route.startsWith('ship-')) { const s = ship(route.slice(5)); const p = s && po(s.po); return p && p.lane === 'queue' ? 'orders-queue' : 'orders-production'; }
+  if (route.startsWith('customer-')) return 'customers';
+  if (route.startsWith('vendor-')) return 'vendors';
+  if (route.startsWith('contact-')) return 'contacts';
+  if (route === 'forecast') return 'vendors';
+  if (route.startsWith('chat-')) { const t = thread(route.slice(5)); return t ? (t.assignee === ME && t.status !== 'closed' && lastChatTab === 'inbox' ? 'chats-inbox' : 'chats-' + t.status) : 'chats-inbox'; }
+  return route;
+}
+let lastChatTab = 'inbox';
+function navLink(n, sub = false) {
+  const c = n.count ? n.count() : 0;
+  return `<a href="#${n.id}" class="nav-link ${activeNav() === n.id ? 'active' : ''}" ${n.hint ? `title="${esc(n.hint)}"` : ''}>${n.icon ? `<i class="bi bi-${n.icon}"></i>` : ''}<span>${n.label}</span>${c ? `<span class="badge ${BADGE[n.badge] || 'bg-secondary'}">${c}</span>` : ''}</a>`;
+}
+function renderSidebar() {
+  const nav = document.getElementById('sidenav');
+  nav.innerHTML = `<div class="nav-section-label">Main</div>` + NAV.map(n => {
+    if (!n.children) return navLink(n);
+    const childActive = n.children.some(ch => ch.id === activeNav());
+    const open = n.id in navOpen ? navOpen[n.id] : childActive;
+    const total = n.count ? n.count() : 0;
+    return `<div class="nav-group ${open ? 'open' : ''}" data-group="${n.id}"><button type="button" class="nav-link ${childActive && !open ? 'active' : ''}" aria-expanded="${open}" title="${open ? 'Collapse' : 'Expand'} ${n.label}" onclick="act.toggleNav('${n.id}')"><i class="bi bi-${open ? 'chevron-down' : n.icon}"></i><span>${n.label}</span>${!open && total ? `<span class="badge ${BADGE[n.badge] || 'bg-secondary'}">${total}</span>` : ''}</button><div class="nav-sub">${n.children.map(ch => navLink(ch, true)).join('')}</div></div>`;
+  }).join('');
+  document.getElementById('sidebottom').innerHTML = `<a href="#portal" class="nav-link"><i class="bi bi-person-badge"></i><span>Customer portal</span></a><a href="#settings" class="nav-link ${route === 'settings' ? 'active' : ''}"><i class="bi bi-gear"></i><span>Constraints</span></a>`;
+}
+function crumbs() {
+  const items = [['Home', 'today']];
+  if (route === 'today') return [['Dashboard', null]];
+  if (route === 'intake') items.push(['Orders', 'orders-production'], ['Intake', null]);
+  else if (route === 'orders-queue') items.push(['Orders', 'orders-production'], ['Queue', null]);
+  else if (route === 'orders-production') items.push(['Orders', 'orders-production'], ['Production', null]);
+  else if (/^po-\d+/.test(route) || route.startsWith('ship-')) {
+    const sEdit = route.startsWith('ship-') ? ship(route.slice(5)) : null; const m = route.match(/^po-(\d+)(?:-(\w+))?$/);
+    const p = sEdit ? po(sEdit.po) : po('PO-' + (m ? m[1] : ''));
+    items.push(['Orders', 'orders-production'], [p && p.lane === 'queue' ? 'Queue' : 'Production', p && p.lane === 'queue' ? 'orders-queue' : 'orders-production']);
+    if (sEdit) items.push([p.job, 'po-' + p.id.slice(3)], [`Edit ${sEdit.name}`, null]);
+    else if (m && m[2]) items.push([p ? p.job : route, 'po-' + m[1]], [{ changes:'Change requests', chats:'Chats', activity:'Activity' }[m[2]] || m[2], null]);
+    else items.push([p ? p.job : route, null]);
+  }
+  else if (route === 'changes') items.push(['Change requests', 'changes'], ['Pending', null]);
+  else if (route.startsWith('changes-')) items.push(['Change requests', 'changes'], [CO_TABS.find(t => t[0] === route)?.[1] || route, null]);
+  else if (route.startsWith('vendors-')) items.push(['Vendors', 'vendors'], [ROLE_TABS.find(r => 'vendors-' + slug(r[0]) === route)?.[1] || route, null]);
+  else if (route.startsWith('customers-')) items.push(['Customers', 'customers'], [CUST_TABS.find(t => t[0] === route)?.[1] || route, null]);
+  else if (route.startsWith('contacts-')) items.push(['Contacts', 'contacts'], [CONTACT_TABS.find(t => t[0] === route)?.[1] || route, null]);
+  else if (route.startsWith('chats-')) items.push(['Chats', 'chats-inbox'], [CHAT_TABS.find(x => x[0] === route.slice(6))?.[1] || 'My inbox', null]);
+  else if (route.startsWith('chat-')) { const t = thread(route.slice(5)); const tab = activeNav().slice(6); items.push(['Chats', 'chats-inbox'], [CHAT_TABS.find(x => x[0] === tab)?.[1] || 'Open', 'chats-' + tab], [t ? t.subject : route, null]); }
+  else if (route === 'customers') items.push(['Customers', null]);
+  else if (route.startsWith('customer-')) { const c = cust(route.slice(9)); items.push(['Customers', 'customers'], [c ? c.name : route, null]); }
+  else if (route === 'vendors') items.push(['Vendors', null]);
+  else if (route.startsWith('vendor-')) { const v = vendor(route.slice(7)); items.push(['Vendors', 'vendors'], [v ? v.name : route, null]); }
+  else if (route === 'contacts') items.push(['Contacts', null]);
+  else if (route.startsWith('contact-')) { const c = contact(route.slice(8)); items.push(['Contacts', 'contacts'], [c ? c.name : route, null]); }
+  else if (route === 'settings') items.push(['Constraints', null]);
+  return items;
+}
+function topbar() {
+  return `<header class="topbar"><div class="d-flex align-items-center gap-2 minw0"><button class="topbar-icon-btn d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar" aria-label="Open navigation"><i class="bi bi-list"></i></button><nav aria-label="breadcrumb"><ol class="breadcrumb">${crumbs().map(c => c[1] ? `<li class="breadcrumb-item"><a href="#${c[1]}">${esc(c[0])}</a></li>` : `<li class="breadcrumb-item active" aria-current="page">${esc(c[0])}</li>`).join('')}</ol></nav></div>
+    <div class="topbar-right"><span class="proto-tag d-none d-lg-inline">prototype · sample data · today = Oct 26, 2026</span>${themeButton()}<button class="topbar-icon-btn" title="Notifications" onclick="act.stub('<b>Prototype.</b> Notifications would open here.')"><i class="bi bi-bell"></i>${nextActions().length ? '<span class="notification-dot"></span>' : ''}</button>
+    <div class="dropdown"><button class="user-menu-btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><div class="user-avatar">RK</div><span class="user-name d-none d-sm-inline">Ryan K.</span></button><ul class="dropdown-menu dropdown-menu-end"><li><a class="dropdown-item" href="#today"><i class="bi bi-person me-2"></i>My profile</a></li><li><a class="dropdown-item" href="#settings"><i class="bi bi-gear me-2"></i>Constraints</a></li><li><hr class="dropdown-divider"></li><li><a class="dropdown-item text-danger" href="#today"><i class="bi bi-box-arrow-right me-2"></i>Sign out</a></li></ul></div></div></header>`;
+}
+function renderMain() {
+  const main = document.getElementById('main');
+  if (isPortal()) {
+    const m = route.match(/^portal-po-(\d+)$/);
+    main.innerHTML = m ? viewPortalPO('PO-' + m[1]) : viewPortal();
+    return;
+  }
+  let body;
+  if (route === 'intake') body = viewIntake();
+  else if (route === 'orders-queue') body = viewOrders('queue');
+  else if (route === 'orders-production') body = viewOrders('production');
+  else if (/^po-\d+/.test(route)) { const m = route.match(/^po-(\d+)(?:-(\w+))?$/); body = m ? viewPO('PO-' + m[1], m[2] || 'shipments') : viewToday(); }
+  else if (route.startsWith('ship-')) body = viewShipEdit(route.slice(5));
+  else if (route === 'changes' || route.startsWith('changes-')) { coTab = route === 'changes' ? 'pending' : route.slice(8); if (!CO_STATUS[coTab]) coTab = 'pending'; body = viewChanges(); }
+  else if (route === 'customers' || route.startsWith('customers-')) body = viewCustomers(route === 'customers' ? null : route.slice(10));
+  else if (route.startsWith('customer-')) body = viewCustomer(route.slice(9));
+  else if (route.startsWith('chats-')) { lastChatTab = route.slice(6); body = viewChats(lastChatTab); }
+  else if (route.startsWith('chat-')) { const t = thread(route.slice(5)); const tab = t ? activeNav().slice(6) : 'inbox'; body = viewChats(tab, t ? t.id : null); }
+  else if (route === 'vendors' || route.startsWith('vendors-')) body = viewVendors(route === 'vendors' ? null : route.slice(8));
+  else if (route.startsWith('vendor-')) body = viewVendor(route.slice(7));
+  else if (route === 'contacts' || route.startsWith('contacts-')) body = viewContacts(route === 'contacts' ? null : route.slice(9));
+  else if (route.startsWith('contact-')) body = viewContact(route.slice(8));
+  else if (route === 'forecast') body = viewVendor('daizhin');
+  else if (route === 'settings') body = viewSettings();
+  else body = viewToday();
+  main.innerHTML = topbar() + `<div class="page-content">${body}</div>`;
+}
+let lastRoute = null;
+function render() {
+  document.body.classList.toggle('portal', isPortal());
+  if (!isPortal()) renderSidebar();
+  if (route !== lastRoute) { q = ''; renaming = null; const side = document.getElementById('sidebar'); if (window.bootstrap) bootstrap.Offcanvas.getInstance(side)?.hide(); }
+  renderMain();
+  if (route !== lastRoute) window.scrollTo(0, 0);
+  lastRoute = route;
+}
+route = location.hash.replace('#', '') || 'today';
+if (route === 'orders') route = 'orders-production';
+render();
+</script>
+
+</body>
+</html>
