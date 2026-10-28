@@ -514,6 +514,34 @@ const shipments = [
 ];
 const shipsOf = id => shipments.filter(s => s.po === id);
 const ship = id => shipments.find(s => s.id === id);
+/* The numbers people search by and the delivery details, as they appear on real POs, acknowledgements, and cover pages (sample values).
+   Some customers issue one PO per truck, so the customer PO can sit on the shipment. The Navigator order number comes from the
+   acknowledgement; it is a reference field, so Infor's number can replace it. Delivery details come from the cover page and the
+   PO's delivery conditions. */
+const ORDER_REFS = { 'PO-4471':{ custPO:'88213', jobNo:'WC-118' }, 'PO-4495':{ custPO:'88402', jobNo:'LF-204' }, 'PO-4488':{ jobNo:'2207' }, 'PO-4490':{ custPO:'CR-1014' }, 'PO-4502':{ custPO:'F-1190' }, 'PO-4503':{ custPO:'F-1191' }, 'PO-4510':{ custPO:'00071' }, 'PO-4515':{ jobNo:'2231' } };
+const SITE_RULES = ['Schedule delivery 48 hours ahead with the superintendent', 'Call 2 hours before arrival', 'Mark material with the customer PO number'];
+const FAIRWAY_SITE = { name:'Ray Delgado, superintendent', phone:'(713) 555-0136', site:'Job site', dock:false, forklift:true, rules:SITE_RULES };
+const ILG_DALLAS = { name:'ILG Dallas receiving', phone:'(214) 555-0150', site:'Warehouse', dock:true, forklift:true, rules:['Receiving 7 am to 2 pm, Monday to Friday', 'Appointment required'] };
+const PEACHTREE_SITE = { name:'Marcus Bell, superintendent', phone:'(404) 555-0177', site:'Job site', dock:false, forklift:true, rules:SITE_RULES };
+const SHIP_REFS = {
+  S1:  { sidemark:'Fairway Westchase - Bldg A', erpOrder:'361102', factoryPO:'874410-ZSE', delivery:FAIRWAY_SITE },
+  S2:  { sidemark:'Fairway Westchase - Bldg B', erpOrder:'361103', factoryPO:'874411-ZSE', delivery:FAIRWAY_SITE },
+  S3:  { sidemark:'Fairway Westchase - Bldg C', erpOrder:'366540', factoryPO:'876002-ZSE', delivery:FAIRWAY_SITE },
+  S5:  { sidemark:'Lakeshore Flats - Ph 1', erpOrder:'388015', factoryPO:'877120-ZSE', delivery:ILG_DALLAS },
+  S6:  { sidemark:'Lakeshore Flats - Ph 2', erpOrder:'388016', factoryPO:'877121-ZSE', delivery:ILG_DALLAS },
+  S7:  { custPO:'2026-0415-1', sidemark:'Peachtree Ph2-UNITS-Trk 1', erpOrder:'389870', factoryPO:'877305-ZSE', delivery:PEACHTREE_SITE },
+  S8:  { custPO:'2026-0415-2', sidemark:'Peachtree Ph2-UNITS-Trk 2', erpOrder:'389871', delivery:PEACHTREE_SITE },
+  S9:  { custPO:'2026-0415-3', sidemark:'Peachtree Ph2-AMENITY', erpOrder:'389872', delivery:PEACHTREE_SITE },
+  S10: { sidemark:'Cedar Ridge', erpOrder:'390455', delivery:{ name:'Gail Munro', phone:'(509) 555-0102', site:'Job site', dock:false, forklift:false, rules:['Liftgate required'] } },
+  S18: { custPO:'2026-0502', sidemark:'Sugarloaf-UNITS-Trk 1' },
+};
+pos.forEach(p => Object.assign(p, ORDER_REFS[p.id]));
+shipments.forEach(s => Object.assign(s, SHIP_REFS[s.id]));
+const refList = s => { const p = po(s.po); return [['Customer PO', s.custPO || p.custPO], ['Job', p.jobNo], ['Sidemark', s.sidemark], ['Navigator order', s.erpOrder], ['Factory PO', s.factoryPO], ['Booking', s.booking && s.booking.ref], ['Container', s.booking && s.booking.container]].filter(x => x[1]); };
+const refText = s => refList(s).map(x => x[1]).join(' ');
+const deliveryHtml = s => s.delivery
+  ? `<div class="detail-value">${esc(s.delivery.name)} · <span class="mono">${esc(s.delivery.phone)}</span></div><div class="item-sub mt-1">${esc(s.delivery.site)} · dock door ${s.delivery.dock ? 'yes' : 'no'} · forklift ${s.delivery.forklift ? 'yes' : 'no'}</div>${s.delivery.rules.map(r => `<div class="item-sub">${esc(r)}</div>`).join('')}`
+  : `<div class="detail-value">${sb('pending', 'no delivery contact yet')}</div>`;
 
 /* Vendor roles on each shipment: where it comes from, who books the freight, who moves the last leg. */
 const ORIGIN_CO = { 'Daizhin, Korea':'daizhin', 'Wanke Georgia':'wanke-ga', 'Wanke Portland':'wanke-pdx' };
@@ -800,6 +828,10 @@ const act = {
     const dest = v('dest').trim(); if (dest && dest !== s.dest) { changed.push(`destination → ${dest}`); s.dest = dest; }
     const fw = v('forwarder') || null; if (fw !== s.forwarder) { changed.push(`forwarder → ${fw ? vendor(fw).name : 'none'}`); s.forwarder = fw; }
     const cr = v('carrier') || null; if (cr !== s.carrier) { changed.push(`carrier → ${cr ? vendor(cr).name : 'none'}`); s.carrier = cr; }
+    [['custPO','customer PO'], ['sidemark','sidemark'], ['erpOrder','Navigator order'], ['factoryPO','factory PO']].forEach(([k, label]) => { const val = v(k).trim() || null; if (val !== (s[k] || null)) { changed.push(`${label} → ${val || 'none'}`); s[k] = val; } });
+    const dl = { name: v('dl-name').trim(), phone: v('dl-phone').trim(), site: v('dl-site') || 'Job site', dock: !!document.getElementById('f-dl-dock')?.checked, forklift: !!document.getElementById('f-dl-forklift')?.checked, rules: v('dl-rules').split('\n').map(x => x.trim()).filter(Boolean) };
+    const dlWas = s.delivery || { name:'', phone:'', site:'Job site', dock:false, forklift:false, rules:[] };
+    if (JSON.stringify(dl) !== JSON.stringify(dlWas)) { changed.push(dl.name ? `delivery contact → ${dl.name}` : 'delivery details'); s.delivery = dl.name || dl.phone ? dl : null; }
     const pl = v('placed') || null; if (pl !== s.placedAt) { changed.push(`placed ${s.placedAt ? fmt(s.placedAt) : 'not placed'} → ${pl ? fmt(pl) : 'not placed'}`); s.placedAt = pl; if (pl && s.stage < 0) s.stage = 0; if (!pl) { s.stage = -1; s.actual = {}; } }
     if (!changed.length) { toast('No changes to save.'); return; }
     p.activity.push([iso(TODAY), `${s.name}: ${changed.join('; ')}. Milestones recalculated.`]);
@@ -957,6 +989,7 @@ function shipCard(s, opts = {}) {
         <div class="detail-field"><div class="detail-label">Quantity</div><div class="detail-value mono">${sqft(s.sqft)}</div></div>
         <div class="detail-field"><div class="detail-label">Need-by</div><div class="detail-value mono">${s.needBy ? fmtLong(s.needBy) : sb('pending', 'unknown')}</div></div>
         <div class="detail-field full-width"><div class="detail-label">Route</div><div class="detail-value">${esc(s.origin)}${s.port ? ` → ${esc(s.port)} port` : ''} → ${esc(s.dest)}</div>${opts.office ? `<div class="item-sub mt-1">${[s.originCo, s.forwarder, s.carrier].filter(Boolean).map(v => `<a href="#vendor-${v}" class="text-decoration-none">${esc(vendor(v).name)}</a> <span class="text-body-secondary">(${esc(vendorRoleOn(v, s))})</span>`).join(' · ')}</div>` : ''}</div>
+        ${opts.office && refList(s).length ? `<div class="detail-field full-width"><div class="detail-label">References</div><div class="tag-list mt-1">${refList(s).map(([k, val]) => `<span class="tag">${k}<span class="mono ms-1">${esc(val)}</span></span>`).join('')}</div></div>` : ''}${opts.office ? `<div class="detail-field full-width"><div class="detail-label">Delivery</div>${deliveryHtml(s)}</div>` : ''}
         ${s.placedAt ? `<div class="detail-field"><div class="detail-label">Placed</div><div class="detail-value mono">${fmtLong(s.placedAt)}</div></div>` : `<div class="detail-field"><div class="detail-label">Place by</div><div class="detail-value mono">${pb ? fmtLong(pb) + ` <span class="text-body-secondary">(${rel(pb)})</span>` : '—'}</div></div>`}
         <div class="detail-field"><div class="detail-label">Est. delivery</div><div class="detail-value mono">${s.placedAt || s.needBy ? fmtLong(eta(s)) : '—'}</div></div>
         ${s.type === 'container' && s.placedAt && s.stage < 2 ? `<div class="detail-field full-width"><div class="detail-label">Request booking by</div><div class="detail-value mono">${fmtLong(addDays(milestones(s)[1].date, -C.bookingLead))}</div></div>` : ''}
@@ -1020,7 +1053,7 @@ function viewIntake() {
 
 function viewOrdersByShipment(tab) {
   const FAR = new Date(2100,0,1);
-  let list = shipments.filter(s => (tab === 'queue' ? !s.placedAt : !!s.placedAt)).map(s => ({ s, p: po(s.po) })).filter(({ s, p }) => (T.orderFilter === 'all' || p.customer === T.orderFilter) && matches(s.name, p.id, p.job, cust(p.customer).name, p.site))
+  let list = shipments.filter(s => (tab === 'queue' ? !s.placedAt : !!s.placedAt)).map(s => ({ s, p: po(s.po) })).filter(({ s, p }) => (T.orderFilter === 'all' || p.customer === T.orderFilter) && matches(s.name, p.id, p.job, cust(p.customer).name, p.site, refText(s)))
     .sort((a, b) => tab === 'queue' ? ((placeBy(a.s) || FAR) - (placeBy(b.s) || FAR)) : ((nextMs(a.s)?.date || FAR) - (nextMs(b.s)?.date || FAR)));
   if (T.orderSort === 'customer') list.sort((a, b) => cust(a.p.customer).name.localeCompare(cust(b.p.customer).name));
   if (T.orderSort === 'sqft') list.sort((a, b) => b.s.sqft - a.s.sqft);
@@ -1036,10 +1069,10 @@ function viewOrdersByShipment(tab) {
 }
 
 function viewOrders(tab) {
-  const head = ordersHeader() + pageNav(ordersTabs(tab), searchBox(groupBy === 'shipment' ? 'Search shipments…' : 'Search orders…') + orderTools()) + tabDesc(TAB_DESC[tab]);
+  const head = ordersHeader() + pageNav(ordersTabs(tab), searchBox(groupBy === 'shipment' ? 'Search shipments or any PO, order, or booking #…' : 'Search orders or any PO, order, or booking #…') + orderTools()) + tabDesc(TAB_DESC[tab]);
   if (groupBy === 'shipment') return head + viewOrdersByShipment(tab);
   const FAR = new Date(2100,0,1);
-  const list = pos.filter(p => (tab === 'queue' ? p.lane === 'queue' : p.lane === 'production') && (T.orderFilter === 'all' || p.customer === T.orderFilter) && matches(p.id, p.job, cust(p.customer).name, p.site));
+  const list = pos.filter(p => (tab === 'queue' ? p.lane === 'queue' : p.lane === 'production') && (T.orderFilter === 'all' || p.customer === T.orderFilter) && matches(p.id, p.job, cust(p.customer).name, p.site, shipsOf(p.id).map(refText).join(' ')));
   if (T.orderSort === 'customer') list.sort((a, b) => cust(a.customer).name.localeCompare(cust(b.customer).name));
   if (T.orderSort === 'sqft') list.sort((a, b) => b.sqft - a.sqft);
   if (T.orderSort === 'needby') { const first = p => { const ds = shipsOf(p.id).filter(s => s.needBy).map(s => d(s.needBy)); return ds.length ? Math.min(...ds) : FAR; }; list.sort((a, b) => first(a) - first(b)); }
@@ -1107,7 +1140,7 @@ function viewPO(id, tab = 'shipments') {
     : tab === 'chats' ? `<div class="detail-card"><ul class="thread-list">${ths.length ? ths.map(t => threadListItem(t, false)).join('') : '<li class="empty">No conversations on this order.</li>'}</ul></div>`
     : tab === 'activity' ? `<div class="detail-card"><div class="detail-card-body" style="padding:6px 20px"><ul class="timeline">${[...p.activity].reverse().map(a => { const [ic, icon] = activityIcon(a[1]); return `<li class="timeline-item"><div class="timeline-icon ${ic}"><i class="bi bi-${icon}"></i></div><div class="minw0"><div class="timeline-text">${esc(a[1])}</div><div class="timeline-time">${fmtLong(a[0])}</div></div></li>`; }).join('')}</ul></div></div>`
     : `<div class="stack" style="gap:10px">${sh.map(s => shipCard(s, {office:true})).join('')}</div>`;
-  return pageHeader(esc(p.job), `${esc(c.name)} · ${esc(p.site)} · ${sqft(p.sqft)} · ${esc(p.product)}`,
+  return pageHeader(esc(p.job), `${esc(c.name)}${p.jobNo ? ` · job <span class="mono">${esc(p.jobNo)}</span>` : ''}${p.custPO ? ` · PO <span class="mono">${esc(p.custPO)}</span>` : ''} · ${esc(p.site)} · ${sqft(p.sqft)} · ${esc(p.product)}`,
     `${pill({k:h, t:PO_LABEL[h]})}<button class="btn btn-outline-secondary btn-sm" onclick="act.remind('${p.id}')"><i class="bi bi-bell me-1"></i> Remind customer</button><a class="btn btn-outline-secondary btn-sm" href="#portal-po-${n}"><i class="bi bi-eye me-1"></i> View as customer</a><div class="dropdown"><button class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></button><ul class="dropdown-menu dropdown-menu-end"><li><a class="dropdown-item" href="#po-${n}" onclick="act.stub('<b>Prototype.</b> Add shipment form would open here.')"><i class="bi bi-plus-lg me-2"></i>Add shipment</a></li><li><a class="dropdown-item" href="#po-${n}" onclick="act.stub('<b>Prototype.</b> Original email would open here.')"><i class="bi bi-envelope me-2"></i>View original email</a></li><li><hr class="dropdown-divider"></li><li><a class="dropdown-item text-danger" href="#po-${n}" onclick="act.stub('<b>Prototype.</b> Cancellation would need a reason and a customer notice.')"><i class="bi bi-x-circle me-2"></i>Cancel order</a></li></ul></div>`,
     { back: p.lane === 'queue' ? 'orders-queue' : 'orders-production', id: p.id }) + banner + pageNav(tabs, tools) +
   `<div class="show-layout"><div class="show-main">${main}</div><div class="show-sidebar">${poSidebar(p, c)}</div></div>`;
@@ -1138,6 +1171,17 @@ function viewShipEdit(sid) {
       ${field('Freight forwarder', sel('f-forwarder', fwds.map(v => [v.id, v.name]), s.forwarder, true))}
       ${field('Carrier (last leg)', sel('f-carrier', carriers.map(v => [v.id, `${v.name} · ${v.roles[0]}`]), s.carrier, true))}
       ${field('Placed / released on', txt('f-placed', s.placedAt || '', 'date'))}
+    </div>`)}
+    ${detailCard('Paperwork and delivery', 'from the PO, acknowledgement, and cover page', `<div class="row g-3">
+      ${field('Customer PO #', txt('f-custPO', s.custPO || ''))}
+      ${field('Sidemark', txt('f-sidemark', s.sidemark || ''))}
+      ${field('Navigator order # (ERP)', txt('f-erpOrder', s.erpOrder || ''))}
+      ${field('Factory PO #', txt('f-factoryPO', s.factoryPO || ''))}
+      ${field('Delivery contact', txt('f-dl-name', s.delivery?.name || ''))}
+      ${field('Contact phone', txt('f-dl-phone', s.delivery?.phone || ''))}
+      ${field('Delivering to', sel('f-dl-site', [['Job site','Job site'],['Warehouse','Warehouse']], s.delivery?.site || 'Job site'))}
+      <div class="col-md-6 d-flex align-items-end gap-4"><div class="form-check"><input class="form-check-input" type="checkbox" id="f-dl-dock" ${s.delivery?.dock ? 'checked' : ''}><label class="form-check-label small" for="f-dl-dock">Dock door</label></div><div class="form-check"><input class="form-check-input" type="checkbox" id="f-dl-forklift" ${s.delivery?.forklift ? 'checked' : ''}><label class="form-check-label small" for="f-dl-forklift">Forklift</label></div></div>
+      <div class="col-12"><label class="form-label small" for="f-dl-rules">Delivery rules, one per line</label><textarea class="form-control form-control-sm" id="f-dl-rules" rows="3">${esc((s.delivery?.rules || []).join('\n'))}</textarea></div>
     </div>`)}
     ${detailCard('What saving changes', '', `<div style="font-size:13px;color:var(--text-2);line-height:1.6">Changing the need-by, origin, port, or placed date recalculates every milestone from the lead times in Constraints. The customer sees the new dates in their portal${c.showLeadTimes ? '' : ' (lead times are hidden for this customer, so only the need-by and status)'}. Changing the kind switches between the ocean and domestic milestone chains. Renaming is cosmetic and logged.</div>`)}
     ${detailCard('Milestones at current values', '', msList(s))}
