@@ -394,7 +394,7 @@ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncTheme)
 const TODAY = new Date(2026, 9, 26);
 const DAY = 86400000;
 const d = s => { if (s instanceof Date) return s; const [y,m,dd] = s.split('-').map(Number); return new Date(y, m-1, dd); };
-const addDays = (dt, n) => new Date(d(dt).getTime() + n*DAY);
+const addDays = (dt, n) => { const x = new Date(d(dt)); x.setDate(x.getDate() + n); return x; };
 const diffDays = (a, b) => Math.round((d(a) - d(b)) / DAY);
 const iso = dt => { const x = d(dt); return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`; };
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
