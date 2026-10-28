@@ -452,6 +452,17 @@ const C = {
   ocean: { 'Los Angeles': 14, 'Long Beach': 14, 'Houston': 30, 'Savannah': 33, 'Charleston': 32, 'Miami': 32, 'Tampa': 32, 'Portland': 21, 'Tacoma': 18 },
   reminderDays: 7, stopUsDays: 10, standingEmailDays: 14,
 };
+/* Purchasing's lead times are ranges (Oct 28): production 14 to 45 days, cleared and released 1 to 3, pickup and delivery 3 to 5.
+   C holds the number each plan uses. FASTEST holds how quick a leg can go when pushed, for the earliest delivery if placed today.
+   Load-out keeps today's 10 days as its fastest. */
+const FASTEST = { production: 14, loadout: 10, clearance: 1, drayage: 3 };
+const fastest = k => Math.min(C[k], FASTEST[k] ?? C[k]);
+/* Days to deliver if every leg goes as fast as it can. It swaps the fastest numbers into C, adds up the legs, then restores C. */
+function fastestDays(s) {
+  const plan = { ...C };
+  Object.keys(FASTEST).filter(k => k in C).forEach(k => { C[k] = fastest(k); });
+  try { return totalDays(s); } finally { Object.assign(C, plan); }
+}
 /* How much history each ocean median rests on. Small samples are worth a second look from Ryan. */
 const OCEAN_HISTORY = { 'Los Angeles':'16 shipments, LA and Long Beach together', 'Long Beach':'16 shipments, LA and Long Beach together', 'Houston':'87 shipments', 'Savannah':'916 shipments', 'Charleston':'5 shipments', 'Miami':'34 shipments, Florida ports together', 'Tampa':'34 shipments, Florida ports together', 'Portland':'67 shipments', 'Tacoma':'3 shipments, Tacoma and Seattle' };
 
@@ -888,7 +899,7 @@ function nextActions() {
   const a = [];
   changes.filter(c => c.status === 'pending').forEach(c => a.push({ id:c.id, k:'info', t:`Review change request ${c.id} (${c.context.toLowerCase()})`, d:`${c.type} on ${coTarget(c).label} · ${c.from} → ${c.to}`, link:'changes', open:true }));
   shipments.filter(s => !s.placedAt && s.needBy).forEach(s => { const h = health(s);
-    if (h.k === 'crit' || h.k === 'warn') a.push({ id:'place-'+s.id, k:h.k, t:`Place ${s.name} of ${po(s.po).job} with ${s.origin}`, d:s.asap ? `ASAP on the customer's PO. Placed today, it delivers ${fmt(eta(s))}.` : h.k === 'crit' ? `Place-by date passed. Earliest delivery now ${fmt(addDays(TODAY, totalDays(s)))} against need-by ${fmt(s.needBy)}.` : `Last day to place and still make ${fmt(s.needBy)} is ${fmt(placeBy(s))}.`, link:'po-'+s.po.slice(3), btn:'Approve: place order', toast:`Factory PO drafted for ${s.name}. Ryan to send to ${s.origin}.` }); });
+    if (h.k === 'crit' || h.k === 'warn') a.push({ id:'place-'+s.id, k:h.k, t:`Place ${s.name} of ${po(s.po).job} with ${s.origin}`, d:s.asap ? `ASAP on the customer's PO. Placed today, it delivers ${fmt(eta(s))}${fastestDays(s) < totalDays(s) ? `, or ${fmt(addDays(TODAY, fastestDays(s)))} at the fastest` : ''}.` : h.k === 'crit' ? `Place-by date passed. Earliest delivery now ${fmt(addDays(TODAY, totalDays(s)))}${fastestDays(s) < totalDays(s) ? ` on the plan, ${fmt(addDays(TODAY, fastestDays(s)))} at the fastest,` : ''} against need-by ${fmt(s.needBy)}.` : `Last day to place and still make ${fmt(s.needBy)} is ${fmt(placeBy(s))}.`, link:'po-'+s.po.slice(3), btn:'Approve: place order', toast:`Factory PO drafted for ${s.name}. Ryan to send to ${s.origin}.` }); });
   shipments.filter(s => s.placedAt && s.needBy && !isDelivered(s) && diffDays(eta(s), s.needBy) > 0).forEach(s => a.push({ id:'late-'+s.id, k:'crit', t:`Tell ${cust(po(s.po).customer).name}: ${s.name} will arrive ${fmt(eta(s))}`, d:`${po(s.po).job} · need-by ${fmt(s.needBy)} · ${diffDays(eta(s), s.needBy)} days late. Offer stock from Wanke Georgia to start.`, link:'po-'+s.po.slice(3), btn:'Approve: send notice', toast:`Late notice sent to ${cust(po(s.po).customer).contact}, flagged "Action required".` }));
   pos.filter(p => !p.ack.sent).forEach(p => a.push({ id:'ack-'+p.id, k: diffDays(ackDue(p), TODAY) < 0 ? 'crit' : 'warn', t:`Send the acknowledgement for ${p.job}`, d:`The customer's PO asks for it within 48 hours: due ${fmt(ackDue(p))}. Drafted from the order; preview it before it goes.`, link:'po-'+p.id.slice(3), btn:'Approve: send', fn:`act.ackSend('${p.id}')` }));
   pos.filter(p => p.ack.sent && !p.ack.signed && diffDays(TODAY, p.ack.sent) > 2).forEach(p => a.push({ id:'acksign-'+p.id, k:'info', t:`Chase the signed acknowledgement for ${p.job}`, d:`Sent ${fmt(p.ack.sent)}. The factory order waits for the signature.`, link:'po-'+p.id.slice(3), btn:'Approve: send reminder', toast:`Reminder sent to ${cust(p.customer).contact}.` }));
@@ -983,6 +994,7 @@ const act = {
   hold(shipId) { const s = ship(shipId); s.hold = !s.hold; po(s.po).activity.push([iso(TODAY), `${s.name} ${s.hold ? 'held in the queue' : 'released from hold'} by Ryan.`]); toast(s.hold ? `<b>${esc(s.name)} held.</b> It stays in the queue and drops out of the place-by actions until you release it.` : `<b>${esc(s.name)} released.</b> It will be proposed for placement when it is due.`); render(); },
   toggleLead(id) { const c = cust(id); c.showLeadTimes = !c.showLeadTimes; toast(`<b>${c.name}:</b> lead times ${c.showLeadTimes ? 'visible' : 'hidden'} in the portal.`); render(); },
   setC(key, val, port) { const n = Number(val); if (isNaN(n)) return; if (port) C.ocean[port] = n; else C[key] = n; render(); },
+  setFastest(key, val) { const n = Number(val); if (isNaN(n)) return; FASTEST[key] = n; render(); },
   portalCustomer(id) { portalCustomer = id; render(); },
   intakeResolve(id) { intake.find(x => x.id === id).result = 'resolved'; toast('<b>Marked handled.</b> Sender asked for an unlocked PDF.'); render(); },
   ackPreview(poId) { ackOpen = ackOpen === poId ? null : poId; render(); },
@@ -1452,7 +1464,7 @@ function factoryForecast(vendorId) {
     <div class="detail-card-body">${rows.map(r => `<div class="bar-row"><span class="lbl">${r.label}</span><div class="bar-track">${Array.from({length:r.placed}).map(()=>`<span class="bar-seg placed" style="width:${100/max}%"></span>`).join('')}${Array.from({length:r.toplace}).map(()=>`<span class="bar-seg toplace" style="width:${100/max}%"></span>`).join('')}</div><span class="mono item-sub" style="width:1.5rem;text-align:right">${r.placed + r.toplace || ''}</span></div>`).join('')}
     <p class="item-sub mt-3 mb-0">Ryan's two spreadsheets in one place: what is placed with the mill by the month it finishes production, and what the queue says must be placed each month. Plus <b>${unknown}</b> shipments with no need-by date that cannot be scheduled yet.</p></div></div>
   <div class="data-table-wrapper"><div class="detail-card-header"><h3>Not yet placed</h3><span class="card-note">sorted by place-by date</span></div><div class="table-responsive"><table class="table table-hover"><thead><tr><th>Customer · Job</th><th>Shipment</th><th>Need-by</th><th>Place by</th><th>Est. delivery if placed today</th><th>Status</th></tr></thead><tbody>
-    ${unplaced.map(s => { const p = po(s.po); const pb = placeBy(s); return `<tr class="link" onclick="go('po-${p.id.slice(3)}')"><td class="item-name"><a href="#po-${p.id.slice(3)}">${esc(cust(p.customer).name)}</a><div class="item-sub">${esc(p.job)}</div></td><td>${esc(s.name)} <span class="item-sub">→ ${esc(s.port)}</span></td><td class="mono">${needShort(s) || sb('pending', 'unknown')}</td><td class="mono">${pb ? fmt(pb) : '—'}</td><td class="mono">${fmt(addDays(TODAY, totalDays(s)))}</td><td>${pill(health(s))}</td></tr>`; }).join('')}
+    ${unplaced.map(s => { const p = po(s.po); const pb = placeBy(s); return `<tr class="link" onclick="go('po-${p.id.slice(3)}')"><td class="item-name"><a href="#po-${p.id.slice(3)}">${esc(cust(p.customer).name)}</a><div class="item-sub">${esc(p.job)}</div></td><td>${esc(s.name)} <span class="item-sub">→ ${esc(s.port)}</span></td><td class="mono">${needShort(s) || sb('pending', 'unknown')}</td><td class="mono">${pb ? fmt(pb) : '—'}</td><td class="mono">${fmt(addDays(TODAY, totalDays(s)))}${fastestDays(s) < totalDays(s) ? `<div class="item-sub">fastest ${fmt(addDays(TODAY, fastestDays(s)))}</div>` : ''}</td><td>${pill(health(s))}</td></tr>`; }).join('')}
     ${unplaced.length ? '' : '<tr><td colspan="6" class="empty">Nothing waiting to be placed.</td></tr>'}
   </tbody></table></div>${tableFooter(unplaced.length, 'shipments')}</div>`;
 }
@@ -1571,9 +1583,9 @@ function viewContact(id) {
 }
 
 function viewSettings() {
-  const f = (label, key, port, note) => { const id = `c-${port ? ('ocean-' + port.replace(/\s/g,'')) : key}`; return `<div class="col"><label class="form-label small" for="${id}">${label}</label><input class="form-control form-control-sm mono" type="number" id="${id}" value="${port ? C.ocean[port] : C[key]}" onchange="act.setC('${key}', this.value${port ? `, '${port}'` : ''})">${note ? `<div class="item-sub mt-1">${note}</div>` : ''}</div>`; };
+  const f = (label, key, port, note) => { const id = `c-${port ? ('ocean-' + port.replace(/\s/g,'')) : key}`; const fast = !port && key in FASTEST ? `<div class="d-flex align-items-center gap-2 mt-1"><label class="item-sub mb-0" for="${id}-fast">Fastest</label><input class="form-control form-control-sm mono" style="max-width:5.5rem" type="number" id="${id}-fast" value="${FASTEST[key]}" onchange="act.setFastest('${key}', this.value)"></div>` : ''; return `<div class="col"><label class="form-label small" for="${id}">${label}</label><input class="form-control form-control-sm mono" type="number" id="${id}" value="${port ? C.ocean[port] : C[key]}" onchange="act.setC('${key}', this.value${port ? `, '${port}'` : ''})">${fast}${note ? `<div class="item-sub mt-1">${note}</div>` : ''}</div>`; };
   const grid = inner => `<div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">${inner}</div>`;
-  return pageHeader('Constraints', 'Lead times that set every planned date in the system.') +
+  return pageHeader('Constraints', 'Lead times that set every planned date, and the fastest each leg can go when pushed.') +
   `<div class="stack">
   ${detailCard('Ocean shipment legs (days)', '', grid(f('Factory production','production') + f('Booking lead (request before ready)','bookingLead') + f('Load-out to departure','loadout') + f('Port clearance','clearance') + f('Drayage to destination','drayage')))}
   ${detailCard('Ocean transit from Korea by US port (days)', 'median of the order history', grid(Object.keys(C.ocean).map(p => f(p, 'ocean', p, OCEAN_HISTORY[p])).join('')))}
