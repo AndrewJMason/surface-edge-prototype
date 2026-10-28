@@ -404,12 +404,16 @@ const sqft = n => n.toLocaleString('en-US') + ' sq ft';
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const rel = dt => { const n = diffDays(dt, TODAY); if (n === 0) return 'today'; if (n === 1) return 'tomorrow'; if (n === -1) return 'yesterday'; return n > 0 ? `in ${n} days` : `${-n} days ago`; };
 
-/* ---------- editable constraints (Ryan's napkin numbers; placeholders) ---------- */
+/* ---------- editable constraints ----------
+   Ocean transit by port: median days from departure to US port in Surface Edge's order history, 2022 to 2026.
+   Everything else is still Ryan's napkin numbers (placeholders). */
 const C = {
   production: 45, loadout: 10, clearance: 5, drayage: 3, bookingLead: 21, pick: 2, ground: 4,
-  ocean: { 'Los Angeles': 21, 'Long Beach': 21, 'Houston': 35, 'Savannah': 33, 'Charleston': 33, 'Miami': 36 },
+  ocean: { 'Los Angeles': 14, 'Long Beach': 14, 'Houston': 30, 'Savannah': 33, 'Charleston': 32, 'Miami': 32, 'Tampa': 32, 'Portland': 21, 'Tacoma': 18 },
   reminderDays: 7, stopUsDays: 10, standingEmailDays: 14,
 };
+/* How much history each ocean median rests on. Small samples are worth a second look from Ryan. */
+const OCEAN_HISTORY = { 'Los Angeles':'16 shipments, LA and Long Beach together', 'Long Beach':'16 shipments, LA and Long Beach together', 'Houston':'87 shipments', 'Savannah':'916 shipments', 'Charleston':'5 shipments', 'Miami':'34 shipments, Florida ports together', 'Tampa':'34 shipments, Florida ports together', 'Portland':'67 shipments', 'Tacoma':'3 shipments, Tacoma and Seattle' };
 
 /* ---------- sample data ---------- */
 const customers = [
@@ -1316,12 +1320,12 @@ function viewContact(id) {
 }
 
 function viewSettings() {
-  const f = (label, key, port) => { const id = `c-${port ? ('ocean-' + port.replace(/\s/g,'')) : key}`; return `<div class="col"><label class="form-label small" for="${id}">${label}</label><input class="form-control form-control-sm mono" type="number" id="${id}" value="${port ? C.ocean[port] : C[key]}" onchange="act.setC('${key}', this.value${port ? `, '${port}'` : ''})"></div>`; };
+  const f = (label, key, port, note) => { const id = `c-${port ? ('ocean-' + port.replace(/\s/g,'')) : key}`; return `<div class="col"><label class="form-label small" for="${id}">${label}</label><input class="form-control form-control-sm mono" type="number" id="${id}" value="${port ? C.ocean[port] : C[key]}" onchange="act.setC('${key}', this.value${port ? `, '${port}'` : ''})">${note ? `<div class="item-sub mt-1">${note}</div>` : ''}</div>`; };
   const grid = inner => `<div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">${inner}</div>`;
-  return pageHeader('Constraints', 'The lead times the milestone engine uses. Change one and every planned date on every order recalculates. Numbers here are placeholders until Ryan sends the real ones.') +
+  return pageHeader('Constraints', 'The lead times the milestone engine uses. Change one and every planned date on every order recalculates. Ocean transit by port is the median from the order history; the other numbers are placeholders until Ryan confirms them.') +
   `<div class="stack">
   ${detailCard('Ocean shipment legs (days)', '', grid(f('Factory production','production') + f('Booking lead (request before ready)','bookingLead') + f('Load-out to departure','loadout') + f('Port clearance','clearance') + f('Drayage to destination','drayage')))}
-  ${detailCard('Ocean transit from Korea by US port (days)', '', grid(Object.keys(C.ocean).map(p => f(p, 'ocean', p)).join('')))}
+  ${detailCard('Ocean transit from Korea by US port (days)', 'median of the order history', grid(Object.keys(C.ocean).map(p => f(p, 'ocean', p, OCEAN_HISTORY[p])).join('')))}
   ${detailCard('Domestic from Wanke warehouse (days)', '', grid(f('Pick','pick') + f('Ground to job site','ground')))}
   ${detailCard('Communication cadence (days)', '', grid(f('Reminder for missing info, every','reminderDays') + f('"Stop us or it ships" before departure','stopUsDays') + f('Customer standing email, every','standingEmailDays')))}
   <div class="detail-card"><div class="detail-card-header"><h3>Auto-approve</h3><span class="card-note">actions people approve almost every time can run on their own</span></div>
