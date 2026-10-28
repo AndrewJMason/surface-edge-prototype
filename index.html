@@ -1837,6 +1837,8 @@ function renderMain() {
   renderWidget();
   markClipped();
 }
+/* Close the phone menu when the window widens past phone width. Bootstrap does this only for a menu that stops being position:fixed, and this sidebar stays fixed on desktop, so its backdrop would stay over the page. */
+matchMedia('(max-width: 767.98px)').addEventListener('change', e => { if (!e.matches && window.bootstrap) bootstrap.Offcanvas.getInstance(document.getElementById('sidebar'))?.hide(); });
 window.addEventListener('resize', () => markClipped());
 let lastRoute = null;
 function render() {
