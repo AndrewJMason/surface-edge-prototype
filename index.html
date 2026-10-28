@@ -131,6 +131,8 @@ body.portal .main-content{margin-left:0}
 .info-strip .info-text{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .info-strip.open .info-text{white-space:normal}
 .info-strip .info-chev{flex-shrink:0;font-size:11px;color:var(--text-faint);transition:transform .15s ease;line-height:1.6}
+.info-strip:not(.open):not(.clipped){cursor:default}
+.info-strip:not(.open):not(.clipped) .info-chev{visibility:hidden}
 .info-strip.open .info-chev{transform:rotate(180deg)}
 /* One row: page tabs on the left, search / group / filter / sort on the right */
 .page-nav{display:flex;align-items:flex-end;justify-content:space-between;gap:12px 16px;flex-wrap:wrap;border-bottom:2px solid var(--border);margin-bottom:14px}
@@ -1103,8 +1105,11 @@ const toolbar = (placeholder, right = '') => pageNav('', searchBox(placeholder) 
 const openDesc = new Set();
 function tabDesc(html) {
   const open = openDesc.has(route);
-  const plain = html.replace(/<[^>]+>/g, ''); const first = plain.split(/(?<=[.!?])\s+/)[0];
-  return `<button type="button" class="info-strip ${open ? 'open' : ''}" aria-expanded="${open}" title="${open ? 'Collapse' : 'Read more'}" onclick="act.toggleDesc()"><i class="bi bi-info-circle"></i><span class="info-text">${open ? html : esc(first)}</span><i class="bi bi-chevron-down info-chev"></i></button>`;
+  return `<button type="button" class="info-strip ${open ? 'open' : ''}" aria-expanded="${open}" title="${open ? 'Collapse' : 'Read more'}" onclick="if(this.classList.contains('open')||this.classList.contains('clipped'))act.toggleDesc()"><i class="bi bi-info-circle"></i><span class="info-text">${html}</span><i class="bi bi-chevron-down info-chev"></i></button>`;
+}
+/* Mark strips whose note is cut off, so only those show the chevron and expand on click. */
+function markClipped() {
+  document.querySelectorAll('.info-strip:not(.open)').forEach(b => { const t = b.querySelector('.info-text'); b.classList.toggle('clipped', t.scrollWidth > t.clientWidth + 1); });
 }
 /* items: [routeId, label, count|null, color] */
 const MAX_TABS = 4;
@@ -1171,7 +1176,7 @@ function viewToday() {
   const atRisk = shipments.filter(s => health(s).k === 'crit').length;
   const unknown = shipments.filter(s => !s.needBy).length;
   const acts = nextActions();
-  return pageHeader('Dashboard', 'What the system proposes next. Approve to let it send; open to change it first. Nothing goes out without a click.', `<span class="proto-tag">Monday, Oct 26, 2026</span>`) +
+  return pageHeader('Dashboard', 'What needs a decision today, and how the business is trending.', `<span class="proto-tag">Monday, Oct 26, 2026</span>`) +
   `<div class="stat-cards">${statCard('Shipments in production', inProd, 'box-seam', 'blue', { route:'orders-production', group:'shipment', label:'Production shipments' })}${statCard('Shipments queued', queued, 'hourglass-split', 'gray', { route:'orders-queue', group:'shipment', label:'Queued shipments' })}${statCard('Need-by dates unknown', unknown, 'calendar-x', 'amber', { route:'orders-queue', group:'shipment', label:'Queue by shipment' })}${statCard('At risk of missing need-by', atRisk, 'exclamation-triangle', atRisk ? 'red' : 'green', { route:'orders-production', group:'shipment', label:'Production by shipment' })}${statCard('Change requests pending', pendingCO, 'arrow-left-right', pendingCO ? 'amber' : 'green', { route:'changes', label:'Pending change requests' })}</div>
   ${perfTable()}
   <div class="detail-card mb-3"><div class="detail-card-header"><h3>Next intended actions</h3><span class="card-note">${acts.length} proposed</span></div>
@@ -1190,7 +1195,7 @@ const ordersTabs = tab => `<ul class="nav nav-tabs">
   <li class="nav-item"><a class="nav-link ${tab==='queue'?'active':''}" href="#orders-queue">Queue <span class="badge bg-warning bg-opacity-10 text-warning">${pos.filter(p=>p.lane==='queue').length}</span></a></li>
   <li class="nav-item"><a class="nav-link ${tab==='production'?'active':''}" href="#orders-production">Production <span class="badge bg-success bg-opacity-10 text-success">${pos.filter(p=>p.lane==='production').length}</span></a></li></ul>`;
 
-const ordersHeader = () => pageHeader('Orders', 'Every purchase order from the moment it arrives to the last delivery and invoice.', `<button class="btn btn-outline-secondary btn-sm" onclick="act.stub('<b>Prototype.</b> Manual entry form would open here.')"><i class="bi bi-plus-lg me-1"></i> Enter a PO by hand</button>`);
+const ordersHeader = () => pageHeader('Orders', 'Every purchase order, from arrival to final delivery and invoice.', `<button class="btn btn-outline-secondary btn-sm" onclick="act.stub('<b>Prototype.</b> Manual entry form would open here.')"><i class="bi bi-plus-lg me-1"></i> Enter a PO by hand</button>`);
 const TAB_DESC = {
   intake: 'Everything that arrives at <span class="mono">orders@surfaceedge.com</span>. The system reads the email and attachments, matches the customer, finds gaps, and replies before anyone touches it. New customers start their account package here.',
   queue: 'Captured but not actionable yet: waiting on a need-by date or paperwork, paused by the customer, or too far out to place with the factory.',
@@ -1266,7 +1271,7 @@ function viewChanges() {
   list = coSort === 'context' ? [...list].sort((a, b) => CONTEXTS.indexOf(a.context) - CONTEXTS.indexOf(b.context) || (b.received > a.received ? 1 : -1)) : [...list].sort((a, b) => b.received > a.received ? 1 : -1);
   const contextSelect = filterTool('coContext', [['All','All contexts'], ...CONTEXTS.map(x => [x, `${x} (${changes.filter(c => c.status === coTab && c.context === x).length})`])]);
   const sortToggle = sortTool('coSort', [['newest','Newest first'],['context','By context']]);
-  return pageHeader('Change requests', 'Every requested change, about anything and from anyone, lands here instead of an inbox. Approve, Modify, or Reject; the decision recalculates what it touches and sends the right email with the right emphasis.') +
+  return pageHeader('Change requests', 'Every requested change, from anyone, waiting on a decision.') +
   pageNav(tabsUl(CO_TABS.map(t => [t[0], t[1], count(t[2]), t[3]]), CO_TABS.find(t => t[2] === coTab)[0]), searchBox('Search change requests…') + contextSelect + sortToggle) +
   tabDesc({ pending:'Waiting on a decision from Surface Edge. The system drafts the impact; a person clicks.', approved:'Accepted as requested. Milestones, constraints, or records were updated and the requester was told.', modified:'Accepted with changes. A counter-proposal went back to the requester.', rejected:'Declined with a reason. The requester was told what would make it workable.' }[coTab]) +
   `<div class="detail-card grow"><ul class="action-list">${list.length ? list.map(c => coRow(c)).join('') : `<li class="empty">No ${coTab} change requests${coContext !== 'All' ? ' for ' + coContext.toLowerCase() + 's' : ''}.</li>`}</ul>${tableFooter(list.length, 'change requests')}</div>`;
@@ -1364,7 +1369,7 @@ function viewCustomers(tab) {
   const tools = searchBox('Search customers…') + filterTool('custFilter', [['all','All reps'], ...[...new Set(customers.map(c => c.rep))].map(r => [r, 'Rep: ' + r])]) + sortTool('custSort', [['default','Default order'],['name','Name A–Z'],['completeness','PO completeness, lowest first'],['changes','Most change requests']]);
   const tabs = tabsUl(CUST_TABS.map(t => [t[0], t[1], t[0] === 'customers' ? customers.length : customers.filter(c => custStatus(c) === t[0].slice(10)).length, t[0] === 'customers-onboarding' ? 'warning' : t[0] === 'customers-active' ? 'success' : 'secondary']), tab ? 'customers-' + tab : 'customers');
   const desc = { active:'Onboarded and holding at least one open order.', onboarding:'First order received; account package, credit, preliminary notice, or tax status still open.', inactive:'Onboarded with no open orders. Standing emails pause until the next PO.' }[tab] || 'Who we sell to, what they owe us, and how clean their orders arrive. Matched against the customer list export until the new system lands in February.';
-  return pageHeader('Customers', 'Companies that buy from Surface Edge. One customer can front many jobs, salespeople, and sub-customers.', `<button class="btn btn-primary btn-sm" onclick="act.stub('<b>Prototype.</b> New customer form would open here.')"><i class="bi bi-plus-lg me-1"></i> New customer</button>`) + pageNav(tabs, tools) + tabDesc(desc) +
+  return pageHeader('Customers', 'Companies that buy from Surface Edge.', `<button class="btn btn-primary btn-sm" onclick="act.stub('<b>Prototype.</b> New customer form would open here.')"><i class="bi bi-plus-lg me-1"></i> New customer</button>`) + pageNav(tabs, tools) + tabDesc(desc) +
   `<div class="data-table-wrapper"><div class="table-responsive"><table class="table table-hover"><thead><tr><th>Customer</th><th>Contact</th><th class="num">Active</th><th class="num">Queued</th><th class="num">Open changes</th><th class="num">PO completeness</th><th class="num">Changes / 90d</th><th>Status</th></tr></thead><tbody>
     ${rows.map(c => { const cp = pos.filter(p => p.customer === c.id); return `<tr class="link" onclick="go('customer-${c.id}')"><td class="item-name"><a href="#customer-${c.id}">${esc(c.name)}</a><div class="item-sub">${esc(c.hq)} · rep ${esc(c.rep)}</div></td><td>${esc(c.contact)}</td><td class="num">${cp.filter(p=>p.lane==='production').length}</td><td class="num">${cp.filter(p=>p.lane==='queue').length}</td><td class="num">${companyChanges(c.id).filter(x=>x.status==='pending').length}</td><td class="num">${c.completeness}%</td><td class="num">${c.cos90}</td><td>${{ active: sb('active', 'Active'), onboarding: sb('pending', 'Onboarding'), inactive: sb('inactive', 'Inactive') }[custStatus(c)]}</td></tr>`; }).join('')}
     ${rows.length ? '' : '<tr><td colspan="8" class="empty">No customers match.</td></tr>'}
@@ -1451,7 +1456,7 @@ function viewChats(tab, selectedId) {
   const sel = selectedId ? thread(selectedId) : list[0];
   if (sel && sel.unread && selectedId) sel.unread = false;
   const count = k => threadsFor(k).length;
-  const head = pageHeader('Chats', 'Every email and portal message, merged into threads by sender and subject. Reply here instead of in Outlook; the system keeps the order, the contact, and any change request linked.', `<button class="btn btn-primary btn-sm" onclick="act.stub('<b>Prototype.</b> A new message form would open here.')"><i class="bi bi-pencil-square me-1"></i> New message</button>`) +
+  const head = pageHeader('Chats', 'Customer and vendor emails, grouped into threads you can answer here.', `<button class="btn btn-primary btn-sm" onclick="act.stub('<b>Prototype.</b> A new message form would open here.')"><i class="bi bi-pencil-square me-1"></i> New message</button>`) +
   pageNav(`<ul class="nav nav-tabs">${CHAT_TABS.map(x => `<li class="nav-item"><a class="nav-link ${tab===x[0]?'active':''}" href="#chats-${x[0]}">${x[1]} ${x[0] === 'closed' ? '' : `<span class="badge bg-${x[0]==='open'?'warning':x[0]==='awaiting'?'primary':'secondary'} bg-opacity-10 text-${x[0]==='open'?'warning':x[0]==='awaiting'?'primary':'secondary'}">${count(x[0])}</span>`}</a></li>`).join('')}</ul>`, searchBox('Search threads…') + filterTool('chatFilter', [['all','Everyone'],['me','Assigned to me'],['unassigned','Unassigned']]) + sortTool('chatSort', [['newest','Newest first'],['oldest','Oldest first']])) +
   tabDesc(CHAT_DESC[tab]);
   return head + `
@@ -1467,7 +1472,7 @@ function viewVendors(roleSlug) {
   if (T.vendorSort === 'name') rows.sort(byName('name'));
   const tools = searchBox('Search vendors…') + filterTool('vendorFilter', [['all','All vendors'],['active','With active shipments'],['changes','With pending change requests']]) + sortTool('vendorSort', [['default','Default order'],['name','Name A–Z']]);
   const tabs = tabsUl([['vendors', 'All', vendors.length], ...ROLE_TABS.map(r => ['vendors-' + slug(r[0]), r[1], vendors.filter(v => v.roles.includes(r[0])).length])], role ? 'vendors-' + slug(role) : 'vendors');
-  return pageHeader('Vendors', 'Companies that play a vendor role on orders and shipments. Each role owns a lead time the milestone engine uses.', `<button class="btn btn-primary btn-sm" onclick="act.stub('<b>Prototype.</b> New vendor form would open here.')"><i class="bi bi-plus-lg me-1"></i> New vendor</button>`) + pageNav(tabs, tools) +
+  return pageHeader('Vendors', 'Factories, forwarders, carriers, and warehouses that move each shipment.', `<button class="btn btn-primary btn-sm" onclick="act.stub('<b>Prototype.</b> New vendor form would open here.')"><i class="bi bi-plus-lg me-1"></i> New vendor</button>`) + pageNav(tabs, tools) +
   tabDesc(role ? ROLE_DESC[role] : 'Factories, forwarders, brokers, carriers, and warehouses. A company can hold more than one role.') +
   `<div class="data-table-wrapper"><div class="table-responsive"><table class="table table-hover"><thead><tr><th>Vendor</th><th>Roles</th><th>Primary contact</th><th class="num">Active shipments</th><th class="num">Open changes</th><th>Lead time</th></tr></thead><tbody>
     ${rows.map(v => { const vs = vendorShipments(v.id).filter(s => !isDelivered(s)); const pc = contactsOf(v.id).find(c => c.primary); return `<tr class="link" onclick="go('vendor-${v.id}')"><td class="item-name"><a href="#vendor-${v.id}">${esc(v.name)}</a><div class="item-sub">${esc(v.hq)}</div></td><td><div class="tag-list">${v.roles.map(r => `<span class="tag blue">${esc(r)}</span>`).join('')}</div></td><td>${pc ? `${esc(pc.name)}<div class="item-sub mono">${esc(pc.email)}</div>` : '<span class="text-body-secondary">—</span>'}</td><td class="num">${vs.length}</td><td class="num">${companyChanges(v.id).filter(c => c.status === 'pending').length}</td><td><span class="mono">${v.constraint === 'production' ? C.production : C[v.constraint]} days</span><div class="item-sub">${CONSTRAINT_LABEL[v.constraint]}</div></td></tr>`; }).join('')}
@@ -1500,7 +1505,7 @@ function viewContacts(tab) {
   const tools = searchBox('Search contacts…') + filterTool('contactFilter', [['all','All contacts'],['primary','Primary only'],['left','Left their company']]) + sortTool('contactSort', [['default','Default order'],['name','Name A–Z'],['company','Company A–Z']]);
   const tabs = tabsUl(CONTACT_TABS.map(t => [t[0], t[1], t[0] === 'contacts' ? contacts.length : contacts.filter(ct => (t[0] === 'contacts-vendors') === isVendorContact(ct)).length]), tab ? 'contacts-' + tab : 'contacts');
   const desc = { customers:'People at the companies that buy from us. The primary contact gets standing emails, reminders, and departure notices.', vendors:'People at factories, forwarders, carriers, and warehouses. Booking requests and lead-time changes go through them.' }[tab] || 'The people behind every company: who to email, who gave which date, and who has left. Turnover at big customers is why a date is tied to a person.';
-  return pageHeader('Contacts', 'People attached to customers and vendors.', `<button class="btn btn-primary btn-sm" onclick="act.stub('<b>Prototype.</b> New contact form would open here.')"><i class="bi bi-plus-lg me-1"></i> New contact</button>`) + pageNav(tabs, tools) + tabDesc(desc) +
+  return pageHeader('Contacts', 'People at your customers and vendors.', `<button class="btn btn-primary btn-sm" onclick="act.stub('<b>Prototype.</b> New contact form would open here.')"><i class="bi bi-plus-lg me-1"></i> New contact</button>`) + pageNav(tabs, tools) + tabDesc(desc) +
   `<div class="data-table-wrapper"><div class="table-responsive"><table class="table table-hover"><thead><tr><th>Name</th><th>Company</th><th>Title</th><th>Email</th><th>Phone</th><th>Status</th></tr></thead><tbody>
     ${rows.map(ct => { const co = company(ct.company); return `<tr class="link" onclick="go('contact-${ct.id}')"><td class="item-name"><a href="#contact-${ct.id}">${esc(ct.name)}</a>${ct.primary ? '<div class="item-sub">Primary contact</div>' : ''}</td><td><a href="${companyLink(co)}" class="text-decoration-none">${esc(co.name)}</a><div class="item-sub">${companyRoles(co).join(', ')}</div></td><td>${esc(ct.title)}</td><td class="mono">${esc(ct.email)}</td><td class="mono">${ct.phone ? esc(ct.phone) : '—'}</td><td>${ct.status === 'left' ? sb('danger', 'Left') : sb('active', 'Active')}</td></tr>`; }).join('')}
   </tbody></table></div>${tableFooter(rows.length, 'contacts')}</div>`;
@@ -1530,7 +1535,7 @@ function viewContact(id) {
 function viewSettings() {
   const f = (label, key, port, note) => { const id = `c-${port ? ('ocean-' + port.replace(/\s/g,'')) : key}`; return `<div class="col"><label class="form-label small" for="${id}">${label}</label><input class="form-control form-control-sm mono" type="number" id="${id}" value="${port ? C.ocean[port] : C[key]}" onchange="act.setC('${key}', this.value${port ? `, '${port}'` : ''})">${note ? `<div class="item-sub mt-1">${note}</div>` : ''}</div>`; };
   const grid = inner => `<div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">${inner}</div>`;
-  return pageHeader('Constraints', 'The lead times the milestone engine uses. Change one and every planned date on every order recalculates. Ocean transit by port is the median from the order history; the other numbers are placeholders until Ryan confirms them.') +
+  return pageHeader('Constraints', 'Lead times that set every planned date in the system.') +
   `<div class="stack">
   ${detailCard('Ocean shipment legs (days)', '', grid(f('Factory production','production') + f('Booking lead (request before ready)','bookingLead') + f('Load-out to departure','loadout') + f('Port clearance','clearance') + f('Drayage to destination','drayage')))}
   ${detailCard('Ocean transit from Korea by US port (days)', 'median of the order history', grid(Object.keys(C.ocean).map(p => f(p, 'ocean', p, OCEAN_HISTORY[p])).join('')))}
@@ -1717,7 +1722,9 @@ function renderMain() {
   else if (route === 'settings') body = viewSettings();
   else body = viewToday();
   main.innerHTML = topbar() + `<div class="page-content">${body}</div>`;
+  markClipped();
 }
+window.addEventListener('resize', () => markClipped());
 let lastRoute = null;
 function render() {
   resolveNeedBy();
