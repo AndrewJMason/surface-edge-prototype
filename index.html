@@ -615,14 +615,24 @@ const threadsOnPO = poId => threads.filter(t => t.po === poId);
 /* ---------- milestone engine ---------- */
 const CONTAINER_STAGES = ['Placed with factory', 'Production complete', 'Departed origin port', 'Arrived US port', 'Cleared customs', 'Delivered'];
 const LTL_STAGES = ['Released to warehouse', 'Picked', 'Shipped', 'Delivered'];
+/* Many containers stop at a Georgia warehouse and go on to the job by truck, sometimes weeks later (the "ship from" lines in the
+   order matrix). And the last leg depends on how far the job is from the port or warehouse ("a radius out of each port", Oct 23):
+   local uses the drayage number; regional and long haul have their own. */
+Object.assign(C, { release: 2, legRegional: 5, legLong: 8 });
+const BANDS = [['local', 'Local, under 150 miles'], ['regional', 'Regional, 150 to 500 miles'], ['long', 'Long haul, over 500 miles']];
+const legDays = s => ({ regional: C.legRegional, long: C.legLong })[s.band] ?? C.drayage;
+const stagesOf = s => s.type !== 'container' ? LTL_STAGES : s.via ? [...CONTAINER_STAGES.slice(0, 5), `At ${vendor(s.via).name}`, 'Delivered'] : CONTAINER_STAGES;
+vendors.push({ id:'peach-3pl', name:'Peach State Logistics', roles:['Warehouse'], hq:'Pooler, GA', notes:'Third-party warehouse near the Georgia ports. Containers stop here and go on to jobs by truck, sometimes weeks later.', constraint:'pick' });
+Object.assign(ship('S4'), { port:'Savannah', carrier:'coastal-dray', via:'peach-3pl', band:'long' });   // Fairway Container 4: through Georgia, then a truck to Houston
+Object.assign(ship('S18'), { band:'regional' });                                                         // Sugarloaf Container 1: Savannah to Lawrenceville
 function durations(s) {
   return s.type === 'container'
-    ? [0, C.production, C.loadout, C.ocean[s.port] ?? 30, C.clearance, C.drayage]
+    ? [0, C.production, C.loadout, C.ocean[s.port] ?? 30, C.clearance, s.via ? C.drayage : legDays(s), ...(s.via ? [C.release + legDays(s)] : [])]
     : [0, C.pick, 1, C.ground];
 }
 const totalDays = s => durations(s).reduce((a, b) => a + b, 0);
 function milestones(s) {
-  const names = s.type === 'container' ? CONTAINER_STAGES : LTL_STAGES;
+  const names = stagesOf(s);
   const dur = durations(s);
   const start = s.placedAt || placeBy(s) || TODAY;
   const out = []; let cursor = d(start);
@@ -651,7 +661,7 @@ function health(s) {
   if (slip > -5) return { k:'warn', t:'Tight' };
   return { k:'good', t:'On track' };
 }
-const stageName = s => s.placedAt ? (s.type === 'container' ? CONTAINER_STAGES : LTL_STAGES)[s.stage] : 'Not placed';
+const stageName = s => s.placedAt ? stagesOf(s)[s.stage] : 'Not placed';
 const nextMs = s => milestones(s)[s.stage + 1] || null;
 
 /* ---------- derived ---------- */
@@ -798,6 +808,8 @@ const act = {
     const oc = v('origin'); if (oc && oc !== s.originCo) { changed.push(`origin → ${vendor(oc).name}`); s.originCo = oc; s.origin = ORIGIN_LABEL[oc] || vendor(oc).name; }
     const port = v('port') || null; if (port !== s.port) { changed.push(`port → ${port || 'none'}`); s.port = port; }
     const dest = v('dest').trim(); if (dest && dest !== s.dest) { changed.push(`destination → ${dest}`); s.dest = dest; }
+    const via = s.type === 'container' ? v('via') || null : null; if (via !== (s.via || null)) { changed.push(via ? `stops at ${vendor(via).name}` : 'no warehouse stop'); s.via = via; }
+    const band = v('band') || 'local'; if (band !== (s.band || 'local')) { changed.push(`last leg → ${BANDS.find(b => b[0] === band)[1].toLowerCase()}`); s.band = band === 'local' ? null : band; }
     const fw = v('forwarder') || null; if (fw !== s.forwarder) { changed.push(`forwarder → ${fw ? vendor(fw).name : 'none'}`); s.forwarder = fw; }
     const cr = v('carrier') || null; if (cr !== s.carrier) { changed.push(`carrier → ${cr ? vendor(cr).name : 'none'}`); s.carrier = cr; }
     const pl = v('placed') || null; if (pl !== s.placedAt) { changed.push(`placed ${s.placedAt ? fmt(s.placedAt) : 'not placed'} → ${pl ? fmt(pl) : 'not placed'}`); s.placedAt = pl; if (pl && s.stage < 0) s.stage = 0; if (!pl) { s.stage = -1; s.actual = {}; } }
@@ -1134,6 +1146,8 @@ function viewShipEdit(sid) {
       ${field('Need-by date', txt('f-needby', s.needBy || '', 'date'))}
       ${field('Origin', sel('f-origin', origins.map(v => [v.id, `${v.name} · ${v.roles[0]}`]), s.originCo))}
       ${field('US port (ocean only)', sel('f-port', Object.keys(C.ocean).map(k => [k, `${k} · ${C.ocean[k]} days`]), s.port, true))}
+      ${field('Stops at a warehouse (ocean only)', sel('f-via', vendors.filter(v => v.roles.includes('Warehouse')).map(v => [v.id, `${v.name} · ${v.hq}`]), s.via, true))}
+      ${field('Last leg distance', sel('f-band', BANDS.map(b => [b[0], `${b[1]} · ${legDays({ band: b[0] })} days`]), s.band || 'local'))}
       ${field('Destination', txt('f-dest', s.dest), true)}
       ${field('Freight forwarder', sel('f-forwarder', fwds.map(v => [v.id, v.name]), s.forwarder, true))}
       ${field('Carrier (last leg)', sel('f-carrier', carriers.map(v => [v.id, `${v.name} · ${v.roles[0]}`]), s.carrier, true))}
@@ -1323,6 +1337,7 @@ function viewSettings() {
   ${detailCard('Ocean shipment legs (days)', '', grid(f('Factory production','production') + f('Booking lead (request before ready)','bookingLead') + f('Load-out to departure','loadout') + f('Port clearance','clearance') + f('Drayage to destination','drayage')))}
   ${detailCard('Ocean transit from Korea by US port (days)', '', grid(Object.keys(C.ocean).map(p => f(p, 'ocean', p)).join('')))}
   ${detailCard('Domestic from Wanke warehouse (days)', '', grid(f('Pick','pick') + f('Ground to job site','ground')))}
+  ${detailCard('Last leg by distance (days)', 'local uses drayage above', grid(f('Regional, 150 to 500 miles','legRegional') + f('Long haul, over 500 miles','legLong') + f('Warehouse release before the truck','release')))}
   ${detailCard('Communication cadence (days)', '', grid(f('Reminder for missing info, every','reminderDays') + f('"Stop us or it ships" before departure','stopUsDays') + f('Customer standing email, every','standingEmailDays')))}
   <div class="detail-card"><div class="detail-card-header"><h3>Auto-approve</h3><span class="card-note">actions people approve almost every time can run on their own</span></div>
     <ul class="action-list">${[['Send intake acknowledgement and missing-info list','100%',true],['Send reminder for missing need-by dates','98%',true],['Send departure notice 10 days before ship','96%',true],['Place with factory on go/no-go date','62%',false],['Approve customer need-by change with no production impact','81%',false]].map((r, i) => actionItem(r[2] ? 'good' : 'muted', esc(r[0]), `Approved without edits ${r[1]} of the time`, `<div class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" role="switch" id="auto-${i}" ${r[2]?'checked':''} onchange="act.stub('<b>Saved.</b> ' + (this.checked ? 'Now automatic.' : 'Now needs approval.'))"><label class="form-check-label" style="font-size:13px" for="auto-${i}">${r[2]?'Automatic':'Needs approval'}</label></div>`)).join('')}</ul></div>
