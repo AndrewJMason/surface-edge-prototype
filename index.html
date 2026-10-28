@@ -1348,7 +1348,7 @@ function viewPortal() {
   const active = cp.filter(p => p.lane === 'production'), queued = cp.filter(p => p.lane === 'queue');
   const needs = [];
   cp.forEach(p => { shipsOf(p.id).filter(s => !s.needBy && !changes.some(x => x.ship === s.id && x.status === 'pending')).forEach(s => needs.push({ p, s, kind:'date' })); p.gate.filter(g => g[3]==='pending' && g[2]==='Customer').forEach(g => needs.push({ p, g, kind:'gate' })); shipsOf(p.id).filter(s => /missing/i.test(s.dest)).slice(0,1).forEach(s => needs.push({ p, s, kind:'address' })); });
-  const pendingCOs = changes.filter(x => x.status === 'pending' && po(x.po).customer === c.id);
+  const pendingCOs = changes.filter(x => x.status === 'pending' && (x.po ? po(x.po).customer : x.target) === c.id);
   return portalShell(`
     <div class="stat-cards">${statCard('Orders in production', active.length, 'box-seam', 'blue')}${statCard('Orders in queue', queued.length, 'hourglass-split', 'gray')}${statCard('Things we need from you', needs.length, 'clipboard-check', needs.length ? 'amber' : 'green')}${statCard('Changes awaiting our confirmation', pendingCOs.length, 'arrow-left-right', 'blue')}</div>
     <div class="stack">
