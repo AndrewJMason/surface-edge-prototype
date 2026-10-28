@@ -487,6 +487,9 @@ const pos = [
     activity:[['2026-10-26','PO received 6:52 am, forwarded by Isaac rather than sent by the customer.'],['2026-10-26','Parsed: 3 shipments. Need-by Mar 1 for the first only. Ship-to address missing.'],['2026-10-26','Auto-reply sent to Luis Ortega: need ship-to address and need-by for shipments 2–3.']] },
 ];
 const po = id => pos.find(p => p.id === id);
+/* Two more items every order needs before it goes to the factory, from the approved scope: the customer's signed acknowledgement and a delivery contact. [acknowledgement, delivery contact] */
+const GATE_ADDED = { 'PO-4471':['done','done'], 'PO-4495':['done','done'], 'PO-4488':['done','done'], 'PO-4490':['done','done'], 'PO-4502':['done','pending'], 'PO-4503':['done','pending'], 'PO-4510':['pending','pending'], 'PO-4515':['pending','pending'] };
+pos.forEach(p => { const [ack, dc] = GATE_ADDED[p.id] || ['pending', 'pending']; p.gate.push(['ack', 'Signed acknowledgement', 'Customer', ack], ['delivery', 'Delivery contact', 'Customer', dc]); });
 
 /* A shipment is the unit of tracking. `name` is free text the team chooses ("Container 1", "Pallet 1", "Balance").
    stage: index of last completed milestone; placedAt null = not yet placed/released; actual: {index: date} */
@@ -1339,6 +1342,12 @@ function portalShell(body) {
     ${body}
   </div></div>`;
 }
+/* What the customer sees for each checklist item they owe: [why, button, what the button would open]. */
+const PORTAL_GATE = {
+  account: ['Required before your first order can be placed.', 'Open form', 'the new account package would open here.'],
+  ack: ['Review and sign the order acknowledgement we sent. We place the order with the factory once it is signed.', 'Review and sign', 'the acknowledgement would open here for signature.'],
+  delivery: ['Who should the driver call to schedule each delivery?', 'Add contact', 'a delivery contact form would open here.'],
+};
 function viewPortal() {
   const c = cust(portalCustomer); const cp = pos.filter(p => p.customer === c.id);
   const active = cp.filter(p => p.lane === 'production'), queued = cp.filter(p => p.lane === 'queue');
@@ -1351,7 +1360,7 @@ function viewPortal() {
     <div class="detail-card"><div class="detail-card-header"><h3>What we need from you</h3><span class="card-note">Orders in queue cannot be placed with the factory until these are in</span></div>
       <ul class="action-list">${needs.length ? needs.map(n => n.kind === 'date'
         ? actionItem('warn', `Need-by date for ${esc(n.s.name)} · ${esc(n.p.job)}`, `${sqft(n.s.sqft)}. Allow at least ${Math.ceil(totalDays(n.s)/7)} weeks from the date we place it. If you do not know yet, leave it and we keep it in your queue.`, `<div class="input-group input-group-sm" style="width:auto">${dateInput('nb-'+n.s.id)}<button class="btn btn-primary" onclick="act.setNeedBy('${n.s.id}', document.getElementById('nb-${n.s.id}').value)">Set date</button></div>`)
-        : n.kind === 'gate' ? actionItem('warn', `${esc(n.g[1])} · ${esc(n.p.job)}`, 'Required before your first order can be placed.', `<button class="btn btn-sm btn-primary" onclick="act.stub('<b>Form opened.</b> (Prototype: the new account package would open here.)')">Open form</button>`)
+        : n.kind === 'gate' ? (pg => actionItem('warn', `${esc(n.g[1])} · ${esc(n.p.job)}`, pg[0], `<button class="btn btn-sm btn-primary" onclick="act.stub('<b>Form opened.</b> (Prototype: ${pg[2]})')">${pg[1]}</button>`))(PORTAL_GATE[n.g[0]] || PORTAL_GATE.account)
         : actionItem('warn', `Ship-to address · ${esc(n.p.job)}`, `Where should ${esc(n.s.name)} be delivered?`, `<button class="btn btn-sm btn-primary" onclick="act.stub('<b>Address form opened.</b> (Prototype.)')">Add address</button>`)).join('')
       : '<li class="empty"><div class="status-banner active mb-0"><i class="bi bi-check-circle-fill"></i> Nothing outstanding. We have what we need to keep your orders moving.</div></li>'}</ul></div>
     <div class="detail-card"><div class="detail-card-header"><h3>In production</h3></div><ul class="action-list">${active.length ? active.map(portalPORow).join('') : '<li class="empty">No orders in production.</li>'}</ul></div>
