@@ -558,6 +558,44 @@ const intake = [
   { id:'IN-6', received:'2026-10-22 09:12', from:'Gail Munro (Northwind)', subject:'Cedar Ridge – ship to the job site please', attach:'none', match:'Northwind · PO-4490', result:'change', link:'CO-2028', flags:['Destination change, already approved'], reply:'Confirmed' },
 ];
 
+/* The acknowledgement: Surface Edge's confirmation of what will ship and when. Customer POs ask for it within 48 hours, and the customer
+   signs it before the factory order goes out. Today it is a Navigator printout edited by hand; here it is drafted from the order. */
+const ACKS = { 'PO-4471':{ sent:'2026-05-29', signed:'2026-05-30' }, 'PO-4495':{ sent:'2026-08-21', signed:'2026-08-24' }, 'PO-4488':{ sent:'2026-09-03', signed:'2026-09-04' }, 'PO-4490':{ sent:'2026-10-14', signed:'2026-10-15' }, 'PO-4502':{ sent:'2026-10-02', signed:'2026-10-05' }, 'PO-4503':{ sent:'2026-10-02', signed:'2026-10-05' }, 'PO-4510':{ sent:'2026-10-26', signed:null } };
+pos.forEach(p => { p.ack = ACKS[p.id] || { sent:null, signed:null }; });
+const ackDue = p => addDays(p.received, 2);
+let ackOpen = null;   // the order whose acknowledgement draft is open
+function ackStatus(p) {
+  if (p.ack.signed) return { k:'good', t:`Signed ${fmt(p.ack.signed)}` };
+  if (p.ack.sent) return { k: diffDays(TODAY, p.ack.sent) > 2 ? 'warn' : 'info', t:`Sent ${fmt(p.ack.sent)}, waiting for signature` };
+  const n = diffDays(ackDue(p), TODAY);
+  return n < 0 ? { k:'crit', t:`Not sent, ${-n}d past 48 hours` } : { k:'warn', t:`Not sent, due ${fmt(ackDue(p))}` };
+}
+/* What the customer still owes, in their words (internal items stay off the acknowledgement). */
+function ackNeeds(p) {
+  const sh = shipsOf(p.id), undated = sh.filter(s => !s.needBy);
+  return [...p.gate.filter(g => g[3] === 'pending' && g[2] === 'Customer' && g[0] !== 'ack').map(g => g[1].toLowerCase()),
+    ...(undated.length ? [`delivery dates for ${undated.map(s => s.name).join(', ')}`] : []), ...(sh.some(s => /missing/i.test(s.dest)) ? ['the ship-to address'] : [])];
+}
+function ackDoc(p) {
+  const c = cust(p.customer), sh = shipsOf(p.id), needs = ackNeeds(p);
+  return `<div style="font-size:13px;line-height:1.55">
+    <div class="d-flex justify-content-between flex-wrap gap-2 mb-3"><div><div style="font-weight:700;font-size:18px;letter-spacing:.5px">SURFACE EDGE</div><div class="item-sub">Contract flooring</div></div><div class="text-end"><div style="font-weight:600">Order acknowledgement</div><div class="item-sub mono">${p.id} · ${fmt(TODAY)}</div></div></div>
+    <ul class="meta-list mb-3">
+      <li class="meta-item"><span class="meta-label">Customer</span><span class="meta-value">${esc(c.name)}<div class="fw-normal text-body-secondary">${esc(c.contact)}</div></span></li>
+      <li class="meta-item"><span class="meta-label">Your order</span><span class="meta-value">${esc(p.source.replace(/^PDF \(|\)$/g, ''))}, received ${fmtLong(p.received)}</span></li>
+      <li class="meta-item"><span class="meta-label">Job</span><span class="meta-value">${esc(p.job)} · ${esc(p.site)}</span></li>
+      <li class="meta-item"><span class="meta-label">Product</span><span class="meta-value">${esc(p.product)} · ${sqft(p.sqft)}</span></li></ul>
+    <div class="table-responsive"><table class="table table-sm mb-3"><thead><tr><th>Shipment</th><th class="num">Sq ft</th><th>Deliver by</th><th>Deliver to</th></tr></thead><tbody>${sh.map(s => `<tr><td>${esc(s.name)}</td><td class="num">${s.sqft.toLocaleString()}</td><td class="mono">${s.needBy ? fmtLong(s.needBy) : 'to be confirmed'}</td><td>${/missing/i.test(s.dest) ? 'to be confirmed' : esc(s.dest)}</td></tr>`).join('')}</tbody></table></div>
+    ${needs.length ? `<p class="mb-2"><b>Before we place this with the factory we need</b> ${needs.map(esc).join('; ')}.</p>` : ''}
+    <p class="mb-2">Dates are delivery dates at the address shown. Changes after signature go through a change request.</p>
+    <p class="mb-0">Please review, sign and return within 48 hours. Agreed and accepted by: ______________________</p></div>`;
+}
+function ackCard(p) {
+  const st = ackStatus(p), c = cust(p.customer);
+  const modal = ackOpen === p.id ? `<div style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1080;display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto" onclick="if(event.target===this)act.ackPreview('${p.id}')"><div class="detail-card" style="max-width:760px;width:100%;margin:0"><div class="detail-card-header"><h3>Order acknowledgement · draft</h3><span class="card-note">built from the order, not a hand-edited PDF</span></div><div class="detail-card-body">${ackDoc(p)}</div><div class="detail-card-footer d-flex justify-content-end gap-2 flex-wrap"><button class="btn btn-sm btn-outline-secondary" onclick="act.ackPreview('${p.id}')">Close</button>${p.ack.sent ? '' : `<button class="btn btn-sm btn-primary" onclick="act.ackSend('${p.id}')"><i class="bi bi-send me-1"></i>Send to ${esc(c.contact)}</button>`}</div></div></div>` : '';
+  return detailCard('Acknowledgement', '', `<div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">${pill(st)}<div class="d-flex gap-2"><button class="btn btn-sm btn-outline-secondary" onclick="act.ackPreview('${p.id}')">${p.ack.sent ? 'View' : 'Preview'}</button>${p.ack.sent && !p.ack.signed ? `<button class="btn btn-sm btn-outline-secondary" onclick="act.ackSigned('${p.id}')">Mark signed</button>` : ''}</div></div><div class="item-sub mt-2">Due within 48 hours of the PO (${fmt(ackDue(p))}). The customer signs before the factory order goes out.</div>${modal}`);
+}
+
 /* Chats: every inbound email or portal message is merged into a thread by sender and subject. status: open = their move is done, ours is due; awaiting = we replied, waiting on them; closed = resolved. */
 const ME = 'ryan';
 const TEAM = { ryan:'Ryan K.', melissa:'Melissa R.', marlene:'Marlene O.', alan:'Alan B.' };
@@ -677,6 +715,8 @@ function nextActions() {
   shipments.filter(s => !s.placedAt && s.needBy).forEach(s => { const h = health(s);
     if (h.k === 'crit' || h.k === 'warn') a.push({ id:'place-'+s.id, k:h.k, t:`Place ${s.name} of ${po(s.po).job} with ${s.origin}`, d:h.k === 'crit' ? `Place-by date passed. Earliest delivery now ${fmt(addDays(TODAY, totalDays(s)))} against need-by ${fmt(s.needBy)}.` : `Last day to place and still make ${fmt(s.needBy)} is ${fmt(placeBy(s))}.`, link:'po-'+s.po.slice(3), btn:'Approve: place order', toast:`Factory PO drafted for ${s.name}. Ryan to send to ${s.origin}.` }); });
   shipments.filter(s => s.placedAt && s.needBy && !isDelivered(s) && diffDays(eta(s), s.needBy) > 0).forEach(s => a.push({ id:'late-'+s.id, k:'crit', t:`Tell ${cust(po(s.po).customer).name}: ${s.name} will arrive ${fmt(eta(s))}`, d:`${po(s.po).job} · need-by ${fmt(s.needBy)} · ${diffDays(eta(s), s.needBy)} days late. Offer stock from Wanke Georgia to start.`, link:'po-'+s.po.slice(3), btn:'Approve: send notice', toast:`Late notice sent to ${cust(po(s.po).customer).contact}, flagged "Action required".` }));
+  pos.filter(p => !p.ack.sent).forEach(p => a.push({ id:'ack-'+p.id, k: diffDays(ackDue(p), TODAY) < 0 ? 'crit' : 'warn', t:`Send the acknowledgement for ${p.job}`, d:`The customer's PO asks for it within 48 hours: due ${fmt(ackDue(p))}. Drafted from the order; preview it before it goes.`, link:'po-'+p.id.slice(3), btn:'Approve: send', fn:`act.ackSend('${p.id}')` }));
+  pos.filter(p => p.ack.sent && !p.ack.signed && diffDays(TODAY, p.ack.sent) > 2).forEach(p => a.push({ id:'acksign-'+p.id, k:'info', t:`Chase the signed acknowledgement for ${p.job}`, d:`Sent ${fmt(p.ack.sent)}. The factory order waits for the signature.`, link:'po-'+p.id.slice(3), btn:'Approve: send reminder', toast:`Reminder sent to ${cust(p.customer).contact}.` }));
   pos.filter(p => p.lane === 'queue').forEach(p => { const r = queueReasons(p); if (!r.length) return;
     const waitingOn = p.gate.some(g => g[3] === 'pending' && g[2] === 'Customer') || shipsOf(p.id).some(s => !s.needBy);
     a.push({ id:'remind-'+p.id, k:'muted', t:waitingOn ? `Remind ${cust(p.customer).name} what we still need on ${p.job}` : `Internal items open on ${p.job}`, d:r.join(' · '), link:'po-'+p.id.slice(3), btn: waitingOn ? 'Approve: send reminder' : null, open: !waitingOn, toast:`Reminder sent to ${cust(p.customer).contact} with ${r.length} open item${r.length>1?'s':''} and a portal link.` }); });
@@ -766,6 +806,9 @@ const act = {
   setC(key, val, port) { const n = Number(val); if (isNaN(n)) return; if (port) C.ocean[port] = n; else C[key] = n; render(); },
   portalCustomer(id) { portalCustomer = id; render(); },
   intakeResolve(id) { intake.find(x => x.id === id).result = 'resolved'; toast('<b>Marked handled.</b> Sender asked for an unlocked PDF.'); render(); },
+  ackPreview(poId) { ackOpen = ackOpen === poId ? null : poId; render(); },
+  ackSend(poId) { const p = po(poId); p.ack.sent = iso(TODAY); ackOpen = null; done.add('ack-' + poId); p.activity.push([iso(TODAY), `Acknowledgement sent to ${cust(p.customer).contact} for signature.`]); toast(`<b>Acknowledgement sent</b> to ${esc(cust(p.customer).contact)}. The factory order waits for the signature.`); render(); },
+  ackSigned(poId) { const p = po(poId); p.ack.signed = iso(TODAY); const g = p.gate.find(x => x[0] === 'ack'); if (g) g[3] = 'done'; p.activity.push([iso(TODAY), `Signed acknowledgement received from ${cust(p.customer).contact}.`]); toast('<b>Signed acknowledgement recorded.</b>'); render(); },
   stub(msg) { toast(msg); },
   search(v) { q = v.toLowerCase(); renderMain(); const el = document.getElementById('q'); if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); } },
   toggleNav(k) { const el = document.querySelector(`.nav-group[data-group="${k}"]`); navOpen[k] = el ? !el.classList.contains('open') : !navOpen[k]; renderSidebar(); },
@@ -1089,6 +1132,7 @@ function poSidebar(p, c) {
       <li class="meta-item"><span class="meta-label">Contact</span><span class="meta-value">${esc(c.contact)}<div class="fw-normal text-body-secondary mono">${esc(c.email)}</div></span></li>
       <li class="meta-item"><span class="meta-label">Sales rep</span><span class="meta-value">${esc(p.rep)}</span></li>
       <li class="meta-item"><span class="meta-label">Lead times in portal</span><span class="meta-value">${c.showLeadTimes ? 'Visible' : 'Hidden'} <a href="#po-${p.id.slice(3)}" onclick="act.toggleLead('${c.id}')" class="fw-normal">change</a></span></li></ul>`)}
+    ${ackCard(p)}
     ${detailCard('Attachments', '', `<div class="d-flex align-items-center gap-2"><div class="stat-icon gray" style="width:36px;height:36px"><i class="bi bi-file-earmark-pdf"></i></div><div class="minw0 flex-grow-1"><div class="text-truncate" style="font-size:13px;font-weight:500">${esc(p.source.replace(/^PDF \(|\)$/g, '') || 'Email body')}</div><div class="item-sub">Original as received · ${fmt(p.received)}</div></div><a href="#po-${p.id.slice(3)}" class="card-action" style="font-size:13px;font-weight:500;text-decoration:none" onclick="act.stub('<b>Prototype.</b> The original would open here.')">Open</a></div>`)}`;
 }
 const activityIcon = text => { const ic = /approved|delivered|complete|moved/i.test(text) ? 'green' : /rejected|missed|late|override/i.test(text) ? 'amber' : /received|sent|reminder/i.test(text) ? 'blue' : 'gray'; return [ic, { green:'check-lg', amber:'exclamation-lg', blue:'envelope', gray:'dot' }[ic]]; };
