@@ -630,6 +630,8 @@ function milestones(s) {
     if (i > 0) cursor = addDays(cursor, dur[i]);
     if (s.actual[i]) cursor = d(s.actual[i]);
     out.push({ i, name, date: cursor, done: s.placedAt && i <= s.stage, now: s.placedAt && i === s.stage + 1, actual: !!s.actual[i] || (i === 0 && !!s.placedAt) });
+    /* The next milestone's estimate has passed with nothing recorded: it cannot happen before today, so it and everything after it move. */
+    if (out[i].now && !out[i].actual && cursor < TODAY) { out[i].due = cursor; out[i].overdue = diffDays(TODAY, cursor); out[i].date = cursor = TODAY; }
   });
   return out;
 }
@@ -638,6 +640,7 @@ function eta(s) { const m = milestones(s); return m[m.length - 1].date; }
 const isDelivered = s => s.placedAt && s.stage === milestones(s).length - 1;
 function health(s) {
   if (isDelivered(s)) return { k:'good', t:'Delivered' };
+  const od = overdueMs(s); if (od && !(s.needBy && diffDays(eta(s), s.needBy) > 0)) return { k:'warn', t:`${MS_SHORT[od.name] || od.name} ${od.overdue}d overdue` };
   if (!s.placedAt) {
     if (!s.needBy) return { k:'muted', t:'Need-by unknown' };
     const pb = placeBy(s), n = diffDays(pb, TODAY);
@@ -653,6 +656,12 @@ function health(s) {
 }
 const stageName = s => s.placedAt ? (s.type === 'container' ? CONTAINER_STAGES : LTL_STAGES)[s.stage] : 'Not placed';
 const nextMs = s => milestones(s)[s.stage + 1] || null;
+const overdueMs = s => milestones(s).find(m => m.overdue) || null;
+const MS_SHORT = { 'Production complete':'Production', 'Departed origin port':'Departure', 'Arrived US port':'Port arrival', 'Cleared customs':'Customs', 'Delivered':'Delivery', 'Picked':'Pick', 'Shipped':'Pickup' };
+/* Who to ask when a milestone is overdue: the factory or warehouse, then the forwarder, then the last-leg carrier. */
+const msVendor = (s, i) => vendor(s.type === 'container' ? [s.originCo, s.originCo, s.forwarder, s.forwarder, s.forwarder, s.carrier][i] : [s.originCo, s.originCo, s.carrier, s.carrier][i]);
+const bookingBy = s => addDays(milestones(s)[1].date, -C.bookingLead);
+const bookingLate = s => s.type === 'container' && s.placedAt && s.stage < 2 && !s.booking && bookingBy(s) < TODAY;
 
 /* ---------- derived ---------- */
 function queueReasons(p) {
@@ -682,6 +691,8 @@ function nextActions() {
     a.push({ id:'remind-'+p.id, k:'muted', t:waitingOn ? `Remind ${cust(p.customer).name} what we still need on ${p.job}` : `Internal items open on ${p.job}`, d:r.join(' · '), link:'po-'+p.id.slice(3), btn: waitingOn ? 'Approve: send reminder' : null, open: !waitingOn, toast:`Reminder sent to ${cust(p.customer).contact} with ${r.length} open item${r.length>1?'s':''} and a portal link.` }); });
   threads.filter(t => t.status === 'open' && t.draft && !t.draftDismissed).forEach(t => a.push({ id:'draft-'+t.id, k:'info', t:`Reply to ${t.contact ? contact(t.contact).name : 'sender'}: ${t.subject}`, d:`Drafted from ${[t.po ? po(t.po).job : null, t.co].filter(Boolean).join(' and ') || 'the thread'}: "${t.draft.split('\n').filter(l => l.trim() && !/^(hi|dear)\b/i.test(l))[0].slice(0, 110)}…"`, link:'chat-'+t.id, btn:'Approve: send draft', fn:`act.sendDraft('${t.id}')` }));
   shipments.filter(s => s.placedAt && s.stage === 1 && s.type === 'container').forEach(s => a.push({ id:'stop-'+s.id, k:'info', t:`"Stop us or it ships": ${s.name} of ${po(s.po).job} departs ${fmt(milestones(s)[2].date)}`, d:`Standing notice ${C.stopUsDays} days before departure. No reply means it ships.`, link:'po-'+s.po.slice(3), btn:'Approve: send notice', toast:'Departure notice sent. Customer has until departure to change.' }));
+  shipments.filter(s => s.placedAt && !isDelivered(s) && overdueMs(s)).forEach(s => { const m = overdueMs(s), v = msVendor(s, m.i); a.push({ id:'overdue-'+s.id, k:'warn', t:`Check on ${s.name} of ${po(s.po).job}: ${(MS_SHORT[m.name] || m.name).toLowerCase()} not recorded`, d:`Estimated ${fmt(m.due)}; nothing recorded ${m.overdue} day${m.overdue > 1 ? 's' : ''} later. Later dates now count from today.`, link:'po-'+s.po.slice(3), btn:'Approve: ask for status', toast:`Status request sent to ${v ? esc(v.name) : 'the vendor'}.` }); });
+  shipments.filter(bookingLate).forEach(s => a.push({ id:'book-'+s.id, k:'warn', t:`Request a booking for ${s.name} of ${po(s.po).job}`, d:`Should have gone out by ${fmt(bookingBy(s))} for a container ready ${fmt(milestones(s)[1].date)}. Booking takes about ${C.bookingLead} days.`, link:'po-'+s.po.slice(3), btn:'Approve: request booking', toast:`Booking request sent to ${s.forwarder ? esc(vendor(s.forwarder).name) : 'the forwarder'}.` }));
   return a.filter(x => !done.has(x.id));
 }
 
@@ -938,7 +949,7 @@ const matches = (...parts) => !q || parts.join(' ').toLowerCase().includes(q);
 function msList(s, hideDates) {
   const m = milestones(s);
   return `<ul class="ms">${m.map(x => { const last = x.i === m.length - 1; const late = !x.done && s.needBy && last && diffDays(x.date, s.needBy) > 0; const hide = hideDates && !x.done && !last;
-    return `<li class="${x.done?'done':''} ${x.now?'now':''} ${(!x.done && !x.now)?'future':''} ${late?'late':''}"><span class="k"></span><span class="n">${esc(x.name)}</span><span class="dt">${hide ? '—' : (x.actual ? '' : (s.placedAt || s.needBy ? 'est. ' : '')) + fmt(x.date)}</span></li>`; }).join('')}</ul>`;
+    return `<li class="${x.done?'done':''} ${x.now?'now':''} ${(!x.done && !x.now)?'future':''} ${late || x.overdue ?'late':''}"><span class="k"></span><span class="n">${esc(x.name)}</span><span class="dt ${x.overdue && !hide ? 'text-danger' : ''}">${hide ? '—' : x.overdue ? `due ${fmt(x.due)}, not recorded` : (x.actual ? '' : (s.placedAt || s.needBy ? 'est. ' : '')) + fmt(x.date)}</span></li>`; }).join('')}</ul>`;
 }
 
 function shipCard(s, opts = {}) {
@@ -959,7 +970,7 @@ function shipCard(s, opts = {}) {
         <div class="detail-field full-width"><div class="detail-label">Route</div><div class="detail-value">${esc(s.origin)}${s.port ? ` → ${esc(s.port)} port` : ''} → ${esc(s.dest)}</div>${opts.office ? `<div class="item-sub mt-1">${[s.originCo, s.forwarder, s.carrier].filter(Boolean).map(v => `<a href="#vendor-${v}" class="text-decoration-none">${esc(vendor(v).name)}</a> <span class="text-body-secondary">(${esc(vendorRoleOn(v, s))})</span>`).join(' · ')}</div>` : ''}</div>
         ${s.placedAt ? `<div class="detail-field"><div class="detail-label">Placed</div><div class="detail-value mono">${fmtLong(s.placedAt)}</div></div>` : `<div class="detail-field"><div class="detail-label">Place by</div><div class="detail-value mono">${pb ? fmtLong(pb) + ` <span class="text-body-secondary">(${rel(pb)})</span>` : '—'}</div></div>`}
         <div class="detail-field"><div class="detail-label">Est. delivery</div><div class="detail-value mono">${s.placedAt || s.needBy ? fmtLong(eta(s)) : '—'}</div></div>
-        ${s.type === 'container' && s.placedAt && s.stage < 2 ? `<div class="detail-field full-width"><div class="detail-label">Request booking by</div><div class="detail-value mono">${fmtLong(addDays(milestones(s)[1].date, -C.bookingLead))}</div></div>` : ''}
+        ${s.type === 'container' && s.placedAt && s.stage < 2 ? `<div class="detail-field full-width"><div class="detail-label">Request booking by</div><div class="detail-value mono ${bookingLate(s) ? 'text-danger' : ''}">${fmtLong(bookingBy(s))}${bookingLate(s) ? ` <span class="fw-normal">(${rel(bookingBy(s))}, no booking recorded)</span>` : ''}</div></div>` : ''}
       </div>
       ${opts.office && !s.placedAt && s.needBy ? `<button class="btn btn-sm btn-primary mt-3" onclick="act.completeAction('place-${s.id}','Factory PO drafted for ${esc(s.name)}.')"><i class="bi bi-send me-1"></i>Place with ${esc(s.origin.split(',')[0])}</button>` : ''}
     </div>
