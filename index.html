@@ -131,6 +131,45 @@ body.portal .main-content{margin-left:0}
 .info-strip .info-text{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .info-strip.open .info-text{white-space:normal}
 .info-strip .info-chev{flex-shrink:0;font-size:11px;color:var(--text-faint);transition:transform .15s ease;line-height:1.6}
+.info-strip:not(.open):not(.clipped){cursor:default}
+/* ── Portal chat launcher ── */
+.cw-bubble{position:fixed;right:20px;bottom:calc(20px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;border:0;background:linear-gradient(135deg,#818cf8,#4f46e5);color:#fff;font-size:24px;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(79,70,229,.35);cursor:pointer;z-index:1090;transition:transform .15s ease}
+.cw-bubble:hover{transform:scale(1.05)}
+.cw-bubble:focus-visible{outline:3px solid var(--accent-2);outline-offset:3px}
+.cw-bubble .cw-count{position:absolute;top:-2px;right:-2px;min-width:20px;height:20px;border-radius:10px;background:#ef4444;color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;padding:0 5px;border:2px solid var(--page-bg)}
+.cw-panel{position:fixed;right:20px;bottom:calc(88px + env(safe-area-inset-bottom,0px));width:380px;max-width:calc(100vw - 32px);height:min(600px,calc(100vh - 120px));background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.18);z-index:1090;display:flex;flex-direction:column;overflow:hidden}
+@media (max-width:575.98px){.cw-panel{right:16px;left:16px;width:auto;bottom:calc(84px + env(safe-area-inset-bottom,0px));height:calc(100vh - 110px)}.cw-bubble{right:16px}}
+.cw-head{background:linear-gradient(135deg,#6366f1,#4338ca);color:#fff;padding:16px 18px;display:flex;align-items:flex-start;gap:10px}
+.cw-head h3{font-size:16px;font-weight:600;margin:0;color:#fff}
+.cw-head .cw-sub{font-size:12px;opacity:.85;margin-top:2px}
+.cw-head button{border:0;background:rgba(255,255,255,.15);color:#fff;width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.cw-head button:hover{background:rgba(255,255,255,.28)}
+.cw-team{display:flex;margin-top:10px}
+.cw-team span{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.22);border:2px solid #4f46e5;margin-right:-6px;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.cw-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px;background:var(--surface-2)}
+.cw-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.cw-card-title{font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;padding:10px 14px 4px}
+.cw-new{display:flex;align-items:center;gap:10px;width:100%;border:0;background:var(--surface);padding:12px 14px;text-align:left;cursor:pointer;color:var(--text)}
+.cw-new:hover{background:var(--surface-2)}
+.cw-new .cw-ico{width:34px;height:34px;border-radius:50%;background:var(--info-bg);color:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cw-thread{display:flex;gap:10px;width:100%;border:0;border-top:1px solid var(--border-soft);background:var(--surface);padding:10px 14px;text-align:left;cursor:pointer;color:var(--text)}
+.cw-thread:hover{background:var(--surface-2)}
+.cw-thread .cw-subj{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cw-thread .cw-prev{font-size:12px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cw-thread .cw-when{font-size:11px;color:var(--text-faint);white-space:nowrap}
+.cw-dot{width:8px;height:8px;border-radius:50%;background:var(--accent-2);display:inline-block;margin-left:6px;vertical-align:middle}
+.cw-msgs{display:flex;flex-direction:column;gap:10px}
+.cw-msg{max-width:85%;display:flex;flex-direction:column;gap:3px}
+.cw-msg .cw-who{font-size:11px;color:var(--text-faint)}
+.cw-msg .cw-text{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:8px 12px;font-size:13px;line-height:1.5;color:var(--text-2);white-space:pre-wrap}
+.cw-msg.mine{align-self:flex-end;align-items:flex-end}
+.cw-msg.mine .cw-text{background:var(--accent);border-color:var(--accent);color:#fff}
+.cw-foot{border-top:1px solid var(--border);padding:10px 12px;background:var(--surface);display:flex;flex-direction:column;gap:8px}
+.cw-foot textarea{resize:none;min-height:64px;font-size:13px}
+@media (max-width:575.98px){.portal-topbar{padding:0 16px}.portal-topbar #portal-cust{max-width:140px}.portal-topbar .topbar-right{min-width:0}}
+.cw-note{font-size:11px;color:var(--text-faint)}
+
+.info-strip:not(.open):not(.clipped) .info-chev{visibility:hidden}
 .info-strip.open .info-chev{transform:rotate(180deg)}
 /* One row: page tabs on the left, search / group / filter / sort on the right */
 .page-nav{display:flex;align-items:flex-end;justify-content:space-between;gap:12px 16px;flex-wrap:wrap;border-bottom:2px solid var(--border);margin-bottom:14px}
@@ -371,6 +410,7 @@ a.stat-card .stat-link{font-size:12px;color:var(--accent);margin-top:8px;display
   </div>
 </aside>
 <div class="main-content" id="main"></div>
+<div id="chat-widget"></div>
 <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toasts"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
@@ -394,7 +434,7 @@ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncTheme)
 const TODAY = new Date(2026, 9, 26);
 const DAY = 86400000;
 const d = s => { if (s instanceof Date) return s; const [y,m,dd] = s.split('-').map(Number); return new Date(y, m-1, dd); };
-const addDays = (dt, n) => new Date(d(dt).getTime() + n*DAY);
+const addDays = (dt, n) => { const x = new Date(d(dt)); x.setDate(x.getDate() + n); return x; };
 const diffDays = (a, b) => Math.round((d(a) - d(b)) / DAY);
 const iso = dt => { const x = d(dt); return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`; };
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -404,12 +444,16 @@ const sqft = n => n.toLocaleString('en-US') + ' sq ft';
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const rel = dt => { const n = diffDays(dt, TODAY); if (n === 0) return 'today'; if (n === 1) return 'tomorrow'; if (n === -1) return 'yesterday'; return n > 0 ? `in ${n} days` : `${-n} days ago`; };
 
-/* ---------- editable constraints (Ryan's napkin numbers; placeholders) ---------- */
+/* ---------- editable constraints ----------
+   Ocean transit by port: median days from departure to US port in Surface Edge's order history, 2022 to 2026.
+   Everything else is still Ryan's napkin numbers (placeholders). */
 const C = {
   production: 45, loadout: 10, clearance: 5, drayage: 3, bookingLead: 21, pick: 2, ground: 4,
-  ocean: { 'Los Angeles': 21, 'Long Beach': 21, 'Houston': 35, 'Savannah': 33, 'Charleston': 33, 'Miami': 36 },
+  ocean: { 'Los Angeles': 14, 'Long Beach': 14, 'Houston': 30, 'Savannah': 33, 'Charleston': 32, 'Miami': 32, 'Tampa': 32, 'Portland': 21, 'Tacoma': 18 },
   reminderDays: 7, stopUsDays: 10, standingEmailDays: 14,
 };
+/* How much history each ocean median rests on. Small samples are worth a second look from Ryan. */
+const OCEAN_HISTORY = { 'Los Angeles':'16 shipments, LA and Long Beach together', 'Long Beach':'16 shipments, LA and Long Beach together', 'Houston':'87 shipments', 'Savannah':'916 shipments', 'Charleston':'5 shipments', 'Miami':'34 shipments, Florida ports together', 'Tampa':'34 shipments, Florida ports together', 'Portland':'67 shipments', 'Tacoma':'3 shipments, Tacoma and Seattle' };
 
 /* ---------- sample data ---------- */
 const customers = [
@@ -461,32 +505,35 @@ const contact = id => contacts.find(c => c.id === id);
 const contactsOf = companyId => contacts.filter(c => c.company === companyId);
 
 const pos = [
-  { id:'PO-4471', customer:'ilg', job:'The Fairway at Westchase', site:'Houston, TX', sqft:200000, product:'SE Harbor Oak 7" SPC, 20 mil', received:'2026-05-28', source:'PDF (ILG PO #88213)', lane:'production', rep:'Meredith',
+  { id:'PO-4471', customer:'ilg', job:'The Fairway at Westchase', site:'Houston, TX', sqft:200000, product:'SE Harbor Oak 7" SPC, 20 mil', received:'2026-05-28', source:'PDF (ILG PO #88213)', rep:'Meredith',
     gate:[['package','New account package','Customer','done'],['credit','Credit approved','Credit','done'],['deposit','Deposit','Ops','na'],['prelim','Preliminary notice filed','Ops','done'],['tax','Tax status confirmed','Ops','done']],
     activity:[['2026-05-28','PO received by email from Dana Whitfield (ILG). Parsed: 4 shipments, need-by for the first only.'],['2026-05-28','Auto-reply sent: acknowledged, requested need-by for shipments 2–4.'],['2026-06-01','Container 1 placed with Daizhin.'],['2026-07-14','Customer set need-by Nov 20 and Jan 15 for Containers 2 and 3 via portal.'],['2026-09-16','Container 1 delivered to job site. Invoice #30417 sent.'],['2026-10-25','Change request received by email: push Container 3 to Feb 15.']] },
-  { id:'PO-4495', customer:'ilg', job:'Lakeshore Flats', site:'Dallas, TX', sqft:100000, product:'SE Harbor Oak 7" SPC, 20 mil', received:'2026-08-20', source:'PDF (ILG PO #88402)', lane:'production', rep:'Isaac',
+  { id:'PO-4495', customer:'ilg', job:'Lakeshore Flats', site:'Dallas, TX', sqft:100000, product:'SE Harbor Oak 7" SPC, 20 mil', received:'2026-08-20', source:'PDF (ILG PO #88402)', rep:'Isaac',
     gate:[['package','New account package','Customer','done'],['credit','Credit approved','Credit','done'],['deposit','Deposit','Ops','na'],['prelim','Preliminary notice filed','Ops','done'],['tax','Tax status confirmed','Ops','done']],
     activity:[['2026-08-20','PO received. Need-by Dec 5 for both shipments.'],['2026-08-24','Both shipments placed with Daizhin. Earliest planned delivery Dec 9; customer notified of 4-day gap.'],['2026-10-20','Ocean transit to Houston quoted 35 days; Container 1 now planned Dec 12.']] },
-  { id:'PO-4488', customer:'tcc', job:'Peachtree Commons Phase 2', site:'Atlanta, GA', sqft:104000, product:'SE Summit Hickory 9" SPC, 22 mil', received:'2026-09-02', source:'PDF (TCC PO 2026-0415)', lane:'production', rep:'Isaac',
+  { id:'PO-4488', customer:'tcc', job:'Peachtree Commons Phase 2', site:'Atlanta, GA', sqft:104000, product:'SE Summit Hickory 9" SPC, 22 mil', received:'2026-09-02', source:'PDF (TCC PO 2026-0415)', rep:'Isaac',
     gate:[['package','New account package','Customer','done'],['credit','Credit approved','Credit','done'],['deposit','Deposit','Ops','na'],['prelim','Preliminary notice filed','Ops','done'],['tax','Tax status confirmed','Ops','done']],
     activity:[['2026-09-02','PO received. 2 containers via Savannah plus a 4,000 sq ft balance from Wanke Georgia.'],['2026-09-08','Container 1 placed with Daizhin.'],['2026-10-24','Customer asked whether the balance could ship before the containers.']] },
-  { id:'PO-4490', customer:'northwind', job:'Cedar Ridge Senior Living', site:'Spokane, WA', sqft:18000, product:'SE Harbor Oak 7" SPC, 20 mil (Portland stock)', received:'2026-10-14', source:'Email body (no attachment)', lane:'production', rep:'Meredith',
+  { id:'PO-4490', customer:'northwind', job:'Cedar Ridge Senior Living', site:'Spokane, WA', sqft:18000, product:'SE Harbor Oak 7" SPC, 20 mil (Portland stock)', received:'2026-10-14', source:'Email body (no attachment)', rep:'Meredith',
     gate:[['package','New account package','Customer','done'],['credit','Credit approved','Credit','done'],['deposit','Deposit','Ops','na'],['prelim','Preliminary notice filed','Ops','done'],['tax','Tax status confirmed','Ops','done']],
     activity:[['2026-10-14','PO received as email text. Parsed 18,000 sq ft, need-by Nov 3.'],['2026-10-22','Released to Wanke Portland for pick.']] },
-  { id:'PO-4502', customer:'fantasia', job:'Midtown Lofts', site:'Atlanta, GA', sqft:150000, product:'SE Summit Hickory 9" SPC, 22 mil', received:'2026-10-02', source:'PDF (Fantasia PO F-1190)', lane:'queue', rep:'Alan',
+  { id:'PO-4502', customer:'fantasia', job:'Midtown Lofts', site:'Atlanta, GA', sqft:150000, product:'SE Summit Hickory 9" SPC, 22 mil', received:'2026-10-02', source:'PDF (Fantasia PO F-1190)', rep:'Alan',
     gate:[['package','New account package','Customer','done'],['credit','Credit approved','Credit','done'],['deposit','Deposit (20%)','Customer','pending'],['prelim','Preliminary notice filed','Ops','pending'],['tax','Tax status confirmed','Ops','done']],
     activity:[['2026-10-02','PO received. No need-by dates. Customer said "fall 2027, maybe".'],['2026-10-02','Auto-reply sent: added to queue, requested need-by dates and deposit.'],['2026-10-16','Reminder sent. No click-through.']] },
-  { id:'PO-4503', customer:'fantasia', job:'Buckhead Terrace', site:'Atlanta, GA', sqft:96000, product:'SE Harbor Oak 7" SPC, 20 mil', received:'2026-10-02', source:'PDF (Fantasia PO F-1191)', lane:'queue', rep:'Alan',
+  { id:'PO-4503', customer:'fantasia', job:'Buckhead Terrace', site:'Atlanta, GA', sqft:96000, product:'SE Harbor Oak 7" SPC, 20 mil', received:'2026-10-02', source:'PDF (Fantasia PO F-1191)', rep:'Alan',
     gate:[['package','New account package','Customer','done'],['credit','Credit approved','Credit','done'],['deposit','Deposit (20%)','Customer','pending'],['prelim','Preliminary notice filed','Ops','pending'],['tax','Tax status confirmed','Ops','done']],
     activity:[['2026-10-02','PO received. No need-by dates.'],['2026-10-16','Reminder sent. No click-through.']] },
-  { id:'PO-4510', customer:'meridian', job:'Riverline Hall', site:'Boise, ID', sqft:62000, product:'SE Harbor Oak 7" SPC, 20 mil', received:'2026-10-25', source:'PDF (Meridian PO 00071)', lane:'queue', rep:'Alan',
+  { id:'PO-4510', customer:'meridian', job:'Riverline Hall', site:'Boise, ID', sqft:62000, product:'SE Harbor Oak 7" SPC, 20 mil', received:'2026-10-25', source:'PDF (Meridian PO 00071)', rep:'Alan',
     gate:[['package','New account package','Customer','pending'],['credit','Credit approved','Credit','pending'],['deposit','Deposit','Ops','pending'],['prelim','Preliminary notice filed','Ops','pending'],['tax','Tax status confirmed','Ops','pending']],
     activity:[['2026-10-25','PO received 10:14 pm. Customer not found in customer list.'],['2026-10-25','Auto-reply sent: added to queue. Account package link sent to Tom Beckett.'],['2026-10-25','Credit department notified. Ops task opened for preliminary notice and tax status.']] },
-  { id:'PO-4515', customer:'tcc', job:'Sugarloaf Student Housing', site:'Lawrenceville, GA', sqft:150000, product:'SE Summit Hickory 9" SPC, 22 mil', received:'2026-10-26', source:'PDF (TCC PO 2026-0502)', lane:'queue', rep:'Isaac',
+  { id:'PO-4515', customer:'tcc', job:'Sugarloaf Student Housing', site:'Lawrenceville, GA', sqft:150000, product:'SE Summit Hickory 9" SPC, 22 mil', received:'2026-10-26', source:'PDF (TCC PO 2026-0502)', rep:'Isaac',
     gate:[['package','New account package','Customer','done'],['credit','Credit approved','Credit','done'],['deposit','Deposit','Ops','na'],['prelim','Preliminary notice filed','Ops','pending'],['tax','Tax status confirmed','Ops','done']],
     activity:[['2026-10-26','PO received 6:52 am, forwarded by Isaac rather than sent by the customer.'],['2026-10-26','Parsed: 3 shipments. Need-by Mar 1 for the first only. Ship-to address missing.'],['2026-10-26','Auto-reply sent to Luis Ortega: need ship-to address and need-by for shipments 2–3.']] },
 ];
 const po = id => pos.find(p => p.id === id);
+/* Two more items every order needs before it goes to the factory, from the approved scope: the customer's signed acknowledgement and a delivery contact. [acknowledgement, delivery contact] */
+const GATE_ADDED = { 'PO-4471':['done','done'], 'PO-4495':['done','done'], 'PO-4488':['done','done'], 'PO-4490':['done','done'], 'PO-4502':['done','pending'], 'PO-4503':['done','pending'], 'PO-4510':['pending','pending'], 'PO-4515':['pending','pending'] };
+pos.forEach(p => { const [ack, dc] = GATE_ADDED[p.id] || ['pending', 'pending']; p.gate.push(['ack', 'Signed acknowledgement', 'Customer', ack], ['delivery', 'Delivery contact', 'Customer', dc]); });
 
 /* A shipment is the unit of tracking. `name` is free text the team chooses ("Container 1", "Pallet 1", "Balance").
    stage: index of last completed milestone; placedAt null = not yet placed/released; actual: {index: date} */
@@ -512,15 +559,99 @@ const shipments = [
   { id:'S19', po:'PO-4515', name:'Container 2', type:'container', sqft:50000, origin:'Daizhin, Korea', port:'Savannah', dest:'Ship-to address missing', needBy:null, placedAt:null, stage:-1, actual:{} },
   { id:'S20', po:'PO-4515', name:'Container 3', type:'container', sqft:50000, origin:'Daizhin, Korea', port:'Savannah', dest:'Ship-to address missing', needBy:null, placedAt:null, stage:-1, actual:{} },
 ];
+/* Need-by is not always a plain date. About half of Ryan's open factory POs say ASAP, some say "2 weeks after" another PO,
+   and the date on a customer's PO can differ from the one we commit to on the acknowledgement (requested vs. committed). */
+const NEED_BY_RULES = {
+  S7:  { requested:'2026-12-15' },              // the PO asked for Dec 15; the acknowledgement committed to Dec 20
+  S17: { asap:true },                           // pallet for the model units, as soon as it can ship
+  S19: { needAfter:{ ship:'S18', days:42 } },   // six weeks after Container 1, the way multi-truck jobs are spaced
+};
+shipments.forEach(s => Object.assign(s, NEED_BY_RULES[s.id]));
+po('PO-4515').activity.push(['2026-10-26', 'Luis Ortega replied: Container 2 follows six weeks after Container 1. Container 3 still unknown.']);
+/* ASAP and relative need-bys get a working date before each render, so place-by, health, and the forecast treat them like any other date.
+   ASAP: deliver as soon as possible (place today, or the current estimate once placed). Relative: the other shipment's delivery plus the gap. */
+const isoNearest = dt => iso(new Date(d(dt).getTime() + DAY / 2));   // nearest calendar day, so an estimate that lands at 11 pm counts as the next day
+function resolveNeedBy() {
+  shipments.filter(s => s.asap).forEach(s => { s.needBy = null; s.needBy = isoNearest(eta(s)); });
+  shipments.filter(s => s.needAfter).forEach(s => { const ref = ship(s.needAfter.ship); s.needBy = ref.needBy ? isoNearest(addDays(eta(ref), s.needAfter.days)) : null; });
+}
 const shipsOf = id => shipments.filter(s => s.po === id);
+/* Queue vs. active lives on the shipment, because Ryan holds back individual containers. An order is in production once any of its shipments is placed, and in queue until then. */
+pos.forEach(p => Object.defineProperty(p, 'lane', { get: () => shipsOf(p.id).some(s => s.placedAt) ? 'production' : 'queue' }));
 const ship = id => shipments.find(s => s.id === id);
+/* The numbers people search by and the delivery details, as they appear on real POs, acknowledgements, and cover pages (sample values).
+   Some customers issue one PO per truck, so the customer PO can sit on the shipment. The Navigator order number comes from the
+   acknowledgement; it is a reference field, so Infor's number can replace it. Delivery details come from the cover page and the
+   PO's delivery conditions. */
+const ORDER_REFS = { 'PO-4471':{ custPO:'88213', jobNo:'WC-118' }, 'PO-4495':{ custPO:'88402', jobNo:'LF-204' }, 'PO-4488':{ jobNo:'2207' }, 'PO-4490':{ custPO:'CR-1014' }, 'PO-4502':{ custPO:'F-1190' }, 'PO-4503':{ custPO:'F-1191' }, 'PO-4510':{ custPO:'00071' }, 'PO-4515':{ jobNo:'2231' } };
+const SITE_RULES = ['Schedule delivery 48 hours ahead with the superintendent', 'Call 2 hours before arrival', 'Mark material with the customer PO number'];
+const FAIRWAY_SITE = { name:'Ray Delgado, superintendent', phone:'(713) 555-0136', site:'Job site', dock:false, forklift:true, rules:SITE_RULES };
+const ILG_DALLAS = { name:'ILG Dallas receiving', phone:'(214) 555-0150', site:'Warehouse', dock:true, forklift:true, rules:['Receiving 7 am to 2 pm, Monday to Friday', 'Appointment required'] };
+const PEACHTREE_SITE = { name:'Marcus Bell, superintendent', phone:'(404) 555-0177', site:'Job site', dock:false, forklift:true, rules:SITE_RULES };
+const SHIP_REFS = {
+  S1:  { sidemark:'Fairway Westchase - Bldg A', erpOrder:'361102', factoryPO:'874410-ZSE', delivery:FAIRWAY_SITE },
+  S2:  { sidemark:'Fairway Westchase - Bldg B', erpOrder:'361103', factoryPO:'874411-ZSE', delivery:FAIRWAY_SITE },
+  S3:  { sidemark:'Fairway Westchase - Bldg C', erpOrder:'366540', factoryPO:'876002-ZSE', delivery:FAIRWAY_SITE },
+  S5:  { sidemark:'Lakeshore Flats - Ph 1', erpOrder:'388015', factoryPO:'877120-ZSE', delivery:ILG_DALLAS },
+  S6:  { sidemark:'Lakeshore Flats - Ph 2', erpOrder:'388016', factoryPO:'877121-ZSE', delivery:ILG_DALLAS },
+  S7:  { custPO:'2026-0415-1', sidemark:'Peachtree Ph2-UNITS-Trk 1', erpOrder:'389870', factoryPO:'877305-ZSE', delivery:PEACHTREE_SITE },
+  S8:  { custPO:'2026-0415-2', sidemark:'Peachtree Ph2-UNITS-Trk 2', erpOrder:'389871', delivery:PEACHTREE_SITE },
+  S9:  { custPO:'2026-0415-3', sidemark:'Peachtree Ph2-AMENITY', erpOrder:'389872', delivery:PEACHTREE_SITE },
+  S10: { sidemark:'Cedar Ridge', erpOrder:'390455', delivery:{ name:'Gail Munro', phone:'(509) 555-0102', site:'Job site', dock:false, forklift:false, rules:['Liftgate required'] } },
+  S18: { custPO:'2026-0502', sidemark:'Sugarloaf-UNITS-Trk 1' },
+};
+pos.forEach(p => Object.assign(p, ORDER_REFS[p.id]));
+shipments.forEach(s => Object.assign(s, SHIP_REFS[s.id]));
+const refList = s => { const p = po(s.po); return [['Customer PO', s.custPO || p.custPO], ['Job', p.jobNo], ['Sidemark', s.sidemark], ['Navigator order', s.erpOrder], ['Factory PO', s.factoryPO], ['Booking', s.booking && s.booking.ref], ['Container', s.booking && s.booking.container]].filter(x => x[1]); };
+const refText = s => refList(s).map(x => x[1]).join(' ');
+const deliveryHtml = s => s.delivery
+  ? `<div class="detail-value">${esc(s.delivery.name)} · <span class="mono">${esc(s.delivery.phone)}</span></div><div class="item-sub mt-1">${esc(s.delivery.site)} · dock door ${s.delivery.dock ? 'yes' : 'no'} · forklift ${s.delivery.forklift ? 'yes' : 'no'}</div>${s.delivery.rules.map(r => `<div class="item-sub">${esc(r)}</div>`).join('')}`
+  : `<div class="detail-value">${sb('pending', 'no delivery contact yet')}</div>`;
 
 /* Vendor roles on each shipment: where it comes from, who books the freight, who moves the last leg. */
 const ORIGIN_CO = { 'Daizhin, Korea':'daizhin', 'Wanke Georgia':'wanke-ga', 'Wanke Portland':'wanke-pdx' };
 const PORT_CARRIER = { Houston:'gulf-dray', Savannah:'coastal-dray', Charleston:'coastal-dray', Miami:'coastal-dray', 'Long Beach':'west-dray', 'Los Angeles':'west-dray' };
 shipments.forEach(s => { s.originCo = ORIGIN_CO[s.origin]; s.forwarder = s.type === 'container' ? 'pacific-line' : null; s.carrier = s.type === 'container' ? PORT_CARRIER[s.port] : 'cascade-ltl'; });
+/* Confirmed bookings from the forwarder. Fairway Container 2's is the one in the Pacific Line booking thread. */
+const BOOKINGS = {
+  S1: { ref:'PLX-76102', confirmed:'2026-07-02', vessel:'Pacific Lantern 0612E', container:'PLXU 482915-0', etd:'2026-07-23', eta:'2026-08-27' },
+  S2: { ref:'PLX-77120', confirmed:'2026-08-23', vessel:'Coral Meridian 0901E', container:'PLXU 770421-8', etd:'2026-09-14', eta:'2026-10-19' },
+  S5: { ref:'PLX-78342', confirmed:'2026-09-30', vessel:'Pacific Lantern 0710E', container:'PLXU 155302-4', etd:'2026-10-20', eta:'2026-11-24' },
+  S7: { ref:'PLX-78811', confirmed:'2026-10-09', vessel:'Golden Strait 1102E', container:null, etd:'2026-11-02', eta:'2026-12-05' },
+};
+shipments.forEach(s => { if (BOOKINGS[s.id]) s.booking = BOOKINGS[s.id]; });
 const vendorRoleOn = (v, s) => s.originCo === v ? (vendor(v).roles[0]) : s.forwarder === v ? 'Forwarder' : s.carrier === v ? 'Carrier' : null;
 const vendorShipments = v => shipments.filter(s => vendorRoleOn(v, s));
+
+/* Orders have line items, not one product. The real paperwork shows a second product in the same container, accessories, a separate
+   price for a broken pallet, and acknowledgements that supply a different product labeled with the ordered name. Quantities are rounded
+   to full pallets, so cartons and pallets are shown and checked. Sample values. */
+const PRODUCTS = {
+  'SE Harbor Oak 7" SPC, 20 mil': { sfPerCarton: 25, cartonsPerPallet: 40 },
+  'SE Driftwood Oak 7" SPC, 20 mil': { sfPerCarton: 25, cartonsPerPallet: 40 },
+  'SE Summit Hickory 9" SPC, 22 mil': { sfPerCarton: 20, cartonsPerPallet: 50 },
+};
+const LINES = {
+  'PO-4495': [{ id:'L1', product:'SE Harbor Oak 7" SPC, 20 mil', sqft:100000, price:2.95, supplied:'SE Driftwood Oak 7" SPC, 20 mil', labelAs:true, note:'Harbor Oak is between runs at the mill. Agreed on the acknowledgement: Driftwood Oak, labeled as Harbor Oak.' }],
+  'PO-4488': [{ id:'L1', product:'SE Summit Hickory 9" SPC, 22 mil', sqft:104000, price:3.10 }, { id:'L2', product:'Summit Hickory stair nose, 94 in', qty:420, unit:'pieces', price:18.50, ackPrice:19.25 }],
+};
+const ITEMS = { S9: [{ line:'L1', sqft:4000 }, { line:'L2', qty:420 }] };   // the stair nose rides with the balance pallet from Georgia
+const linesOf = p => LINES[p.id] || [{ id:'L1', product:p.product, sqft:p.sqft }];
+const itemsOf = s => ITEMS[s.id] || [{ line:'L1', sqft:s.sqft }];
+const packOf = (product, sf) => { const c = PRODUCTS[product]; if (!c || !sf) return null; const n = Math.ceil(sf / c.sfPerCarton - 1e-9); return { cartons: n, pallets: Math.floor(n / c.cartonsPerPallet), extra: n % c.cartonsPerPallet }; };
+function itemsCard(p) {
+  const sh = shipsOf(p.id), lines = linesOf(p);
+  return detailCard('Items', `${lines.length} line${lines.length > 1 ? 's' : ''} <a href="#po-${p.id.slice(3)}" class="ms-2" onclick="act.stub('<b>Prototype.</b> Lines would be edited here, or come in from the acknowledgement.')">Edit</a>`, `<ul class="meta-list">${lines.map(l => {
+    const pack = l.sqft ? packOf(l.supplied || l.product, l.sqft) : null;
+    const carried = sh.map(s => ({ s, it: itemsOf(s).find(i => i.line === l.id) })).filter(x => x.it);
+    return `<li class="meta-item d-block"><div style="font-size:13px;font-weight:500">${esc(l.product)}</div>
+      <div class="item-sub mono">${l.unit ? `${l.qty.toLocaleString()} ${l.unit}` : sqft(l.sqft)}${pack ? ` · ${pack.cartons.toLocaleString()} cartons · ${pack.pallets} pallets${pack.extra ? ` + ${pack.extra} cartons` : ''}` : ''}${l.price ? ` · $${l.price.toFixed(2)}/${l.unit ? 'pc' : 'sq ft'}` : ''}</div>
+      ${pack && pack.extra ? `<div class="mt-1"><span class="tag amber">Not a full pallet</span></div>` : ''}
+      ${l.supplied ? `<div class="mt-1"><span class="tag amber">Substitution</span> <span class="item-sub">Supplying ${esc(l.supplied)}${l.labelAs ? ', labeled as ordered' : ''}</span></div>` : ''}
+      ${l.ackPrice && l.ackPrice !== l.price ? `<div class="mt-1"><span class="tag red">Price differs</span> <span class="item-sub">PO $${l.price.toFixed(2)}, acknowledgement $${l.ackPrice.toFixed(2)}</span></div>` : ''}
+      ${l.note ? `<div class="item-sub mt-1">${esc(l.note)}</div>` : ''}
+      <div class="item-sub mt-1">${carried.length ? 'On ' + carried.map(x => `${esc(x.s.name)} (${x.it.qty != null ? x.it.qty.toLocaleString() : x.it.sqft.toLocaleString() + ' sq ft'})`).join(', ') : 'Not on a shipment yet'}</div></li>`; }).join('')}</ul>`);
+}
 
 /* Change requests carry a context: what the change is about. Status names match the action names: Approve → Approved, Reject → Rejected, Modify → Modified. */
 const CONTEXTS = ['Shipment', 'Order', 'Customer', 'Vendor', 'Contact'];
@@ -557,6 +688,44 @@ const intake = [
   { id:'IN-5', received:'2026-10-23 14:31', from:'orders@apexbuildgroup.com', subject:'PO attached', attach:'XLSX · unreadable (password protected)', match:'Unknown sender', result:'review', link:null, flags:['Attachment could not be read','No customer match'], reply:'Asked sender for an unlocked PDF' },
   { id:'IN-6', received:'2026-10-22 09:12', from:'Gail Munro (Northwind)', subject:'Cedar Ridge – ship to the job site please', attach:'none', match:'Northwind · PO-4490', result:'change', link:'CO-2028', flags:['Destination change, already approved'], reply:'Confirmed' },
 ];
+
+/* The acknowledgement: Surface Edge's confirmation of what will ship and when. Customer POs ask for it within 48 hours, and the customer
+   signs it before the factory order goes out. Today it is a Navigator printout edited by hand; here it is drafted from the order. */
+const ACKS = { 'PO-4471':{ sent:'2026-05-29', signed:'2026-05-30' }, 'PO-4495':{ sent:'2026-08-21', signed:'2026-08-24' }, 'PO-4488':{ sent:'2026-09-03', signed:'2026-09-04' }, 'PO-4490':{ sent:'2026-10-14', signed:'2026-10-15' }, 'PO-4502':{ sent:'2026-10-02', signed:'2026-10-05' }, 'PO-4503':{ sent:'2026-10-02', signed:'2026-10-05' }, 'PO-4510':{ sent:'2026-10-26', signed:null } };
+pos.forEach(p => { p.ack = ACKS[p.id] || { sent:null, signed:null }; });
+const ackDue = p => addDays(p.received, 2);
+let ackOpen = null;   // the order whose acknowledgement draft is open
+function ackStatus(p) {
+  if (p.ack.signed) return { k:'good', t:`Signed ${fmt(p.ack.signed)}` };
+  if (p.ack.sent) return { k: diffDays(TODAY, p.ack.sent) > 2 ? 'warn' : 'info', t:`Sent ${fmt(p.ack.sent)}, waiting for signature` };
+  const n = diffDays(ackDue(p), TODAY);
+  return n < 0 ? { k:'crit', t:`Not sent, ${-n}d past 48 hours` } : { k:'warn', t:`Not sent, due ${fmt(ackDue(p))}` };
+}
+/* What the customer still owes, in their words (internal items stay off the acknowledgement). */
+function ackNeeds(p) {
+  const sh = shipsOf(p.id), undated = sh.filter(s => !s.needBy);
+  return [...p.gate.filter(g => g[3] === 'pending' && g[2] === 'Customer' && g[0] !== 'ack').map(g => g[1].toLowerCase()),
+    ...(undated.length ? [`delivery dates for ${undated.map(s => s.name).join(', ')}`] : []), ...(sh.some(s => /missing/i.test(s.dest)) ? ['the ship-to address'] : [])];
+}
+function ackDoc(p) {
+  const c = cust(p.customer), sh = shipsOf(p.id), needs = ackNeeds(p);
+  return `<div style="font-size:13px;line-height:1.55">
+    <div class="d-flex justify-content-between flex-wrap gap-2 mb-3"><div><div style="font-weight:700;font-size:18px;letter-spacing:.5px">SURFACE EDGE</div><div class="item-sub">Contract flooring</div></div><div class="text-end"><div style="font-weight:600">Order acknowledgement</div><div class="item-sub mono">${p.id} · ${fmt(TODAY)}</div></div></div>
+    <ul class="meta-list mb-3">
+      <li class="meta-item"><span class="meta-label">Customer</span><span class="meta-value">${esc(c.name)}<div class="fw-normal text-body-secondary">${esc(c.contact)}</div></span></li>
+      <li class="meta-item"><span class="meta-label">Your order</span><span class="meta-value">${esc(p.source.replace(/^PDF \(|\)$/g, ''))}, received ${fmtLong(p.received)}</span></li>
+      <li class="meta-item"><span class="meta-label">Job</span><span class="meta-value">${esc(p.job)} · ${esc(p.site)}</span></li>
+      <li class="meta-item"><span class="meta-label">Product</span><span class="meta-value">${esc(p.product)} · ${sqft(p.sqft)}</span></li></ul>
+    <div class="table-responsive"><table class="table table-sm mb-3"><thead><tr><th>Shipment</th><th class="num">Sq ft</th><th>Deliver by</th><th>Deliver to</th></tr></thead><tbody>${sh.map(s => `<tr><td>${esc(s.name)}</td><td class="num">${s.sqft.toLocaleString()}</td><td class="mono">${s.needBy ? fmtLong(s.needBy) : 'to be confirmed'}</td><td>${/missing/i.test(s.dest) ? 'to be confirmed' : esc(s.dest)}</td></tr>`).join('')}</tbody></table></div>
+    ${needs.length ? `<p class="mb-2"><b>Before we place this with the factory we need</b> ${needs.map(esc).join('; ')}.</p>` : ''}
+    <p class="mb-2">Dates are delivery dates at the address shown. Changes after signature go through a change request.</p>
+    <p class="mb-0">Please review, sign and return within 48 hours. Agreed and accepted by: ______________________</p></div>`;
+}
+function ackCard(p) {
+  const st = ackStatus(p), c = cust(p.customer);
+  const modal = ackOpen === p.id ? `<div style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1080;display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto" onclick="if(event.target===this)act.ackPreview('${p.id}')"><div class="detail-card" style="max-width:760px;width:100%;margin:0"><div class="detail-card-header"><h3>Order acknowledgement · draft</h3><span class="card-note">built from the order, not a hand-edited PDF</span></div><div class="detail-card-body">${ackDoc(p)}</div><div class="detail-card-footer d-flex justify-content-end gap-2 flex-wrap"><button class="btn btn-sm btn-outline-secondary" onclick="act.ackPreview('${p.id}')">Close</button>${p.ack.sent ? '' : `<button class="btn btn-sm btn-primary" onclick="act.ackSend('${p.id}')"><i class="bi bi-send me-1"></i>Send to ${esc(c.contact)}</button>`}</div></div></div>` : '';
+  return detailCard('Acknowledgement', '', `<div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">${pill(st)}<div class="d-flex gap-2"><button class="btn btn-sm btn-outline-secondary" onclick="act.ackPreview('${p.id}')">${p.ack.sent ? 'View' : 'Preview'}</button>${p.ack.sent && !p.ack.signed ? `<button class="btn btn-sm btn-outline-secondary" onclick="act.ackSigned('${p.id}')">Mark signed</button>` : ''}</div></div><div class="item-sub mt-2">Due within 48 hours of the PO (${fmt(ackDue(p))}). The customer signs before the factory order goes out.</div>${modal}`);
+}
 
 /* Chats: every inbound email or portal message is merged into a thread by sender and subject. status: open = their move is done, ours is due; awaiting = we replied, waiting on them; closed = resolved. */
 const ME = 'ryan';
@@ -615,44 +784,80 @@ const threadsOnPO = poId => threads.filter(t => t.po === poId);
 /* ---------- milestone engine ---------- */
 const CONTAINER_STAGES = ['Placed with factory', 'Production complete', 'Departed origin port', 'Arrived US port', 'Cleared customs', 'Delivered'];
 const LTL_STAGES = ['Released to warehouse', 'Picked', 'Shipped', 'Delivered'];
+/* Many containers stop at a Georgia warehouse and go on to the job by truck, sometimes weeks later (the "ship from" lines in the
+   order matrix). And the last leg depends on how far the job is from the port or warehouse ("a radius out of each port", Oct 23):
+   local uses the drayage number; regional and long haul have their own. */
+Object.assign(C, { release: 2, legRegional: 5, legLong: 8 });
+const BANDS = [['local', 'Local, under 150 miles'], ['regional', 'Regional, 150 to 500 miles'], ['long', 'Long haul, over 500 miles']];
+const legDays = s => ({ regional: C.legRegional, long: C.legLong })[s.band] ?? C.drayage;
+const stagesOf = s => s.type !== 'container' ? LTL_STAGES : s.via ? [...CONTAINER_STAGES.slice(0, 5), `At ${vendor(s.via).name}`, 'Delivered'] : CONTAINER_STAGES;
+vendors.push({ id:'peach-3pl', name:'Peach State Logistics', roles:['Warehouse'], hq:'Pooler, GA', notes:'Third-party warehouse near the Georgia ports. Containers stop here and go on to jobs by truck, sometimes weeks later.', constraint:'pick' });
+Object.assign(ship('S4'), { port:'Savannah', carrier:'coastal-dray', via:'peach-3pl', band:'long' });   // Fairway Container 4: through Georgia, then a truck to Houston
+Object.assign(ship('S18'), { band:'regional' });                                                         // Sugarloaf Container 1: Savannah to Lawrenceville
 function durations(s) {
   return s.type === 'container'
-    ? [0, C.production, C.loadout, C.ocean[s.port] ?? 30, C.clearance, C.drayage]
+    ? [0, C.production, C.loadout, C.ocean[s.port] ?? 30, C.clearance, s.via ? C.drayage : legDays(s), ...(s.via ? [C.release + legDays(s)] : [])]
     : [0, C.pick, 1, C.ground];
 }
 const totalDays = s => durations(s).reduce((a, b) => a + b, 0);
+/* The mill produces to a ship-by date, which the acknowledgement spells out ("produce according to needed ship by date"): the need-by minus ocean, customs and drayage. */
+function shipByDate(s) { if (s.type !== 'container' || !s.needBy) return null; return addDays(s.needBy, -durations(s).slice(3).reduce((a, b) => a + b, 0)); }
+/* Days a container placed early is held back so it ships on its ship-by date instead of as soon as it can be made. */
+function holdDays(s) {
+  const sb = s.placedAt && !s.actual[2] && !(s.booking && s.booking.etd) ? shipByDate(s) : null; if (!sb) return 0;
+  const ready = s.actual[1] ? d(s.actual[1]) : addDays(s.placedAt, C.production);
+  return Math.max(0, diffDays(sb, addDays(ready, C.loadout)));
+}
+/* A confirmed booking sets departure and port arrival until the actual dates are recorded. */
+const bookedDate = (s, i) => (s.booking && { 2: s.booking.etd, 3: s.booking.eta }[i]) || null;
 function milestones(s) {
-  const names = s.type === 'container' ? CONTAINER_STAGES : LTL_STAGES;
+  const names = stagesOf(s);
   const dur = durations(s);
   const start = s.placedAt || placeBy(s) || TODAY;
   const out = []; let cursor = d(start);
   names.forEach((name, i) => {
     if (i > 0) cursor = addDays(cursor, dur[i]);
-    if (s.actual[i]) cursor = d(s.actual[i]);
+    if (i === (s.actual[1] ? 2 : 1) && !s.actual[i]) cursor = addDays(cursor, holdDays(s));
+    if (s.actual[i] || bookedDate(s, i)) cursor = d(s.actual[i] || bookedDate(s, i));
     out.push({ i, name, date: cursor, done: s.placedAt && i <= s.stage, now: s.placedAt && i === s.stage + 1, actual: !!s.actual[i] || (i === 0 && !!s.placedAt) });
+    /* The next milestone's estimate has passed with nothing recorded: it cannot happen before today, so it and everything after it move. */
+    if (out[i].now && !out[i].actual && cursor < TODAY) { out[i].due = cursor; out[i].overdue = diffDays(TODAY, cursor); out[i].date = cursor = TODAY; }
   });
   return out;
 }
-function placeBy(s) { return s.needBy ? addDays(s.needBy, -totalDays(s)) : null; }
+function placeBy(s) { return s.asap && !s.placedAt ? TODAY : s.needBy ? addDays(s.needBy, -totalDays(s)) : null; }
+/* How a need-by reads: ASAP, a date (with where it came from, when that matters), or unknown. */
+const needShort = s => s.asap ? 'ASAP' : s.needBy ? fmt(s.needBy) : null;
+const afterText = s => { const n = s.needAfter.days; return `${n % 7 ? n + ' days' : n / 7 + ' weeks'} after ${ship(s.needAfter.ship).name} delivers`; };
+const needNote = s => { const lines = [s.asap ? `As soon as it can be made and shipped; ${s.placedAt ? 'est.' : 'placed today it delivers'} ${fmt(eta(s))}` : null, s.needAfter ? (s.needBy ? afterText(s) : `${afterText(s)}; no date until ${ship(s.needAfter.ship).name} has one`) : null, s.requested && s.requested !== s.needBy ? `Customer PO asked for ${fmt(s.requested)}; we committed to this date` : null].filter(Boolean); return lines.map(l => `<div class="item-sub mt-1">${esc(l)}</div>`).join(''); };
 function eta(s) { const m = milestones(s); return m[m.length - 1].date; }
 const isDelivered = s => s.placedAt && s.stage === milestones(s).length - 1;
 function health(s) {
+  if (s.hold && !s.placedAt) return { k:'muted', t:'Held in queue' };
   if (isDelivered(s)) return { k:'good', t:'Delivered' };
+  const od = overdueMs(s); if (od && !(s.needBy && diffDays(eta(s), s.needBy) > 0)) return { k:'warn', t:`${MS_SHORT[od.name] || od.name} ${od.overdue}d overdue` };
   if (!s.placedAt) {
     if (!s.needBy) return { k:'muted', t:'Need-by unknown' };
     const pb = placeBy(s), n = diffDays(pb, TODAY);
-    if (n < 0) return { k:'crit', t:`Place-by missed ${-n}d` };
-    if (n <= 14) return { k:'warn', t:`Place by ${fmt(pb)}` };
+    if (n < 0 && !s.asap) return { k:'crit', t:`Place-by missed ${-n}d` };
+    if (n <= 14) return { k:'warn', t: s.asap ? 'ASAP: place now' : `Place by ${fmt(pb)}` };
     return { k:'info', t:`Place by ${fmt(pb)}` };
   }
   if (!s.needBy) return { k:'muted', t:'Need-by unknown' };
+  if (s.asap) return { k:'info', t:'ASAP' };
   const slip = diffDays(eta(s), s.needBy);
   if (slip > 0) return { k:'crit', t:`${slip}d late` };
-  if (slip > -5) return { k:'warn', t:'Tight' };
+  if (slip > -5 && !holdDays(s)) return { k:'warn', t:'Tight' };
   return { k:'good', t:'On track' };
 }
-const stageName = s => s.placedAt ? (s.type === 'container' ? CONTAINER_STAGES : LTL_STAGES)[s.stage] : 'Not placed';
+const stageName = s => s.placedAt ? stagesOf(s)[s.stage] : 'Not placed';
 const nextMs = s => milestones(s)[s.stage + 1] || null;
+const overdueMs = s => milestones(s).find(m => m.overdue) || null;
+const MS_SHORT = { 'Production complete':'Production', 'Departed origin port':'Departure', 'Arrived US port':'Port arrival', 'Cleared customs':'Customs', 'Delivered':'Delivery', 'Picked':'Pick', 'Shipped':'Pickup' };
+/* Who to ask when a milestone is overdue: the factory or warehouse, then the forwarder, then the last-leg carrier. */
+const msVendor = (s, i) => vendor(s.type === 'container' ? [s.originCo, s.originCo, s.forwarder, s.forwarder, s.forwarder, s.carrier][i] : [s.originCo, s.originCo, s.carrier, s.carrier][i]);
+const bookingBy = s => addDays(milestones(s)[1].date, -C.bookingLead);
+const bookingLate = s => s.type === 'container' && s.placedAt && s.stage < 2 && !s.booking && bookingBy(s) < TODAY;
 
 /* ---------- derived ---------- */
 function queueReasons(p) {
@@ -662,6 +867,14 @@ function queueReasons(p) {
   if (unknown) r.push(`Need-by date missing on ${unknown} of ${sh.length} shipments`);
   if (sh.some(s => /missing/i.test(s.dest))) r.push('Ship-to address missing');
   return r;
+}
+/* Why one unplaced shipment is still waiting: held, missing information, open paperwork on the order, or simply not due to be placed yet. */
+function shipWaitingOn(s) {
+  if (s.hold) return 'held';
+  if (!s.needBy) return 'need-by date missing';
+  if (/missing/i.test(s.dest)) return 'ship-to address missing';
+  if (po(s.po).gate.some(g => g[3] === 'pending')) return 'paperwork';
+  return `place by ${fmt(placeBy(s))}`;
 }
 function poHealth(p) {
   const hs = shipsOf(p.id).map(health);
@@ -675,13 +888,17 @@ function nextActions() {
   const a = [];
   changes.filter(c => c.status === 'pending').forEach(c => a.push({ id:c.id, k:'info', t:`Review change request ${c.id} (${c.context.toLowerCase()})`, d:`${c.type} on ${coTarget(c).label} · ${c.from} → ${c.to}`, link:'changes', open:true }));
   shipments.filter(s => !s.placedAt && s.needBy).forEach(s => { const h = health(s);
-    if (h.k === 'crit' || h.k === 'warn') a.push({ id:'place-'+s.id, k:h.k, t:`Place ${s.name} of ${po(s.po).job} with ${s.origin}`, d:h.k === 'crit' ? `Place-by date passed. Earliest delivery now ${fmt(addDays(TODAY, totalDays(s)))} against need-by ${fmt(s.needBy)}.` : `Last day to place and still make ${fmt(s.needBy)} is ${fmt(placeBy(s))}.`, link:'po-'+s.po.slice(3), btn:'Approve: place order', toast:`Factory PO drafted for ${s.name}. Ryan to send to ${s.origin}.` }); });
+    if (h.k === 'crit' || h.k === 'warn') a.push({ id:'place-'+s.id, k:h.k, t:`Place ${s.name} of ${po(s.po).job} with ${s.origin}`, d:s.asap ? `ASAP on the customer's PO. Placed today, it delivers ${fmt(eta(s))}.` : h.k === 'crit' ? `Place-by date passed. Earliest delivery now ${fmt(addDays(TODAY, totalDays(s)))} against need-by ${fmt(s.needBy)}.` : `Last day to place and still make ${fmt(s.needBy)} is ${fmt(placeBy(s))}.`, link:'po-'+s.po.slice(3), btn:'Approve: place order', toast:`Factory PO drafted for ${s.name}. Ryan to send to ${s.origin}.` }); });
   shipments.filter(s => s.placedAt && s.needBy && !isDelivered(s) && diffDays(eta(s), s.needBy) > 0).forEach(s => a.push({ id:'late-'+s.id, k:'crit', t:`Tell ${cust(po(s.po).customer).name}: ${s.name} will arrive ${fmt(eta(s))}`, d:`${po(s.po).job} · need-by ${fmt(s.needBy)} · ${diffDays(eta(s), s.needBy)} days late. Offer stock from Wanke Georgia to start.`, link:'po-'+s.po.slice(3), btn:'Approve: send notice', toast:`Late notice sent to ${cust(po(s.po).customer).contact}, flagged "Action required".` }));
+  pos.filter(p => !p.ack.sent).forEach(p => a.push({ id:'ack-'+p.id, k: diffDays(ackDue(p), TODAY) < 0 ? 'crit' : 'warn', t:`Send the acknowledgement for ${p.job}`, d:`The customer's PO asks for it within 48 hours: due ${fmt(ackDue(p))}. Drafted from the order; preview it before it goes.`, link:'po-'+p.id.slice(3), btn:'Approve: send', fn:`act.ackSend('${p.id}')` }));
+  pos.filter(p => p.ack.sent && !p.ack.signed && diffDays(TODAY, p.ack.sent) > 2).forEach(p => a.push({ id:'acksign-'+p.id, k:'info', t:`Chase the signed acknowledgement for ${p.job}`, d:`Sent ${fmt(p.ack.sent)}. The factory order waits for the signature.`, link:'po-'+p.id.slice(3), btn:'Approve: send reminder', toast:`Reminder sent to ${cust(p.customer).contact}.` }));
   pos.filter(p => p.lane === 'queue').forEach(p => { const r = queueReasons(p); if (!r.length) return;
     const waitingOn = p.gate.some(g => g[3] === 'pending' && g[2] === 'Customer') || shipsOf(p.id).some(s => !s.needBy);
     a.push({ id:'remind-'+p.id, k:'muted', t:waitingOn ? `Remind ${cust(p.customer).name} what we still need on ${p.job}` : `Internal items open on ${p.job}`, d:r.join(' · '), link:'po-'+p.id.slice(3), btn: waitingOn ? 'Approve: send reminder' : null, open: !waitingOn, toast:`Reminder sent to ${cust(p.customer).contact} with ${r.length} open item${r.length>1?'s':''} and a portal link.` }); });
   threads.filter(t => t.status === 'open' && t.draft && !t.draftDismissed).forEach(t => a.push({ id:'draft-'+t.id, k:'info', t:`Reply to ${t.contact ? contact(t.contact).name : 'sender'}: ${t.subject}`, d:`Drafted from ${[t.po ? po(t.po).job : null, t.co].filter(Boolean).join(' and ') || 'the thread'}: "${t.draft.split('\n').filter(l => l.trim() && !/^(hi|dear)\b/i.test(l))[0].slice(0, 110)}…"`, link:'chat-'+t.id, btn:'Approve: send draft', fn:`act.sendDraft('${t.id}')` }));
   shipments.filter(s => s.placedAt && s.stage === 1 && s.type === 'container').forEach(s => a.push({ id:'stop-'+s.id, k:'info', t:`"Stop us or it ships": ${s.name} of ${po(s.po).job} departs ${fmt(milestones(s)[2].date)}`, d:`Standing notice ${C.stopUsDays} days before departure. No reply means it ships.`, link:'po-'+s.po.slice(3), btn:'Approve: send notice', toast:'Departure notice sent. Customer has until departure to change.' }));
+  shipments.filter(s => s.placedAt && !isDelivered(s) && overdueMs(s)).forEach(s => { const m = overdueMs(s), v = msVendor(s, m.i); a.push({ id:'overdue-'+s.id, k:'warn', t:`Check on ${s.name} of ${po(s.po).job}: ${(MS_SHORT[m.name] || m.name).toLowerCase()} not recorded`, d:`Estimated ${fmt(m.due)}; nothing recorded ${m.overdue} day${m.overdue > 1 ? 's' : ''} later. Later dates now count from today.`, link:'po-'+s.po.slice(3), btn:'Approve: ask for status', toast:`Status request sent to ${v ? esc(v.name) : 'the vendor'}.` }); });
+  shipments.filter(bookingLate).forEach(s => a.push({ id:'book-'+s.id, k:'warn', t:`Request a booking for ${s.name} of ${po(s.po).job}`, d:`Should have gone out by ${fmt(bookingBy(s))} for a container ready ${fmt(milestones(s)[1].date)}. Booking takes about ${C.bookingLead} days.`, link:'po-'+s.po.slice(3), btn:'Approve: request booking', toast:`Booking request sent to ${s.forwarder ? esc(vendor(s.forwarder).name) : 'the forwarder'}.` }));
   return a.filter(x => !done.has(x.id));
 }
 
@@ -724,6 +941,7 @@ const act = {
         else if (c.type === 'Set need-by') s.needBy = '2027-09-01';
         else if (c.type === 'Push need-by') s.needBy = '2027-02-15';
         else if (c.type === 'Pull in') s.needBy = '2026-11-10';
+        s.asap = false; delete s.needAfter;
         log(`${c.id} approved. Milestones recalculated. ${who} notified.`);
         toast(`<b>${c.id} approved.</b> Milestones recalculated and ${esc(who)} was notified.`);
       } else if (c.id === 'CO-2034') { C.production = 52; toast('<b>CO-2034 approved.</b> Production constraint set to 52 days. Every Daizhin place-by date moved 7 days earlier.'); }
@@ -741,7 +959,7 @@ const act = {
   gate(poId, key, status) {
     const p = po(poId); const g = p.gate.find(x => x[0] === key); g[3] = status;
     p.activity.push([iso(TODAY), status === 'over' ? `${g[1]} overridden by Rob: "Proceed, I'll get it." Logged.` : `${g[1]} marked complete.`]);
-    if (!p.gate.some(x => x[3] === 'pending') && shipsOf(poId).some(s => s.needBy)) { p.lane = 'production'; toast(`<b>${poId} moved to Production.</b> All gate items closed.`); }
+    if (!p.gate.some(x => x[3] === 'pending') && shipsOf(poId).some(s => s.needBy)) toast(`<b>Checklist complete.</b> Dated shipments on ${poId} can be placed; the order moves to Production with the first one.`);
     else toast(status === 'over' ? '<b>Override logged.</b> Visible on the order permanently.' : '<b>Checklist updated.</b>');
     render();
   },
@@ -749,7 +967,7 @@ const act = {
     if (!val) { toast('Pick a date first.'); return; }
     const s = ship(shipId); const p = po(s.po);
     const id = 'CO-' + (2034 + changes.filter(c => c.id > 'CO-2033').length);
-    changes.unshift({ id, context:'Shipment', po:p.id, ship:shipId, by:`Customer · ${cust(p.customer).contact} (${cust(p.customer).name})`, via:'Portal', received:iso(TODAY), type: s.needBy ? 'Change need-by' : 'Set need-by', from: s.needBy ? fmtLong(s.needBy) : 'Unknown', to:fmtLong(val), status:'pending', impact:`Place-by would be ${fmt(addDays(val, -totalDays(s)))}. Recommend: approve.`, pendingDate: val });
+    changes.unshift({ id, context:'Shipment', po:p.id, ship:shipId, by:`Customer · ${cust(p.customer).contact} (${cust(p.customer).name})`, via:'Portal', received:iso(TODAY), type: s.needBy ? 'Change need-by' : 'Set need-by', from: s.asap ? 'ASAP' : s.needBy ? fmtLong(s.needBy) : 'Unknown', to:fmtLong(val), status:'pending', impact:`Place-by would be ${fmt(addDays(val, -totalDays(s)))}. Recommend: approve.`, pendingDate: val });
     p.activity.push([iso(TODAY), `Customer set need-by ${fmtLong(val)} on ${s.name} via portal. ${id} opened for review.`]);
     toast(`<b>Thanks.</b> Surface Edge will confirm ${fmtLong(val)} for ${s.name}.`);
     render();
@@ -762,10 +980,14 @@ const act = {
   },
   cancelRename() { renaming = null; render(); },
   remind(poId) { toast(`<b>Reminder sent</b> to ${cust(po(poId).customer).contact} with a portal link.`); },
+  hold(shipId) { const s = ship(shipId); s.hold = !s.hold; po(s.po).activity.push([iso(TODAY), `${s.name} ${s.hold ? 'held in the queue' : 'released from hold'} by Ryan.`]); toast(s.hold ? `<b>${esc(s.name)} held.</b> It stays in the queue and drops out of the place-by actions until you release it.` : `<b>${esc(s.name)} released.</b> It will be proposed for placement when it is due.`); render(); },
   toggleLead(id) { const c = cust(id); c.showLeadTimes = !c.showLeadTimes; toast(`<b>${c.name}:</b> lead times ${c.showLeadTimes ? 'visible' : 'hidden'} in the portal.`); render(); },
   setC(key, val, port) { const n = Number(val); if (isNaN(n)) return; if (port) C.ocean[port] = n; else C[key] = n; render(); },
   portalCustomer(id) { portalCustomer = id; render(); },
   intakeResolve(id) { intake.find(x => x.id === id).result = 'resolved'; toast('<b>Marked handled.</b> Sender asked for an unlocked PDF.'); render(); },
+  ackPreview(poId) { ackOpen = ackOpen === poId ? null : poId; render(); },
+  ackSend(poId) { const p = po(poId); p.ack.sent = iso(TODAY); ackOpen = null; done.add('ack-' + poId); p.activity.push([iso(TODAY), `Acknowledgement sent to ${cust(p.customer).contact} for signature.`]); toast(`<b>Acknowledgement sent</b> to ${esc(cust(p.customer).contact)}. The factory order waits for the signature.`); render(); },
+  ackSigned(poId) { const p = po(poId); p.ack.signed = iso(TODAY); const g = p.gate.find(x => x[0] === 'ack'); if (g) g[3] = 'done'; p.activity.push([iso(TODAY), `Signed acknowledgement received from ${cust(p.customer).contact}.`]); toast('<b>Signed acknowledgement recorded.</b>'); render(); },
   stub(msg) { toast(msg); },
   search(v) { q = v.toLowerCase(); renderMain(); const el = document.getElementById('q'); if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); } },
   toggleNav(k) { const el = document.querySelector(`.nav-group[data-group="${k}"]`); navOpen[k] = el ? !el.classList.contains('open') : !navOpen[k]; renderSidebar(); },
@@ -794,12 +1016,22 @@ const act = {
     const name = v('name').trim() || s.name; if (name !== s.name) { changed.push(`renamed "${s.name}" → "${name}"`); s.name = name; }
     const type = v('type'); if (type && type !== s.type) { changed.push(`kind → ${type === 'container' ? 'ocean container' : 'LTL / pallet'}`); s.type = type; s.actual = {}; }
     const sq = Number(v('sqft')); if (sq > 0 && sq !== s.sqft) { changed.push(`quantity ${before.sqft.toLocaleString()} → ${sq.toLocaleString()} sq ft`); s.sqft = sq; }
-    const nb = v('needby') || null; if (nb !== s.needBy) { changed.push(`need-by ${s.needBy ? fmt(s.needBy) : 'unknown'} → ${nb ? fmt(nb) : 'unknown'}`); s.needBy = nb; }
+    /* Need-by: ASAP box, a typed date, or (left blank) the relative rule it already has. A date or ASAP replaces the rule. */
+    const asap = !!document.getElementById('f-asap')?.checked, nb = v('needby') || null;
+    const nbWas = s.asap ? 'ASAP' : s.needAfter ? 'rule' : s.needBy, nbNow = asap ? 'ASAP' : nb || (s.needAfter ? 'rule' : null);
+    const nbText = x => x === 'ASAP' ? 'ASAP' : x === 'rule' ? afterText(s) : x ? fmt(x) : 'unknown';
+    if (nbNow !== nbWas) { changed.push(`need-by ${nbText(nbWas)} → ${nbText(nbNow)}`); s.asap = asap; if (asap || nb) delete s.needAfter; if (!asap) s.needBy = nb; }
     const oc = v('origin'); if (oc && oc !== s.originCo) { changed.push(`origin → ${vendor(oc).name}`); s.originCo = oc; s.origin = ORIGIN_LABEL[oc] || vendor(oc).name; }
     const port = v('port') || null; if (port !== s.port) { changed.push(`port → ${port || 'none'}`); s.port = port; }
     const dest = v('dest').trim(); if (dest && dest !== s.dest) { changed.push(`destination → ${dest}`); s.dest = dest; }
+    const via = s.type === 'container' ? v('via') || null : null; if (via !== (s.via || null)) { changed.push(via ? `stops at ${vendor(via).name}` : 'no warehouse stop'); s.via = via; }
+    const band = v('band') || 'local'; if (band !== (s.band || 'local')) { changed.push(`last leg → ${BANDS.find(b => b[0] === band)[1].toLowerCase()}`); s.band = band === 'local' ? null : band; }
     const fw = v('forwarder') || null; if (fw !== s.forwarder) { changed.push(`forwarder → ${fw ? vendor(fw).name : 'none'}`); s.forwarder = fw; }
     const cr = v('carrier') || null; if (cr !== s.carrier) { changed.push(`carrier → ${cr ? vendor(cr).name : 'none'}`); s.carrier = cr; }
+    [['custPO','customer PO'], ['sidemark','sidemark'], ['erpOrder','Navigator order'], ['factoryPO','factory PO']].forEach(([k, label]) => { const val = v(k).trim() || null; if (val !== (s[k] || null)) { changed.push(`${label} → ${val || 'none'}`); s[k] = val; } });
+    const dl = { name: v('dl-name').trim(), phone: v('dl-phone').trim(), site: v('dl-site') || 'Job site', dock: !!document.getElementById('f-dl-dock')?.checked, forklift: !!document.getElementById('f-dl-forklift')?.checked, rules: v('dl-rules').split('\n').map(x => x.trim()).filter(Boolean) };
+    const dlWas = s.delivery || { name:'', phone:'', site:'Job site', dock:false, forklift:false, rules:[] };
+    if (JSON.stringify(dl) !== JSON.stringify(dlWas)) { changed.push(dl.name ? `delivery contact → ${dl.name}` : 'delivery details'); s.delivery = dl.name || dl.phone ? dl : null; }
     const pl = v('placed') || null; if (pl !== s.placedAt) { changed.push(`placed ${s.placedAt ? fmt(s.placedAt) : 'not placed'} → ${pl ? fmt(pl) : 'not placed'}`); s.placedAt = pl; if (pl && s.stage < 0) s.stage = 0; if (!pl) { s.stage = -1; s.actual = {}; } }
     if (!changed.length) { toast('No changes to save.'); return; }
     p.activity.push([iso(TODAY), `${s.name}: ${changed.join('; ')}. Milestones recalculated.`]);
@@ -911,8 +1143,11 @@ const toolbar = (placeholder, right = '') => pageNav('', searchBox(placeholder) 
 const openDesc = new Set();
 function tabDesc(html) {
   const open = openDesc.has(route);
-  const plain = html.replace(/<[^>]+>/g, ''); const first = plain.split(/(?<=[.!?])\s+/)[0];
-  return `<button type="button" class="info-strip ${open ? 'open' : ''}" aria-expanded="${open}" title="${open ? 'Collapse' : 'Read more'}" onclick="act.toggleDesc()"><i class="bi bi-info-circle"></i><span class="info-text">${open ? html : esc(first)}</span><i class="bi bi-chevron-down info-chev"></i></button>`;
+  return `<button type="button" class="info-strip ${open ? 'open' : ''}" aria-expanded="${open}" title="${open ? 'Collapse' : 'Read more'}" onclick="if(this.classList.contains('open')||this.classList.contains('clipped'))act.toggleDesc()"><i class="bi bi-info-circle"></i><span class="info-text">${html}</span><i class="bi bi-chevron-down info-chev"></i></button>`;
+}
+/* Mark strips whose note is cut off, so only those show the chevron and expand on click. */
+function markClipped() {
+  document.querySelectorAll('.info-strip:not(.open)').forEach(b => { const t = b.querySelector('.info-text'); b.classList.toggle('clipped', t.scrollWidth > t.clientWidth + 1); });
 }
 /* items: [routeId, label, count|null, color] */
 const MAX_TABS = 4;
@@ -938,9 +1173,10 @@ const matches = (...parts) => !q || parts.join(' ').toLowerCase().includes(q);
 function msList(s, hideDates) {
   const m = milestones(s);
   return `<ul class="ms">${m.map(x => { const last = x.i === m.length - 1; const late = !x.done && s.needBy && last && diffDays(x.date, s.needBy) > 0; const hide = hideDates && !x.done && !last;
-    return `<li class="${x.done?'done':''} ${x.now?'now':''} ${(!x.done && !x.now)?'future':''} ${late?'late':''}"><span class="k"></span><span class="n">${esc(x.name)}</span><span class="dt">${hide ? '—' : (x.actual ? '' : (s.placedAt || s.needBy ? 'est. ' : '')) + fmt(x.date)}</span></li>`; }).join('')}</ul>`;
+    return `<li class="${x.done?'done':''} ${x.now?'now':''} ${(!x.done && !x.now)?'future':''} ${late || x.overdue ?'late':''}"><span class="k"></span><span class="n">${esc(x.name)}</span><span class="dt ${x.overdue && !hide ? 'text-danger' : ''}">${hide ? '—' : x.overdue ? `due ${fmt(x.due)}, not recorded` : (x.actual ? '' : (s.placedAt || s.needBy ? 'est. ' : '')) + fmt(x.date)}</span></li>`; }).join('')}</ul>`;
 }
 
+const bookingNote = s => `<div class="item-sub mt-2"><i class="bi bi-calendar-check me-1"></i>Booked <span class="mono">${esc(s.booking.ref)}</span>, confirmed ${fmt(s.booking.confirmed)}${s.booking.vessel ? ` · ${esc(s.booking.vessel)}` : ''}${s.booking.container ? ` · container <span class="mono">${esc(s.booking.container)}</span>` : ''} · ETD ${fmt(s.booking.etd)} · ETA ${esc(s.port)} ${fmt(s.booking.eta)}</div>`;
 function shipCard(s, opts = {}) {
   const h = health(s); const pb = placeBy(s);
   const collapsible = !!opts.office; const open = !collapsible || openShips.has(s.id);
@@ -948,22 +1184,24 @@ function shipCard(s, opts = {}) {
     ? `<div class="input-group input-group-sm" style="max-width:18rem"><input class="form-control" id="rn-${s.id}" value="${esc(s.name)}" onkeydown="if(event.key==='Enter')act.saveName('${s.id}');if(event.key==='Escape')act.cancelRename()"><button class="btn btn-primary" onclick="act.saveName('${s.id}')">Save</button><button class="btn btn-outline-secondary" onclick="act.cancelRename()">Cancel</button></div>`
     : `<h4 class="ship-name">${esc(s.name)}</h4>${opts.office ? `<button class="btn btn-link btn-sm p-0 text-body-secondary" onclick="act.rename('${s.id}')" title="Rename shipment"><i class="bi bi-pencil"></i></button>` : ''}`;
   const badges = `${pill(h)}${s.invoiced ? sb('active', 'Invoiced') : ''}<span class="ship-kind">${s.type === 'container' ? 'Ocean container' : 'LTL / pallet'}</span>`;
-  const summary = `<span class="mono">${sqft(s.sqft)}</span> · need-by <span class="mono">${s.needBy ? fmt(s.needBy) : '?'}</span> · ${esc(stageName(s))}${s.placedAt || s.needBy ? ` · est. delivery <span class="mono">${fmt(eta(s))}</span>` : ''}`;
+  const summary = `<span class="mono">${sqft(s.sqft)}</span> · need-by <span class="mono">${needShort(s) || '?'}</span> · ${esc(stageName(s))}${s.placedAt || s.needBy ? ` · est. delivery <span class="mono">${fmt(eta(s))}</span>` : ''}`;
   const head = collapsible ? `<div class="ship-head"><button class="ship-toggle" type="button" aria-expanded="${open}" aria-label="Toggle ${esc(s.name)}" onclick="act.toggleShip('${s.id}')"><i class="bi bi-chevron-right chev"></i></button><div class="ship-sum"><div class="d-flex align-items-center gap-2 flex-wrap">${nameBlock}${badges}</div><div class="item-sub">${summary}</div></div><a class="btn btn-sm btn-outline-secondary flex-shrink-0" href="#ship-${s.id}" title="Edit shipment"><i class="bi bi-pencil-square me-1"></i>Edit</a></div>` : '';
   const body = `<div class="ship-body" ${open ? '' : 'hidden'}>
     <div class="minw0">
       ${collapsible ? '' : `<div class="d-flex align-items-center gap-2 flex-wrap mb-2">${nameBlock}${badges}</div>`}
       <div class="detail-grid">
         <div class="detail-field"><div class="detail-label">Quantity</div><div class="detail-value mono">${sqft(s.sqft)}</div></div>
-        <div class="detail-field"><div class="detail-label">Need-by</div><div class="detail-value mono">${s.needBy ? fmtLong(s.needBy) : sb('pending', 'unknown')}</div></div>
+        <div class="detail-field"><div class="detail-label">Need-by</div><div class="detail-value mono">${s.asap ? 'ASAP' : s.needBy ? fmtLong(s.needBy) : sb('pending', 'unknown')}</div>${needNote(s)}</div>
         <div class="detail-field full-width"><div class="detail-label">Route</div><div class="detail-value">${esc(s.origin)}${s.port ? ` → ${esc(s.port)} port` : ''} → ${esc(s.dest)}</div>${opts.office ? `<div class="item-sub mt-1">${[s.originCo, s.forwarder, s.carrier].filter(Boolean).map(v => `<a href="#vendor-${v}" class="text-decoration-none">${esc(vendor(v).name)}</a> <span class="text-body-secondary">(${esc(vendorRoleOn(v, s))})</span>`).join(' · ')}</div>` : ''}</div>
+        ${opts.office && refList(s).length ? `<div class="detail-field full-width"><div class="detail-label">References</div><div class="tag-list mt-1">${refList(s).map(([k, val]) => `<span class="tag">${k}<span class="mono ms-1">${esc(val)}</span></span>`).join('')}</div></div>` : ''}${opts.office ? `<div class="detail-field full-width"><div class="detail-label">Delivery</div>${deliveryHtml(s)}</div>` : ''}
         ${s.placedAt ? `<div class="detail-field"><div class="detail-label">Placed</div><div class="detail-value mono">${fmtLong(s.placedAt)}</div></div>` : `<div class="detail-field"><div class="detail-label">Place by</div><div class="detail-value mono">${pb ? fmtLong(pb) + ` <span class="text-body-secondary">(${rel(pb)})</span>` : '—'}</div></div>`}
+        ${shipByDate(s) && !s.actual[2] ? `<div class="detail-field"><div class="detail-label">Ship by</div><div class="detail-value mono">${fmtLong(shipByDate(s))}</div><div class="item-sub mt-1">${holdDays(s) ? `Placed early; the mill times production to this date` : 'Goes on the factory PO; the mill produces to it'}</div></div>` : ''}
         <div class="detail-field"><div class="detail-label">Est. delivery</div><div class="detail-value mono">${s.placedAt || s.needBy ? fmtLong(eta(s)) : '—'}</div></div>
-        ${s.type === 'container' && s.placedAt && s.stage < 2 ? `<div class="detail-field full-width"><div class="detail-label">Request booking by</div><div class="detail-value mono">${fmtLong(addDays(milestones(s)[1].date, -C.bookingLead))}</div></div>` : ''}
+        ${s.type === 'container' && s.placedAt && s.stage < 2 ? `<div class="detail-field full-width"><div class="detail-label">Request booking by</div><div class="detail-value mono ${bookingLate(s) ? 'text-danger' : ''}">${fmtLong(bookingBy(s))}${bookingLate(s) ? ` <span class="fw-normal">(${rel(bookingBy(s))}, no booking recorded)</span>` : ''}</div></div>` : ''}
       </div>
-      ${opts.office && !s.placedAt && s.needBy ? `<button class="btn btn-sm btn-primary mt-3" onclick="act.completeAction('place-${s.id}','Factory PO drafted for ${esc(s.name)}.')"><i class="bi bi-send me-1"></i>Place with ${esc(s.origin.split(',')[0])}</button>` : ''}
+      ${opts.office && !s.placedAt ? `<div class="d-flex gap-2 flex-wrap mt-3">${s.needBy && !s.hold ? `<button class="btn btn-sm btn-primary" onclick="act.completeAction('place-${s.id}','Factory PO drafted for ${esc(s.name)}.')"><i class="bi bi-send me-1"></i>Place with ${esc(s.origin.split(',')[0])}</button>` : ''}<button class="btn btn-sm btn-outline-secondary" onclick="act.hold('${s.id}')" title="${s.hold ? 'Let it be placed when it is due' : 'Keep it in the queue until you release it'}"><i class="bi bi-${s.hold ? 'play' : 'pause'}-circle me-1"></i>${s.hold ? 'Release hold' : 'Hold in queue'}</button></div>` : ''}
     </div>
-    <div class="minw0">${msList(s, opts.hideDates)}</div>
+    <div class="minw0">${msList(s, opts.hideDates)}${opts.office && s.booking ? bookingNote(s) : ''}</div>
   </div>`;
   return `<div class="ship ${open ? 'open' : ''}">${head}${body}</div>`;
 }
@@ -976,7 +1214,7 @@ function viewToday() {
   const atRisk = shipments.filter(s => health(s).k === 'crit').length;
   const unknown = shipments.filter(s => !s.needBy).length;
   const acts = nextActions();
-  return pageHeader('Dashboard', 'What the system proposes next. Approve to let it send; open to change it first. Nothing goes out without a click.', `<span class="proto-tag">Monday, Oct 26, 2026</span>`) +
+  return pageHeader('Dashboard', 'What needs a decision today, and how the business is trending.', `<span class="proto-tag">Monday, Oct 26, 2026</span>`) +
   `<div class="stat-cards">${statCard('Shipments in production', inProd, 'box-seam', 'blue', { route:'orders-production', group:'shipment', label:'Production shipments' })}${statCard('Shipments queued', queued, 'hourglass-split', 'gray', { route:'orders-queue', group:'shipment', label:'Queued shipments' })}${statCard('Need-by dates unknown', unknown, 'calendar-x', 'amber', { route:'orders-queue', group:'shipment', label:'Queue by shipment' })}${statCard('At risk of missing need-by', atRisk, 'exclamation-triangle', atRisk ? 'red' : 'green', { route:'orders-production', group:'shipment', label:'Production by shipment' })}${statCard('Change requests pending', pendingCO, 'arrow-left-right', pendingCO ? 'amber' : 'green', { route:'changes', label:'Pending change requests' })}</div>
   ${perfTable()}
   <div class="detail-card mb-3"><div class="detail-card-header"><h3>Next intended actions</h3><span class="card-note">${acts.length} proposed</span></div>
@@ -995,7 +1233,7 @@ const ordersTabs = tab => `<ul class="nav nav-tabs">
   <li class="nav-item"><a class="nav-link ${tab==='queue'?'active':''}" href="#orders-queue">Queue <span class="badge bg-warning bg-opacity-10 text-warning">${pos.filter(p=>p.lane==='queue').length}</span></a></li>
   <li class="nav-item"><a class="nav-link ${tab==='production'?'active':''}" href="#orders-production">Production <span class="badge bg-success bg-opacity-10 text-success">${pos.filter(p=>p.lane==='production').length}</span></a></li></ul>`;
 
-const ordersHeader = () => pageHeader('Orders', 'Every purchase order from the moment it arrives to the last delivery and invoice.', `<button class="btn btn-outline-secondary btn-sm" onclick="act.stub('<b>Prototype.</b> Manual entry form would open here.')"><i class="bi bi-plus-lg me-1"></i> Enter a PO by hand</button>`);
+const ordersHeader = () => pageHeader('Orders', 'Every purchase order, from arrival to final delivery and invoice.', `<button class="btn btn-outline-secondary btn-sm" onclick="act.stub('<b>Prototype.</b> Manual entry form would open here.')"><i class="bi bi-plus-lg me-1"></i> Enter a PO by hand</button>`);
 const TAB_DESC = {
   intake: 'Everything that arrives at <span class="mono">orders@surfaceedge.com</span>. The system reads the email and attachments, matches the customer, finds gaps, and replies before anyone touches it. New customers start their account package here.',
   queue: 'Captured but not actionable yet: waiting on a need-by date or paperwork, paused by the customer, or too far out to place with the factory.',
@@ -1020,7 +1258,7 @@ function viewIntake() {
 
 function viewOrdersByShipment(tab) {
   const FAR = new Date(2100,0,1);
-  let list = shipments.filter(s => (tab === 'queue' ? !s.placedAt : !!s.placedAt)).map(s => ({ s, p: po(s.po) })).filter(({ s, p }) => (T.orderFilter === 'all' || p.customer === T.orderFilter) && matches(s.name, p.id, p.job, cust(p.customer).name, p.site))
+  let list = shipments.filter(s => (tab === 'queue' ? !s.placedAt : !!s.placedAt)).map(s => ({ s, p: po(s.po) })).filter(({ s, p }) => (T.orderFilter === 'all' || p.customer === T.orderFilter) && matches(s.name, p.id, p.job, cust(p.customer).name, p.site, refText(s)))
     .sort((a, b) => tab === 'queue' ? ((placeBy(a.s) || FAR) - (placeBy(b.s) || FAR)) : ((nextMs(a.s)?.date || FAR) - (nextMs(b.s)?.date || FAR)));
   if (T.orderSort === 'customer') list.sort((a, b) => cust(a.p.customer).name.localeCompare(cust(b.p.customer).name));
   if (T.orderSort === 'sqft') list.sort((a, b) => b.s.sqft - a.s.sqft);
@@ -1030,16 +1268,16 @@ function viewOrdersByShipment(tab) {
       const last = tab === 'queue'
         ? (pb ? `<span class="mono">${fmt(pb)}</span> <span class="item-sub">${rel(pb)}</span>` : '<span class="text-body-secondary">unknown</span>')
         : (isDelivered(s) ? `<span class="text-body-secondary">Delivered ${fmt(eta(s))}</span>` : `${esc(stageName(s))}<div class="item-sub">→ ${esc(n.name)} <span class="mono">${fmt(n.date)}</span></div>`);
-      return `<tr class="link" onclick="go('po-${p.id.slice(3)}')"><td class="item-name"><a href="#po-${p.id.slice(3)}">${esc(s.name)}</a><div class="item-sub mono">${p.id}</div></td><td>${esc(cust(p.customer).name)}<div class="item-sub">${esc(p.job)} · ${esc(p.site)}</div></td><td><span class="ship-kind">${s.type === 'container' ? 'Ocean container' : 'LTL / pallet'}</span><div class="item-sub">${esc(s.origin)}${s.port ? ' → ' + esc(s.port) : ''}</div></td><td class="num">${s.sqft.toLocaleString()}</td><td class="mono">${s.needBy ? fmt(s.needBy) : sb('pending', 'no date')}</td><td>${pill(h)}</td><td>${last}</td></tr>`; }).join('')}
+      return `<tr class="link" onclick="go('po-${p.id.slice(3)}')"><td class="item-name"><a href="#po-${p.id.slice(3)}">${esc(s.name)}</a><div class="item-sub mono">${p.id}</div></td><td>${esc(cust(p.customer).name)}<div class="item-sub">${esc(p.job)} · ${esc(p.site)}</div></td><td><span class="ship-kind">${s.type === 'container' ? 'Ocean container' : 'LTL / pallet'}</span><div class="item-sub">${esc(s.origin)}${s.port ? ' → ' + esc(s.port) : ''}</div></td><td class="num">${s.sqft.toLocaleString()}</td><td class="mono">${needShort(s) || sb('pending', 'no date')}</td><td>${pill(h)}</td><td>${last}</td></tr>`; }).join('')}
     ${list.length ? '' : '<tr><td colspan="7" class="empty">No shipments match.</td></tr>'}
   </tbody></table></div>${tableFooter(list.length, 'shipments')}</div>`;
 }
 
 function viewOrders(tab) {
-  const head = ordersHeader() + pageNav(ordersTabs(tab), searchBox(groupBy === 'shipment' ? 'Search shipments…' : 'Search orders…') + orderTools()) + tabDesc(TAB_DESC[tab]);
+  const head = ordersHeader() + pageNav(ordersTabs(tab), searchBox(groupBy === 'shipment' ? 'Search shipments or any PO, order, or booking #…' : 'Search orders or any PO, order, or booking #…') + orderTools()) + tabDesc(TAB_DESC[tab]);
   if (groupBy === 'shipment') return head + viewOrdersByShipment(tab);
   const FAR = new Date(2100,0,1);
-  const list = pos.filter(p => (tab === 'queue' ? p.lane === 'queue' : p.lane === 'production') && (T.orderFilter === 'all' || p.customer === T.orderFilter) && matches(p.id, p.job, cust(p.customer).name, p.site));
+  const list = pos.filter(p => (tab === 'queue' ? p.lane === 'queue' : p.lane === 'production') && (T.orderFilter === 'all' || p.customer === T.orderFilter) && matches(p.id, p.job, cust(p.customer).name, p.site, shipsOf(p.id).map(refText).join(' ')));
   if (T.orderSort === 'customer') list.sort((a, b) => cust(a.customer).name.localeCompare(cust(b.customer).name));
   if (T.orderSort === 'sqft') list.sort((a, b) => b.sqft - a.sqft);
   if (T.orderSort === 'needby') { const first = p => { const ds = shipsOf(p.id).filter(s => s.needBy).map(s => d(s.needBy)); return ds.length ? Math.min(...ds) : FAR; }; list.sort((a, b) => first(a) - first(b)); }
@@ -1050,7 +1288,7 @@ function viewOrders(tab) {
         ? (() => { const dated = sh.filter(s => s.needBy && !s.placedAt).map(placeBy).sort((a,b)=>a-b); return dated.length ? `<span class="mono">${fmt(dated[0])}</span> <span class="item-sub">${rel(dated[0])}</span>` : '<span class="text-body-secondary">unknown</span>'; })()
         : (() => { const live = sh.filter(s => s.placedAt && !isDelivered(s)).map(s => ({s, n: nextMs(s)})).sort((a,b)=>a.n.date-b.n.date)[0]; return live ? `${esc(live.n.name)} <span class="mono">${fmt(live.n.date)}</span><div class="item-sub">${esc(live.s.name)}</div>` : '<span class="text-body-secondary">—</span>'; })();
       const statusCol = tab === 'queue' ? queueReasons(p).map(r => `<div style="font-size:13px">${esc(r)}</div>`).join('') : `${pill({k:h, t:PO_LABEL[h]})}<div class="item-sub mt-1">${sh.filter(isDelivered).length} of ${sh.length} delivered</div>`;
-      return `<tr class="link" onclick="go('po-${p.id.slice(3)}')"><td class="mono">${p.id}</td><td class="item-name"><a href="#po-${p.id.slice(3)}">${esc(cust(p.customer).name)}</a><div class="item-sub">${esc(p.job)} · ${esc(p.site)}</div></td><td class="num">${p.sqft.toLocaleString()}</td><td>${sh.map(s => `<div style="font-size:13px">${esc(s.name)} ${s.needBy ? `<span class="mono text-body-secondary">${fmt(s.needBy)}</span>` : sb('pending', 'no date')}</div>`).join('')}</td><td>${statusCol}</td><td>${nextCol}</td></tr>`; }).join('')}
+      return `<tr class="link" onclick="go('po-${p.id.slice(3)}')"><td class="mono">${p.id}</td><td class="item-name"><a href="#po-${p.id.slice(3)}">${esc(cust(p.customer).name)}</a><div class="item-sub">${esc(p.job)} · ${esc(p.site)}</div></td><td class="num">${p.sqft.toLocaleString()}</td><td>${sh.map(s => `<div style="font-size:13px">${esc(s.name)} ${needShort(s) ? `<span class="mono text-body-secondary">${needShort(s)}</span>` : sb('pending', 'no date')}</div>`).join('')}</td><td>${statusCol}</td><td>${nextCol}</td></tr>`; }).join('')}
     ${list.length ? '' : '<tr><td colspan="6" class="empty">No orders match.</td></tr>'}
   </tbody></table></div>${tableFooter(list.length, 'orders')}</div>`;
 }
@@ -1071,7 +1309,7 @@ function viewChanges() {
   list = coSort === 'context' ? [...list].sort((a, b) => CONTEXTS.indexOf(a.context) - CONTEXTS.indexOf(b.context) || (b.received > a.received ? 1 : -1)) : [...list].sort((a, b) => b.received > a.received ? 1 : -1);
   const contextSelect = filterTool('coContext', [['All','All contexts'], ...CONTEXTS.map(x => [x, `${x} (${changes.filter(c => c.status === coTab && c.context === x).length})`])]);
   const sortToggle = sortTool('coSort', [['newest','Newest first'],['context','By context']]);
-  return pageHeader('Change requests', 'Every requested change, about anything and from anyone, lands here instead of an inbox. Approve, Modify, or Reject; the decision recalculates what it touches and sends the right email with the right emphasis.') +
+  return pageHeader('Change requests', 'Every requested change, from anyone, waiting on a decision.') +
   pageNav(tabsUl(CO_TABS.map(t => [t[0], t[1], count(t[2]), t[3]]), CO_TABS.find(t => t[2] === coTab)[0]), searchBox('Search change requests…') + contextSelect + sortToggle) +
   tabDesc({ pending:'Waiting on a decision from Surface Edge. The system drafts the impact; a person clicks.', approved:'Accepted as requested. Milestones, constraints, or records were updated and the requester was told.', modified:'Accepted with changes. A counter-proposal went back to the requester.', rejected:'Declined with a reason. The requester was told what would make it workable.' }[coTab]) +
   `<div class="detail-card grow"><ul class="action-list">${list.length ? list.map(c => coRow(c)).join('') : `<li class="empty">No ${coTab} change requests${coContext !== 'All' ? ' for ' + coContext.toLowerCase() + 's' : ''}.</li>`}</ul>${tableFooter(list.length, 'change requests')}</div>`;
@@ -1083,12 +1321,14 @@ function poSidebar(p, c) {
   return `<div class="detail-card"><div class="detail-card-header"><h3>Before we can proceed</h3><span class="card-note">${gateDone} of ${p.gate.length}</span></div>
       <ul class="check-list">${p.gate.map(g => `<li class="check-item ${g[3]==='na'?'na':''} ${g[3]==='over'?'over':''}"><input class="form-check-input" type="checkbox" disabled ${g[3]==='done'||g[3]==='over'?'checked':''} aria-label="${esc(g[1])}"><div class="check-label">${esc(g[1])}<div class="check-sub">${g[3]==='na'?'Not required':g[3]==='over'?'Overridden by Rob':g[3]==='done'?'Complete':'Waiting on ' + esc(g[2])}</div></div>${g[3]==='pending' ? `<div class="btn-group btn-group-sm"><button class="btn btn-outline-secondary" onclick="act.gate('${p.id}','${g[0]}','done')">Done</button><button class="btn btn-outline-secondary" title="Proceed without it; logged on the order" onclick="act.gate('${p.id}','${g[0]}','over')">Override</button></div>` : ''}</li>`).join('')}</ul>
       <div class="detail-card-footer">Override is the sanctioned version of "go ahead anyway." It is logged on the order and counted per person.</div></div>
+    ${itemsCard(p)}
     ${detailCard('Source', '', `<ul class="meta-list">
       <li class="meta-item"><span class="meta-label">Received</span><span class="meta-value mono">${fmtLong(p.received)}</span></li>
       <li class="meta-item"><span class="meta-label">Format</span><span class="meta-value">${esc(p.source)}</span></li>
       <li class="meta-item"><span class="meta-label">Contact</span><span class="meta-value">${esc(c.contact)}<div class="fw-normal text-body-secondary mono">${esc(c.email)}</div></span></li>
       <li class="meta-item"><span class="meta-label">Sales rep</span><span class="meta-value">${esc(p.rep)}</span></li>
       <li class="meta-item"><span class="meta-label">Lead times in portal</span><span class="meta-value">${c.showLeadTimes ? 'Visible' : 'Hidden'} <a href="#po-${p.id.slice(3)}" onclick="act.toggleLead('${c.id}')" class="fw-normal">change</a></span></li></ul>`)}
+    ${ackCard(p)}
     ${detailCard('Attachments', '', `<div class="d-flex align-items-center gap-2"><div class="stat-icon gray" style="width:36px;height:36px"><i class="bi bi-file-earmark-pdf"></i></div><div class="minw0 flex-grow-1"><div class="text-truncate" style="font-size:13px;font-weight:500">${esc(p.source.replace(/^PDF \(|\)$/g, '') || 'Email body')}</div><div class="item-sub">Original as received · ${fmt(p.received)}</div></div><a href="#po-${p.id.slice(3)}" class="card-action" style="font-size:13px;font-weight:500;text-decoration:none" onclick="act.stub('<b>Prototype.</b> The original would open here.')">Open</a></div>`)}`;
 }
 const activityIcon = text => { const ic = /approved|delivered|complete|moved/i.test(text) ? 'green' : /rejected|missed|late|override/i.test(text) ? 'amber' : /received|sent|reminder/i.test(text) ? 'blue' : 'gray'; return [ic, { green:'check-lg', amber:'exclamation-lg', blue:'envelope', gray:'dot' }[ic]]; };
@@ -1097,8 +1337,10 @@ function viewPO(id, tab = 'shipments') {
   const p = po(id); if (!p) return `<div class="status-banner pending"><i class="bi bi-exclamation-circle"></i> No order ${esc(id)}.</div>`;
   const c = cust(p.customer); const sh = shipsOf(id); const cos = changes.filter(x => x.po === id); const ths = threadsOnPO(id);
   const reasons = queueReasons(p); const h = poHealth(p); const n = p.id.slice(3);
-  const banner = reasons.length ? `<div class="status-banner pending"><i class="bi bi-hourglass-split"></i><span>This order is <strong>in queue</strong>. Waiting on: ${reasons.join(' · ')}.</span></div>`
-    : h === 'crit' ? `<div class="status-banner danger"><i class="bi bi-exclamation-triangle-fill"></i><span>This order is <strong>at risk</strong>. At least one shipment will miss its need-by date on current lead times.</span></div>`
+  const waiting = sh.filter(s => !s.placedAt); const notPlaced = waiting.length ? ` ${waiting.length} of ${sh.length} shipments not placed yet: ${waiting.map(s => `${esc(s.name)} (${shipWaitingOn(s)})`).join(' · ')}.` : '';
+  const banner = p.lane === 'queue' ? `<div class="status-banner pending"><i class="bi bi-hourglass-split"></i><span>This order is <strong>in queue</strong>. Waiting on: ${reasons.length ? reasons.join(' · ') : 'placement'}.</span></div>`
+    : h === 'crit' ? `<div class="status-banner danger"><i class="bi bi-exclamation-triangle-fill"></i><span>This order is <strong>at risk</strong>. At least one shipment will miss its need-by date on current lead times.${notPlaced}</span></div>`
+    : waiting.length ? `<div class="status-banner pending"><i class="bi bi-hourglass-split"></i><span>This order is <strong>in production</strong>.${notPlaced}</span></div>`
     : `<div class="status-banner active"><i class="bi bi-check-circle-fill"></i><span>This order is <strong>in production</strong> and on track. ${sh.filter(isDelivered).length} of ${sh.length} shipments delivered.</span></div>`;
   const tabs = tabsUl([[`po-${n}`, 'Shipments', sh.length], [`po-${n}-changes`, 'Change requests', cos.length, cos.some(x => x.status === 'pending') ? 'warning' : 'secondary'], [`po-${n}-chats`, 'Chats', ths.length, ths.some(t => t.status === 'open') ? 'warning' : 'secondary'], [`po-${n}-activity`, 'Activity', p.activity.length]], tab === 'shipments' ? `po-${n}` : `po-${n}-${tab}`);
   const tools = { shipments: `<button class="btn btn-sm btn-outline-secondary" onclick="act.expandAll('${p.id}', true)">Expand all</button><button class="btn btn-sm btn-outline-secondary" onclick="act.expandAll('${p.id}', false)">Collapse all</button><button class="btn btn-sm btn-primary" onclick="act.stub('<b>Prototype.</b> Add shipment form would open here.')"><i class="bi bi-plus-lg me-1"></i>Add shipment</button>`,
@@ -1107,7 +1349,7 @@ function viewPO(id, tab = 'shipments') {
     : tab === 'chats' ? `<div class="detail-card"><ul class="thread-list">${ths.length ? ths.map(t => threadListItem(t, false)).join('') : '<li class="empty">No conversations on this order.</li>'}</ul></div>`
     : tab === 'activity' ? `<div class="detail-card"><div class="detail-card-body" style="padding:6px 20px"><ul class="timeline">${[...p.activity].reverse().map(a => { const [ic, icon] = activityIcon(a[1]); return `<li class="timeline-item"><div class="timeline-icon ${ic}"><i class="bi bi-${icon}"></i></div><div class="minw0"><div class="timeline-text">${esc(a[1])}</div><div class="timeline-time">${fmtLong(a[0])}</div></div></li>`; }).join('')}</ul></div></div>`
     : `<div class="stack" style="gap:10px">${sh.map(s => shipCard(s, {office:true})).join('')}</div>`;
-  return pageHeader(esc(p.job), `${esc(c.name)} · ${esc(p.site)} · ${sqft(p.sqft)} · ${esc(p.product)}`,
+  return pageHeader(esc(p.job), `${esc(c.name)}${p.jobNo ? ` · job <span class="mono">${esc(p.jobNo)}</span>` : ''}${p.custPO ? ` · PO <span class="mono">${esc(p.custPO)}</span>` : ''} · ${esc(p.site)} · ${sqft(p.sqft)} · ${esc(p.product)}`,
     `${pill({k:h, t:PO_LABEL[h]})}<button class="btn btn-outline-secondary btn-sm" onclick="act.remind('${p.id}')"><i class="bi bi-bell me-1"></i> Remind customer</button><a class="btn btn-outline-secondary btn-sm" href="#portal-po-${n}"><i class="bi bi-eye me-1"></i> View as customer</a><div class="dropdown"><button class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></button><ul class="dropdown-menu dropdown-menu-end"><li><a class="dropdown-item" href="#po-${n}" onclick="act.stub('<b>Prototype.</b> Add shipment form would open here.')"><i class="bi bi-plus-lg me-2"></i>Add shipment</a></li><li><a class="dropdown-item" href="#po-${n}" onclick="act.stub('<b>Prototype.</b> Original email would open here.')"><i class="bi bi-envelope me-2"></i>View original email</a></li><li><hr class="dropdown-divider"></li><li><a class="dropdown-item text-danger" href="#po-${n}" onclick="act.stub('<b>Prototype.</b> Cancellation would need a reason and a customer notice.')"><i class="bi bi-x-circle me-2"></i>Cancel order</a></li></ul></div>`,
     { back: p.lane === 'queue' ? 'orders-queue' : 'orders-production', id: p.id }) + banner + pageNav(tabs, tools) +
   `<div class="show-layout"><div class="show-main">${main}</div><div class="show-sidebar">${poSidebar(p, c)}</div></div>`;
@@ -1131,13 +1373,26 @@ function viewShipEdit(sid) {
       ${field('Name', txt('f-name', s.name))}
       ${field('Kind', sel('f-type', [['container','Ocean container'],['ltl','LTL / pallet']], s.type))}
       ${field('Quantity (sq ft)', txt('f-sqft', s.sqft, 'number'))}
-      ${field('Need-by date', txt('f-needby', s.needBy || '', 'date'))}
+      ${field('Need-by date (committed)', txt('f-needby', s.asap || s.needAfter ? '' : s.needBy || '', 'date') + `<div class="form-check mt-1"><input class="form-check-input" type="checkbox" id="f-asap" ${s.asap ? 'checked' : ''}><label class="form-check-label small" for="f-asap">ASAP: as soon as it can be made and shipped</label></div>${s.needAfter ? `<div class="item-sub mt-1">Now ${esc(afterText(s))}${s.needBy ? ` (${fmt(s.needBy)})` : ''}. A date here replaces that.</div>` : ''}${s.requested ? `<div class="item-sub mt-1">Customer PO asked for ${fmt(s.requested)}.</div>` : ''}`)}
       ${field('Origin', sel('f-origin', origins.map(v => [v.id, `${v.name} · ${v.roles[0]}`]), s.originCo))}
       ${field('US port (ocean only)', sel('f-port', Object.keys(C.ocean).map(k => [k, `${k} · ${C.ocean[k]} days`]), s.port, true))}
+      ${field('Stops at a warehouse (ocean only)', sel('f-via', vendors.filter(v => v.roles.includes('Warehouse')).map(v => [v.id, `${v.name} · ${v.hq}`]), s.via, true))}
+      ${field('Last leg distance', sel('f-band', BANDS.map(b => [b[0], `${b[1]} · ${legDays({ band: b[0] })} days`]), s.band || 'local'))}
       ${field('Destination', txt('f-dest', s.dest), true)}
       ${field('Freight forwarder', sel('f-forwarder', fwds.map(v => [v.id, v.name]), s.forwarder, true))}
       ${field('Carrier (last leg)', sel('f-carrier', carriers.map(v => [v.id, `${v.name} · ${v.roles[0]}`]), s.carrier, true))}
       ${field('Placed / released on', txt('f-placed', s.placedAt || '', 'date'))}
+    </div>`)}
+    ${detailCard('Paperwork and delivery', 'from the PO, acknowledgement, and cover page', `<div class="row g-3">
+      ${field('Customer PO #', txt('f-custPO', s.custPO || ''))}
+      ${field('Sidemark', txt('f-sidemark', s.sidemark || ''))}
+      ${field('Navigator order # (ERP)', txt('f-erpOrder', s.erpOrder || ''))}
+      ${field('Factory PO #', txt('f-factoryPO', s.factoryPO || ''))}
+      ${field('Delivery contact', txt('f-dl-name', s.delivery?.name || ''))}
+      ${field('Contact phone', txt('f-dl-phone', s.delivery?.phone || ''))}
+      ${field('Delivering to', sel('f-dl-site', [['Job site','Job site'],['Warehouse','Warehouse']], s.delivery?.site || 'Job site'))}
+      <div class="col-md-6 d-flex align-items-end gap-4"><div class="form-check"><input class="form-check-input" type="checkbox" id="f-dl-dock" ${s.delivery?.dock ? 'checked' : ''}><label class="form-check-label small" for="f-dl-dock">Dock door</label></div><div class="form-check"><input class="form-check-input" type="checkbox" id="f-dl-forklift" ${s.delivery?.forklift ? 'checked' : ''}><label class="form-check-label small" for="f-dl-forklift">Forklift</label></div></div>
+      <div class="col-12"><label class="form-label small" for="f-dl-rules">Delivery rules, one per line</label><textarea class="form-control form-control-sm" id="f-dl-rules" rows="3">${esc((s.delivery?.rules || []).join('\n'))}</textarea></div>
     </div>`)}
     ${detailCard('What saving changes', '', `<div style="font-size:13px;color:var(--text-2);line-height:1.6">Changing the need-by, origin, port, or placed date recalculates every milestone from the lead times in Constraints. The customer sees the new dates in their portal${c.showLeadTimes ? '' : ' (lead times are hidden for this customer, so only the need-by and status)'}. Changing the kind switches between the ocean and domestic milestone chains. Renaming is cosmetic and logged.</div>`)}
     ${detailCard('Milestones at current values', '', msList(s))}
@@ -1176,8 +1431,8 @@ function viewCustomers(tab) {
   const tools = searchBox('Search customers…') + filterTool('custFilter', [['all','All reps'], ...[...new Set(customers.map(c => c.rep))].map(r => [r, 'Rep: ' + r])]) + sortTool('custSort', [['default','Default order'],['name','Name A–Z'],['completeness','PO completeness, lowest first'],['changes','Most change requests']]);
   const tabs = tabsUl(CUST_TABS.map(t => [t[0], t[1], t[0] === 'customers' ? customers.length : t[0] === 'customers-reps' ? reps().length : customers.filter(c => custStatus(c) === t[0].slice(10)).length, t[0] === 'customers-onboarding' ? 'warning' : t[0] === 'customers-active' ? 'success' : 'secondary']), tab ? 'customers-' + tab : 'customers');
   const desc = { active:'Onboarded and holding at least one open order.', onboarding:'First order received; account package, credit, preliminary notice, or tax status still open.', inactive:'Onboarded with no open orders. Standing emails pause until the next PO.' }[tab] || 'Who we sell to, what they owe us, and how clean their orders arrive. Matched against the customer list export until the new system lands in February.';
-  if (tab === 'reps') return pageHeader('Customers', 'Companies that buy from Surface Edge. One customer can front many jobs, salespeople, and sub-customers.') + pageNav(tabs, '') + tabDesc('Each salesperson\'s accounts and the orders they handled: how complete POs arrive, how often they change, and what is still missing.') + repsTable();
-  return pageHeader('Customers', 'Companies that buy from Surface Edge. One customer can front many jobs, salespeople, and sub-customers.', `<button class="btn btn-primary btn-sm" onclick="act.stub('<b>Prototype.</b> New customer form would open here.')"><i class="bi bi-plus-lg me-1"></i> New customer</button>`) + pageNav(tabs, tools) + tabDesc(desc) +
+  if (tab === 'reps') return pageHeader('Customers', 'Companies that buy from Surface Edge.') + pageNav(tabs, '') + tabDesc('Each salesperson\'s accounts and the orders they handled: how complete POs arrive, how often they change, and what is still missing.') + repsTable();
+  return pageHeader('Customers', 'Companies that buy from Surface Edge.', `<button class="btn btn-primary btn-sm" onclick="act.stub('<b>Prototype.</b> New customer form would open here.')"><i class="bi bi-plus-lg me-1"></i> New customer</button>`) + pageNav(tabs, tools) + tabDesc(desc) +
   `<div class="data-table-wrapper"><div class="table-responsive"><table class="table table-hover"><thead><tr><th>Customer</th><th>Contact</th><th class="num">Active</th><th class="num">Queued</th><th class="num">Open changes</th><th class="num">PO completeness</th><th class="num">Changes / 90d</th><th>Status</th></tr></thead><tbody>
     ${rows.map(c => { const cp = pos.filter(p => p.customer === c.id); return `<tr class="link" onclick="go('customer-${c.id}')"><td class="item-name"><a href="#customer-${c.id}">${esc(c.name)}</a><div class="item-sub">${esc(c.hq)} · rep ${esc(c.rep)}</div></td><td>${esc(c.contact)}</td><td class="num">${cp.filter(p=>p.lane==='production').length}</td><td class="num">${cp.filter(p=>p.lane==='queue').length}</td><td class="num">${companyChanges(c.id).filter(x=>x.status==='pending').length}</td><td class="num">${c.completeness}%</td><td class="num">${c.cos90}</td><td>${{ active: sb('active', 'Active'), onboarding: sb('pending', 'Onboarding'), inactive: sb('inactive', 'Inactive') }[custStatus(c)]}</td></tr>`; }).join('')}
     ${rows.length ? '' : '<tr><td colspan="8" class="empty">No customers match.</td></tr>'}
@@ -1222,7 +1477,7 @@ function factoryForecast(vendorId) {
     <div class="detail-card-body">${rows.map(r => `<div class="bar-row"><span class="lbl">${r.label}</span><div class="bar-track">${Array.from({length:r.placed}).map(()=>`<span class="bar-seg placed" style="width:${100/max}%"></span>`).join('')}${Array.from({length:r.toplace}).map(()=>`<span class="bar-seg toplace" style="width:${100/max}%"></span>`).join('')}</div><span class="mono item-sub" style="width:1.5rem;text-align:right">${r.placed + r.toplace || ''}</span></div>`).join('')}
     <p class="item-sub mt-3 mb-0">Ryan's two spreadsheets in one place: what is placed with the mill by the month it finishes production, and what the queue says must be placed each month. Plus <b>${unknown}</b> shipments with no need-by date that cannot be scheduled yet.</p></div></div>
   <div class="data-table-wrapper"><div class="detail-card-header"><h3>Not yet placed</h3><span class="card-note">sorted by place-by date</span></div><div class="table-responsive"><table class="table table-hover"><thead><tr><th>Customer · Job</th><th>Shipment</th><th>Need-by</th><th>Place by</th><th>Est. delivery if placed today</th><th>Status</th></tr></thead><tbody>
-    ${unplaced.map(s => { const p = po(s.po); const pb = placeBy(s); return `<tr class="link" onclick="go('po-${p.id.slice(3)}')"><td class="item-name"><a href="#po-${p.id.slice(3)}">${esc(cust(p.customer).name)}</a><div class="item-sub">${esc(p.job)}</div></td><td>${esc(s.name)} <span class="item-sub">→ ${esc(s.port)}</span></td><td class="mono">${s.needBy ? fmt(s.needBy) : sb('pending', 'unknown')}</td><td class="mono">${pb ? fmt(pb) : '—'}</td><td class="mono">${fmt(addDays(TODAY, totalDays(s)))}</td><td>${pill(health(s))}</td></tr>`; }).join('')}
+    ${unplaced.map(s => { const p = po(s.po); const pb = placeBy(s); return `<tr class="link" onclick="go('po-${p.id.slice(3)}')"><td class="item-name"><a href="#po-${p.id.slice(3)}">${esc(cust(p.customer).name)}</a><div class="item-sub">${esc(p.job)}</div></td><td>${esc(s.name)} <span class="item-sub">→ ${esc(s.port)}</span></td><td class="mono">${needShort(s) || sb('pending', 'unknown')}</td><td class="mono">${pb ? fmt(pb) : '—'}</td><td class="mono">${fmt(addDays(TODAY, totalDays(s)))}</td><td>${pill(health(s))}</td></tr>`; }).join('')}
     ${unplaced.length ? '' : '<tr><td colspan="6" class="empty">Nothing waiting to be placed.</td></tr>'}
   </tbody></table></div>${tableFooter(unplaced.length, 'shipments')}</div>`;
 }
@@ -1264,7 +1519,7 @@ function viewChats(tab, selectedId) {
   const sel = selectedId ? thread(selectedId) : list[0];
   if (sel && sel.unread && selectedId) sel.unread = false;
   const count = k => threadsFor(k).length;
-  const head = pageHeader('Chats', 'Every email and portal message, merged into threads by sender and subject. Reply here instead of in Outlook; the system keeps the order, the contact, and any change request linked.', `<button class="btn btn-primary btn-sm" onclick="act.stub('<b>Prototype.</b> A new message form would open here.')"><i class="bi bi-pencil-square me-1"></i> New message</button>`) +
+  const head = pageHeader('Chats', 'Customer and vendor emails, grouped into threads you can answer here.', `<button class="btn btn-primary btn-sm" onclick="act.stub('<b>Prototype.</b> A new message form would open here.')"><i class="bi bi-pencil-square me-1"></i> New message</button>`) +
   pageNav(`<ul class="nav nav-tabs">${CHAT_TABS.map(x => `<li class="nav-item"><a class="nav-link ${tab===x[0]?'active':''}" href="#chats-${x[0]}">${x[1]} ${x[0] === 'closed' ? '' : `<span class="badge bg-${x[0]==='open'?'warning':x[0]==='awaiting'?'primary':'secondary'} bg-opacity-10 text-${x[0]==='open'?'warning':x[0]==='awaiting'?'primary':'secondary'}">${count(x[0])}</span>`}</a></li>`).join('')}</ul>`, searchBox('Search threads…') + filterTool('chatFilter', [['all','Everyone'],['me','Assigned to me'],['unassigned','Unassigned']]) + sortTool('chatSort', [['newest','Newest first'],['oldest','Oldest first']])) +
   tabDesc(CHAT_DESC[tab]);
   return head + `
@@ -1280,7 +1535,7 @@ function viewVendors(roleSlug) {
   if (T.vendorSort === 'name') rows.sort(byName('name'));
   const tools = searchBox('Search vendors…') + filterTool('vendorFilter', [['all','All vendors'],['active','With active shipments'],['changes','With pending change requests']]) + sortTool('vendorSort', [['default','Default order'],['name','Name A–Z']]);
   const tabs = tabsUl([['vendors', 'All', vendors.length], ...ROLE_TABS.map(r => ['vendors-' + slug(r[0]), r[1], vendors.filter(v => v.roles.includes(r[0])).length])], role ? 'vendors-' + slug(role) : 'vendors');
-  return pageHeader('Vendors', 'Companies that play a vendor role on orders and shipments. Each role owns a lead time the milestone engine uses.', `<button class="btn btn-primary btn-sm" onclick="act.stub('<b>Prototype.</b> New vendor form would open here.')"><i class="bi bi-plus-lg me-1"></i> New vendor</button>`) + pageNav(tabs, tools) +
+  return pageHeader('Vendors', 'Factories, forwarders, carriers, and warehouses that move each shipment.', `<button class="btn btn-primary btn-sm" onclick="act.stub('<b>Prototype.</b> New vendor form would open here.')"><i class="bi bi-plus-lg me-1"></i> New vendor</button>`) + pageNav(tabs, tools) +
   tabDesc(role ? ROLE_DESC[role] : 'Factories, forwarders, brokers, carriers, and warehouses. A company can hold more than one role.') +
   `<div class="data-table-wrapper"><div class="table-responsive"><table class="table table-hover"><thead><tr><th>Vendor</th><th>Roles</th><th>Primary contact</th><th class="num">Active shipments</th><th class="num">Open changes</th><th>Lead time</th></tr></thead><tbody>
     ${rows.map(v => { const vs = vendorShipments(v.id).filter(s => !isDelivered(s)); const pc = contactsOf(v.id).find(c => c.primary); return `<tr class="link" onclick="go('vendor-${v.id}')"><td class="item-name"><a href="#vendor-${v.id}">${esc(v.name)}</a><div class="item-sub">${esc(v.hq)}</div></td><td><div class="tag-list">${v.roles.map(r => `<span class="tag blue">${esc(r)}</span>`).join('')}</div></td><td>${pc ? `${esc(pc.name)}<div class="item-sub mono">${esc(pc.email)}</div>` : '<span class="text-body-secondary">—</span>'}</td><td class="num">${vs.length}</td><td class="num">${companyChanges(v.id).filter(c => c.status === 'pending').length}</td><td><span class="mono">${v.constraint === 'production' ? C.production : C[v.constraint]} days</span><div class="item-sub">${CONSTRAINT_LABEL[v.constraint]}</div></td></tr>`; }).join('')}
@@ -1313,7 +1568,7 @@ function viewContacts(tab) {
   const tools = searchBox('Search contacts…') + filterTool('contactFilter', [['all','All contacts'],['primary','Primary only'],['left','Left their company']]) + sortTool('contactSort', [['default','Default order'],['name','Name A–Z'],['company','Company A–Z']]);
   const tabs = tabsUl(CONTACT_TABS.map(t => [t[0], t[1], t[0] === 'contacts' ? contacts.length : contacts.filter(ct => (t[0] === 'contacts-vendors') === isVendorContact(ct)).length]), tab ? 'contacts-' + tab : 'contacts');
   const desc = { customers:'People at the companies that buy from us. The primary contact gets standing emails, reminders, and departure notices.', vendors:'People at factories, forwarders, carriers, and warehouses. Booking requests and lead-time changes go through them.' }[tab] || 'The people behind every company: who to email, who gave which date, and who has left. Turnover at big customers is why a date is tied to a person.';
-  return pageHeader('Contacts', 'People attached to customers and vendors.', `<button class="btn btn-primary btn-sm" onclick="act.stub('<b>Prototype.</b> New contact form would open here.')"><i class="bi bi-plus-lg me-1"></i> New contact</button>`) + pageNav(tabs, tools) + tabDesc(desc) +
+  return pageHeader('Contacts', 'People at your customers and vendors.', `<button class="btn btn-primary btn-sm" onclick="act.stub('<b>Prototype.</b> New contact form would open here.')"><i class="bi bi-plus-lg me-1"></i> New contact</button>`) + pageNav(tabs, tools) + tabDesc(desc) +
   `<div class="data-table-wrapper"><div class="table-responsive"><table class="table table-hover"><thead><tr><th>Name</th><th>Company</th><th>Title</th><th>Email</th><th>Phone</th><th>Status</th></tr></thead><tbody>
     ${rows.map(ct => { const co = company(ct.company); return `<tr class="link" onclick="go('contact-${ct.id}')"><td class="item-name"><a href="#contact-${ct.id}">${esc(ct.name)}</a>${ct.primary ? '<div class="item-sub">Primary contact</div>' : ''}</td><td><a href="${companyLink(co)}" class="text-decoration-none">${esc(co.name)}</a><div class="item-sub">${companyRoles(co).join(', ')}</div></td><td>${esc(ct.title)}</td><td class="mono">${esc(ct.email)}</td><td class="mono">${ct.phone ? esc(ct.phone) : '—'}</td><td>${ct.status === 'left' ? sb('danger', 'Left') : sb('active', 'Active')}</td></tr>`; }).join('')}
   </tbody></table></div>${tableFooter(rows.length, 'contacts')}</div>`;
@@ -1341,13 +1596,14 @@ function viewContact(id) {
 }
 
 function viewSettings() {
-  const f = (label, key, port) => { const id = `c-${port ? ('ocean-' + port.replace(/\s/g,'')) : key}`; return `<div class="col"><label class="form-label small" for="${id}">${label}</label><input class="form-control form-control-sm mono" type="number" id="${id}" value="${port ? C.ocean[port] : C[key]}" onchange="act.setC('${key}', this.value${port ? `, '${port}'` : ''})"></div>`; };
+  const f = (label, key, port, note) => { const id = `c-${port ? ('ocean-' + port.replace(/\s/g,'')) : key}`; return `<div class="col"><label class="form-label small" for="${id}">${label}</label><input class="form-control form-control-sm mono" type="number" id="${id}" value="${port ? C.ocean[port] : C[key]}" onchange="act.setC('${key}', this.value${port ? `, '${port}'` : ''})">${note ? `<div class="item-sub mt-1">${note}</div>` : ''}</div>`; };
   const grid = inner => `<div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">${inner}</div>`;
-  return pageHeader('Constraints', 'The lead times the milestone engine uses. Change one and every planned date on every order recalculates. Numbers here are placeholders until Ryan sends the real ones.') +
+  return pageHeader('Constraints', 'Lead times that set every planned date in the system.') +
   `<div class="stack">
   ${detailCard('Ocean shipment legs (days)', '', grid(f('Factory production','production') + f('Booking lead (request before ready)','bookingLead') + f('Load-out to departure','loadout') + f('Port clearance','clearance') + f('Drayage to destination','drayage')))}
-  ${detailCard('Ocean transit from Korea by US port (days)', '', grid(Object.keys(C.ocean).map(p => f(p, 'ocean', p)).join('')))}
+  ${detailCard('Ocean transit from Korea by US port (days)', 'median of the order history', grid(Object.keys(C.ocean).map(p => f(p, 'ocean', p, OCEAN_HISTORY[p])).join('')))}
   ${detailCard('Domestic from Wanke warehouse (days)', '', grid(f('Pick','pick') + f('Ground to job site','ground')))}
+  ${detailCard('Last leg by distance (days)', 'local uses drayage above', grid(f('Regional, 150 to 500 miles','legRegional') + f('Long haul, over 500 miles','legLong') + f('Warehouse release before the truck','release')))}
   ${detailCard('Communication cadence (days)', '', grid(f('Reminder for missing info, every','reminderDays') + f('"Stop us or it ships" before departure','stopUsDays') + f('Customer standing email, every','standingEmailDays')))}
   <div class="detail-card"><div class="detail-card-header"><h3>Auto-approve</h3><span class="card-note">actions people approve almost every time can run on their own</span></div>
     <ul class="action-list">${[['Send intake acknowledgement and missing-info list','100%',true],['Send reminder for missing need-by dates','98%',true],['Send departure notice 10 days before ship','96%',true],['Place with factory on go/no-go date','62%',false],['Approve customer need-by change with no production impact','81%',false]].map((r, i) => actionItem(r[2] ? 'good' : 'muted', esc(r[0]), `Approved without edits ${r[1]} of the time`, `<div class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" role="switch" id="auto-${i}" ${r[2]?'checked':''} onchange="act.stub('<b>Saved.</b> ' + (this.checked ? 'Now automatic.' : 'Now needs approval.'))"><label class="form-check-label" style="font-size:13px" for="auto-${i}">${r[2]?'Automatic':'Needs approval'}</label></div>`)).join('')}</ul></div>
@@ -1364,19 +1620,25 @@ function portalShell(body) {
     ${body}
   </div></div>`;
 }
+/* What the customer sees for each checklist item they owe: [why, button, what the button would open]. */
+const PORTAL_GATE = {
+  account: ['Required before your first order can be placed.', 'Open form', 'the new account package would open here.'],
+  ack: ['Review and sign the order acknowledgement we sent. We place the order with the factory once it is signed.', 'Review and sign', 'the acknowledgement would open here for signature.'],
+  delivery: ['Who should the driver call to schedule each delivery?', 'Add contact', 'a delivery contact form would open here.'],
+};
 function viewPortal() {
   const c = cust(portalCustomer); const cp = pos.filter(p => p.customer === c.id);
   const active = cp.filter(p => p.lane === 'production'), queued = cp.filter(p => p.lane === 'queue');
   const needs = [];
   cp.forEach(p => { shipsOf(p.id).filter(s => !s.needBy && !changes.some(x => x.ship === s.id && x.status === 'pending')).forEach(s => needs.push({ p, s, kind:'date' })); p.gate.filter(g => g[3]==='pending' && g[2]==='Customer').forEach(g => needs.push({ p, g, kind:'gate' })); shipsOf(p.id).filter(s => /missing/i.test(s.dest)).slice(0,1).forEach(s => needs.push({ p, s, kind:'address' })); });
-  const pendingCOs = changes.filter(x => x.status === 'pending' && po(x.po).customer === c.id);
+  const pendingCOs = changes.filter(x => x.status === 'pending' && (x.po ? po(x.po).customer : x.target) === c.id);
   return portalShell(`
     <div class="stat-cards">${statCard('Orders in production', active.length, 'box-seam', 'blue')}${statCard('Orders in queue', queued.length, 'hourglass-split', 'gray')}${statCard('Things we need from you', needs.length, 'clipboard-check', needs.length ? 'amber' : 'green')}${statCard('Changes awaiting our confirmation', pendingCOs.length, 'arrow-left-right', 'blue')}</div>
     <div class="stack">
     <div class="detail-card"><div class="detail-card-header"><h3>What we need from you</h3><span class="card-note">Orders in queue cannot be placed with the factory until these are in</span></div>
       <ul class="action-list">${needs.length ? needs.map(n => n.kind === 'date'
         ? actionItem('warn', `Need-by date for ${esc(n.s.name)} · ${esc(n.p.job)}`, `${sqft(n.s.sqft)}. Allow at least ${Math.ceil(totalDays(n.s)/7)} weeks from the date we place it. If you do not know yet, leave it and we keep it in your queue.`, `<div class="input-group input-group-sm" style="width:auto">${dateInput('nb-'+n.s.id)}<button class="btn btn-primary" onclick="act.setNeedBy('${n.s.id}', document.getElementById('nb-${n.s.id}').value)">Set date</button></div>`)
-        : n.kind === 'gate' ? actionItem('warn', `${esc(n.g[1])} · ${esc(n.p.job)}`, 'Required before your first order can be placed.', `<button class="btn btn-sm btn-primary" onclick="act.stub('<b>Form opened.</b> (Prototype: the new account package would open here.)')">Open form</button>`)
+        : n.kind === 'gate' ? (pg => actionItem('warn', `${esc(n.g[1])} · ${esc(n.p.job)}`, pg[0], `<button class="btn btn-sm btn-primary" onclick="act.stub('<b>Form opened.</b> (Prototype: ${pg[2]})')">${pg[1]}</button>`))(PORTAL_GATE[n.g[0]] || PORTAL_GATE.account)
         : actionItem('warn', `Ship-to address · ${esc(n.p.job)}`, `Where should ${esc(n.s.name)} be delivered?`, `<button class="btn btn-sm btn-primary" onclick="act.stub('<b>Address form opened.</b> (Prototype.)')">Add address</button>`)).join('')
       : '<li class="empty"><div class="status-banner active mb-0"><i class="bi bi-check-circle-fill"></i> Nothing outstanding. We have what we need to keep your orders moving.</div></li>'}</ul></div>
     <div class="detail-card"><div class="detail-card-header"><h3>In production</h3></div><ul class="action-list">${active.length ? active.map(portalPORow).join('') : '<li class="empty">No orders in production.</li>'}</ul></div>
@@ -1395,7 +1657,7 @@ function viewPortalPO(id) {
   if (p.customer !== portalCustomer) portalCustomer = p.customer;
   const c = cust(p.customer); const sh = shipsOf(id); const cos = changes.filter(x => x.po === id && x.status === 'pending');
   return portalShell(`
-    <div class="page-header"><div class="page-header-left"><a class="back-btn" href="#portal" title="Back"><i class="bi bi-arrow-left"></i></a><div><h1 style="font-size:20px">${esc(p.job)}<span class="record-id">${p.id}</span></h1><div class="page-subtitle">${esc(p.site)} · ${sqft(p.sqft)} · ${esc(p.product)} · received ${fmtLong(p.received)}</div></div></div></div>
+    <div class="page-header"><div class="page-header-left"><a class="back-btn" href="#portal" title="Back"><i class="bi bi-arrow-left"></i></a><div><h1 style="font-size:20px">${esc(p.job)}<span class="record-id">${p.id}</span></h1><div class="page-subtitle">${esc(p.site)} · ${sqft(p.sqft)} · ${esc(p.product)} · received ${fmtLong(p.received)}</div></div></div><div class="page-header-actions"><button class="btn btn-outline-secondary btn-sm" onclick="act.cwAbout('${p.id}')"><i class="bi bi-chat-dots me-1"></i> Ask about this order</button></div></div>
     ${p.lane === 'queue' ? `<div class="status-banner pending"><i class="bi bi-hourglass-split"></i><span><strong>In queue.</strong> We have this order but cannot place it yet: ${queueReasons(p).join(' · ')}.</span></div>` : ''}
     ${cos.length ? `<div class="status-banner info"><i class="bi bi-arrow-left-right"></i><span>${cos.map(x => `<strong>${esc(x.type)}</strong> on ${esc(ship(x.ship).name)} (${esc(x.from)} → ${esc(x.to)}) is with Surface Edge for confirmation.`).join('<br>')}</span></div>` : ''}
     <div class="detail-card"><div class="detail-card-header"><h3>Shipments</h3>${c.showLeadTimes ? '' : '<span class="card-note">Dates shown once confirmed</span>'}</div><div class="detail-card-body stack" style="gap:12px">${sh.map(s => portalShipCard(s, c)).join('')}</div></div>`);
@@ -1408,7 +1670,7 @@ function portalShipCard(s, c) {
       <div class="detail-grid">
         <div class="detail-field"><div class="detail-label">Quantity</div><div class="detail-value mono">${sqft(s.sqft)}</div></div>
         <div class="detail-field"><div class="detail-label">Deliver to</div><div class="detail-value">${esc(s.dest)}</div></div>
-        <div class="detail-field full-width"><div class="detail-label">Need-by</div><div class="detail-value d-flex align-items-center gap-2 flex-wrap">${s.needBy ? `<span class="mono">${fmtLong(s.needBy)}</span>` : ''}${pendingCO ? sb('info', 'Pending: ' + pendingCO.to) : ''}${isDelivered(s) ? '' : `<div class="input-group input-group-sm" style="width:auto">${dateInput('pnb-'+s.id)}<button class="btn btn-outline-secondary" onclick="act.setNeedBy('${s.id}', document.getElementById('pnb-${s.id}').value)">${s.needBy ? 'Request change' : 'Set date'}</button></div>`}</div></div>
+        <div class="detail-field full-width"><div class="detail-label">Need-by</div><div class="detail-value d-flex align-items-center gap-2 flex-wrap">${s.asap ? '<span class="mono">ASAP</span>' : s.needBy ? `<span class="mono">${fmtLong(s.needBy)}</span>` : ''}${pendingCO ? sb('info', 'Pending: ' + pendingCO.to) : ''}${isDelivered(s) ? '' : `<div class="input-group input-group-sm" style="width:auto">${dateInput('pnb-'+s.id)}<button class="btn btn-outline-secondary" onclick="act.setNeedBy('${s.id}', document.getElementById('pnb-${s.id}').value)">${s.needBy ? 'Request change' : 'Set date'}</button></div>`}</div></div>
         ${s.placedAt || !s.needBy ? '' : `<div class="detail-field"><div class="detail-label">Must be placed by</div><div class="detail-value mono">${fmtLong(placeBy(s))}</div></div>`}
         ${(s.placedAt || s.needBy) && c.showLeadTimes ? `<div class="detail-field"><div class="detail-label">Est. delivery</div><div class="detail-value mono">${fmtLong(eta(s))}</div></div>` : ''}
       </div></div>
@@ -1417,25 +1679,34 @@ function portalShipCard(s, c) {
 }
 
 /* ---------- sidebar & shell ---------- */
+/* Sidebar counts appear only when something needs action: red = blocking production, yellow = work in progress. */
+const red = n => n ? { n, sev:'danger', why:'blocking production' } : null;
+const yellow = n => n ? { n, sev:'warn', why:'in progress' } : null;
+const firstOf = (...xs) => xs.find(Boolean) || null;
+const missedPlaceBy = () => shipments.filter(s => !s.placedAt && !s.hold && health(s).k === 'crit').length;
+const lateInProduction = () => shipments.filter(s => s.placedAt && !isDelivered(s) && health(s).k === 'crit').length;
+const needsHuman = () => intake.filter(i => i.result === 'review').length;
+const ordersAlert = () => firstOf(red(needsHuman() + missedPlaceBy() + lateInProduction()), yellow(pos.filter(p => p.lane === 'queue').length));
 const NAV = [
-  { id:'today', label:'Dashboard', icon:'grid-1x2', count: () => nextActions().length, badge:'danger' },
-  { id:'orders', label:'Orders', icon:'box-seam', link:'orders-production', count: () => pos.filter(p => p.lane === 'queue').length + intake.filter(i => i.result === 'review').length, children: [
-      { id:'intake', label:'Intake', count: () => intake.filter(i => i.result === 'review').length, badge:'danger', hint:'new POs, new customers' },
-      { id:'orders-queue', label:'Queue', count: () => pos.filter(p => p.lane === 'queue').length, badge:'warn', hint:'waiting or paused' },
-      { id:'orders-production', label:'Production', count: () => pos.filter(p => p.lane === 'production').length, badge:'soft', hint:'moving through milestones' },
+  { id:'today', label:'Dashboard', icon:'grid-1x2', alert: () => { const a = nextActions(); return firstOf(red(a.filter(x => x.k === 'crit').length), yellow(a.filter(x => x.k === 'warn').length)); } },
+  { id:'orders', label:'Orders', icon:'box-seam', link:'orders-production', alert: ordersAlert, children: [
+      { id:'intake', label:'Intake', alert: () => red(needsHuman()), hint:'new POs, new customers' },
+      { id:'orders-queue', label:'Queue', alert: () => firstOf(red(missedPlaceBy()), yellow(pos.filter(p => p.lane === 'queue').length)), hint:'waiting or paused' },
+      { id:'orders-production', label:'Production', alert: () => red(lateInProduction()), hint:'moving through milestones' },
     ] },
-  { id:'chats', label:'Chats', icon:'chat-left-text', link:'chats-inbox', count: () => threadsFor('inbox').length, children: [
-      { id:'chats-inbox', label:'My inbox', count: () => threadsFor('inbox').length, badge:'danger', hint:'assigned to you, not closed' },
-      { id:'chats-open', label:'Open', count: () => threadsFor('open').length, badge:'warn', hint:'they spoke last; we owe a reply' },
-      { id:'chats-awaiting', label:'Awaiting reply', count: () => threadsFor('awaiting').length, badge:'soft', hint:'we spoke last; waiting on them' },
+  { id:'chats', label:'Chats', icon:'chat-left-text', link:'chats-inbox', alert: () => yellow(threadsFor('open').length), children: [
+      { id:'chats-inbox', label:'My inbox', alert: () => yellow(threadsFor('inbox').filter(t => t.status === 'open').length), hint:'assigned to you, not closed' },
+      { id:'chats-open', label:'Open', alert: () => yellow(threadsFor('open').length), hint:'they spoke last; we owe a reply' },
+      { id:'chats-awaiting', label:'Awaiting reply', hint:'we spoke last; waiting on them' },
       { id:'chats-closed', label:'Closed', hint:'resolved' },
     ] },
-  { id:'vendors', label:'Vendors', icon:'truck', link:'vendors', children: [ { id:'vendors', label:'All vendors' }, ...ROLE_TABS.map(r => ({ id:'vendors-' + slug(r[0]), label:r[1], count: () => vendors.filter(v => v.roles.includes(r[0])).length, badge:'soft' })) ] },
-  { id:'customers', label:'Customers', icon:'building', link:'customers', children: CUST_TABS.map(t => ({ id:t[0], label:t[1], count: t[0] === 'customers' ? null : () => customers.filter(c => custStatus(c) === t[0].slice(10)).length, badge: t[0] === 'customers-onboarding' ? 'warn' : 'soft' })) },
-  { id:'contacts', label:'Contacts', icon:'people', link:'contacts', children: CONTACT_TABS.map(t => ({ id:t[0], label:t[1], count: t[0] === 'contacts' ? null : () => contacts.filter(ct => (t[0] === 'contacts-vendors') === !!company(ct.company).roles).length, badge:'soft' })) },
-  { id:'changes', label:'Change requests', icon:'arrow-left-right', link:'changes', count: () => changes.filter(c => c.status === 'pending').length, badge:'warn', children: CO_TABS.map(t => ({ id:t[0], label:t[1], count: () => changes.filter(c => c.status === t[2]).length, badge: t[2] === 'pending' ? 'warn' : 'soft' })) },
+  { id:'vendors', label:'Vendors', icon:'truck', link:'vendors', children: [ { id:'vendors', label:'All vendors' }, ...ROLE_TABS.map(r => ({ id:'vendors-' + slug(r[0]), label:r[1] })) ] },
+  { id:'customers', label:'Customers', icon:'building', link:'customers', alert: () => yellow(customers.filter(c => custStatus(c) === 'onboarding').length), children: CUST_TABS.map(t => ({ id:t[0], label:t[1], alert: t[0] === 'customers-onboarding' ? () => yellow(customers.filter(c => custStatus(c) === 'onboarding').length) : null })) },
+  { id:'contacts', label:'Contacts', icon:'people', link:'contacts', children: CONTACT_TABS.map(t => ({ id:t[0], label:t[1] })) },
+  { id:'changes', label:'Change requests', icon:'arrow-left-right', link:'changes', alert: () => yellow(changes.filter(c => c.status === 'pending').length), children: CO_TABS.map(t => ({ id:t[0], label:t[1], alert: t[2] === 'pending' ? () => yellow(changes.filter(c => c.status === 'pending').length) : null })) },
 ];
-const BADGE = { danger:'bg-danger', warn:'bg-warning text-dark', soft:'bg-primary bg-opacity-25 text-white' };
+const BADGE = { danger:'bg-danger', warn:'bg-warning text-dark' };
+const navBadge = al => al ? `<span class="badge ${BADGE[al.sev]}" title="${al.n} ${al.why}">${al.n}</span>` : '';
 function activeNav() {
   const pm = route.match(/^po-(\d+)/); if (pm) { const p = po('PO-' + pm[1]); return p && p.lane === 'queue' ? 'orders-queue' : 'orders-production'; }
   if (route.startsWith('ship-')) { const s = ship(route.slice(5)); const p = s && po(s.po); return p && p.lane === 'queue' ? 'orders-queue' : 'orders-production'; }
@@ -1448,8 +1719,7 @@ function activeNav() {
 }
 let lastChatTab = 'inbox';
 function navLink(n, sub = false) {
-  const c = n.count ? n.count() : 0;
-  return `<a href="#${n.id}" class="nav-link ${activeNav() === n.id ? 'active' : ''}" ${n.hint ? `title="${esc(n.hint)}"` : ''}>${n.icon ? `<i class="bi bi-${n.icon}"></i>` : ''}<span>${n.label}</span>${c ? `<span class="badge ${BADGE[n.badge] || 'bg-secondary'}">${c}</span>` : ''}</a>`;
+  return `<a href="#${n.id}" class="nav-link ${activeNav() === n.id ? 'active' : ''}" ${n.hint ? `title="${esc(n.hint)}"` : ''}>${n.icon ? `<i class="bi bi-${n.icon}"></i>` : ''}<span>${n.label}</span>${navBadge(n.alert && n.alert())}</a>`;
 }
 function renderSidebar() {
   const nav = document.getElementById('sidenav');
@@ -1457,8 +1727,8 @@ function renderSidebar() {
     if (!n.children) return navLink(n);
     const childActive = n.children.some(ch => ch.id === activeNav());
     const open = n.id in navOpen ? navOpen[n.id] : childActive;
-    const total = n.count ? n.count() : 0;
-    return `<div class="nav-group ${open ? 'open' : ''}" data-group="${n.id}"><button type="button" class="nav-link ${childActive && !open ? 'active' : ''}" aria-expanded="${open}" title="${open ? 'Collapse' : 'Expand'} ${n.label}" onclick="act.toggleNav('${n.id}')"><i class="bi bi-${open ? 'chevron-down' : n.icon}"></i><span>${n.label}</span>${!open && total ? `<span class="badge ${BADGE[n.badge] || 'bg-secondary'}">${total}</span>` : ''}</button><div class="nav-sub">${n.children.map(ch => navLink(ch, true)).join('')}</div></div>`;
+    const al = !open && n.alert ? n.alert() : null;
+    return `<div class="nav-group ${open ? 'open' : ''}" data-group="${n.id}"><button type="button" class="nav-link ${childActive && !open ? 'active' : ''}" aria-expanded="${open}" title="${open ? 'Collapse' : 'Expand'} ${n.label}" onclick="act.toggleNav('${n.id}')"><i class="bi bi-${open ? 'chevron-down' : n.icon}"></i><span>${n.label}</span>${navBadge(al)}</button><div class="nav-sub">${n.children.map(ch => navLink(ch, true)).join('')}</div></div>`;
   }).join('');
   document.getElementById('sidebottom').innerHTML = `<a href="#portal" class="nav-link"><i class="bi bi-person-badge"></i><span>Customer portal</span></a><a href="#settings" class="nav-link ${route === 'settings' ? 'active' : ''}"><i class="bi bi-gear"></i><span>Constraints</span></a>`;
 }
@@ -1497,11 +1767,77 @@ function topbar() {
     <div class="topbar-right"><span class="proto-tag d-none d-lg-inline">prototype · sample data · today = Oct 26, 2026</span>${themeButton()}<button class="topbar-icon-btn" title="Notifications" onclick="act.stub('<b>Prototype.</b> Notifications would open here.')"><i class="bi bi-bell"></i>${nextActions().length ? '<span class="notification-dot"></span>' : ''}</button>
     <div class="dropdown"><button class="user-menu-btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><div class="user-avatar">RK</div><span class="user-name d-none d-sm-inline">Ryan K.</span></button><ul class="dropdown-menu dropdown-menu-end"><li><a class="dropdown-item" href="#today"><i class="bi bi-person me-2"></i>My profile</a></li><li><a class="dropdown-item" href="#settings"><i class="bi bi-gear me-2"></i>Constraints</a></li><li><hr class="dropdown-divider"></li><li><a class="dropdown-item text-danger" href="#today"><i class="bi bi-box-arrow-right me-2"></i>Sign out</a></li></ul></div></div></header>`;
 }
+
+/* ---------- portal chat launcher: the customer's side of the same threads the team works in Chats ---------- */
+const cw = { open:false, view:'home', tid:null, about:'', draft:'' };
+const custThreads = () => threads.filter(t => t.company === portalCustomer);
+const custVisible = t => t.msgs.filter(m => m[0] !== 'system');
+const custUnread = t => { const v = custVisible(t); return t.status !== 'closed' && v.length && v[v.length - 1][0] === 'us' && !t.custSeen; };
+const cwWhen = at => { const [dt, tm] = at.split(' '); return dt === iso(TODAY) ? (tm || 'today') : fmt(dt); };
+const cwWho = (t, m) => m[0] === 'them' ? 'You' : (m[4] && /automatic|reminder/i.test(m[4]) ? 'Surface Edge · automatic' : `${(TEAM[t.assignee] || 'Surface Edge').split(' ')[0]} · Surface Edge`);
+const cwComposer = (id, placeholder, send) => `<div class="cw-foot"><textarea class="form-control" id="${id}" placeholder="${placeholder}" oninput="cw.draft=this.value" onkeydown="if(event.key==='Enter'&&(event.metaKey||event.ctrlKey)){event.preventDefault();${send}}">${esc(cw.draft)}</textarea><div class="d-flex justify-content-between align-items-center gap-2"><span class="cw-note">Your Surface Edge team sees this right away. Usually replies within a few hours.</span><button class="btn btn-primary btn-sm" onclick="${send}"><i class="bi bi-send me-1"></i>Send</button></div></div>`;
+function renderWidget() {
+  const el = document.getElementById('chat-widget'); if (!el) return;
+  if (!isPortal()) { el.innerHTML = ''; return; }
+  const c = cust(portalCustomer); const mine = custThreads(); const live = mine.filter(t => t.status !== 'closed'); const unread = live.filter(custUnread).length;
+  const bubble = `<button class="cw-bubble" type="button" aria-label="${cw.open ? 'Close messages' : 'Message Surface Edge'}" aria-expanded="${cw.open}" onclick="act.cwToggle()"><i class="bi bi-${cw.open ? 'x-lg' : 'chat-dots-fill'}"></i>${!cw.open && unread ? `<span class="cw-count">${unread}</span>` : ''}</button>`;
+  if (!cw.open) { el.innerHTML = bubble; return; }
+  const team = ['RK','MR','MO'].map(i => `<span>${i}</span>`).join('');
+  let head, body, foot = '';
+  if (cw.view === 'thread' && thread(cw.tid)) {
+    const t = thread(cw.tid); t.custSeen = true;
+    head = `<div class="cw-head"><button type="button" onclick="act.cwView('home')" aria-label="Back"><i class="bi bi-chevron-left"></i></button><div class="minw0 flex-grow-1"><h3 class="text-truncate">${esc(t.subject)}</h3><div class="cw-sub">${t.po ? esc(po(t.po).job) + ' · ' : ''}${t.status === 'closed' ? 'Resolved' : t.status === 'open' ? 'With the Surface Edge team' : 'Waiting on you'}</div></div><button type="button" onclick="act.cwToggle()" aria-label="Close"><i class="bi bi-x-lg"></i></button></div>`;
+    body = `<div class="cw-msgs">${custVisible(t).map(m => `<div class="cw-msg ${m[0] === 'them' ? 'mine' : ''}"><div class="cw-who">${esc(cwWho(t, m))} · ${esc(cwWhen(m[1]))}</div><div class="cw-text">${esc(m[2])}</div>${m[3] ? m[3].map(a => `<span class="att"><i class="bi bi-paperclip"></i>${esc(a)}</span>`).join('') : ''}</div>`).join('')}</div>`;
+    foot = cwComposer('cw-reply', t.status === 'closed' ? 'Reply to reopen this conversation…' : 'Reply…', "act.cwReply()");
+  } else if (cw.view === 'new') {
+    const orders = pos.filter(p => p.customer === c.id);
+    head = `<div class="cw-head"><button type="button" onclick="act.cwView('home')" aria-label="Back"><i class="bi bi-chevron-left"></i></button><div class="flex-grow-1"><h3>New message</h3><div class="cw-sub">Goes straight to your Surface Edge team</div></div><button type="button" onclick="act.cwToggle()" aria-label="Close"><i class="bi bi-x-lg"></i></button></div>`;
+    body = `<div class="cw-card p-3"><label class="form-label small text-body-secondary mb-1" for="cw-about">What is this about?</label><select class="form-select form-select-sm" id="cw-about" onchange="cw.about=this.value"><option value="">Something else</option>${orders.map(p => `<option value="${p.id}" ${cw.about === p.id ? 'selected' : ''}>${esc(p.job)} · ${p.id}</option>`).join('')}</select><div class="cw-note mt-2">Picking an order puts your message next to its shipments and dates, so nobody has to ask which job you mean.</div></div>`;
+    foot = cwComposer('cw-new', 'Ask a question, change a date, or send an update…', "act.cwStart()");
+  } else {
+    const done = mine.filter(t => t.status === 'closed');
+    head = `<div class="cw-head"><div class="flex-grow-1"><h3>Hi ${esc(c.contact.split(' ')[0])}</h3><div class="cw-sub">Questions about an order? Message us here instead of email; it reaches the whole team.</div><div class="cw-team">${team}</div></div><button type="button" onclick="act.cwToggle()" aria-label="Close"><i class="bi bi-x-lg"></i></button></div>`;
+    const row = t => { const v = custVisible(t); const last = v[v.length - 1]; return `<button type="button" class="cw-thread" onclick="act.cwOpen('${t.id}')"><div class="minw0 flex-grow-1"><div class="cw-subj">${esc(t.subject)}${custUnread(t) ? '<span class="cw-dot" aria-label="New reply"></span>' : ''}</div><div class="cw-prev">${last ? (last[0] === 'them' ? 'You: ' : '') + esc(last[2].replace(/\s+/g, ' ').slice(0, 80)) : ''}</div></div><div class="cw-when">${last ? esc(cwWhen(last[1])) : ''}</div></button>`; };
+    body = `<div class="cw-card"><button type="button" class="cw-new" onclick="act.cwView('new')"><span class="cw-ico"><i class="bi bi-send"></i></span><span class="flex-grow-1"><b style="font-size:14px">Send us a message</b><div class="cw-note">Usually replies within a few hours</div></span><i class="bi bi-chevron-right text-body-secondary"></i></button></div>
+      <div class="cw-card"><div class="cw-card-title">Open conversations</div>${live.length ? live.map(row).join('') : '<div class="px-3 pb-3 cw-note">No open conversations.</div>'}</div>
+      ${done.length ? `<div class="cw-card"><div class="cw-card-title">Resolved</div>${done.map(row).join('')}</div>` : ''}`;
+  }
+  el.innerHTML = `<div class="cw-panel" role="dialog" aria-label="Messages with Surface Edge">${head}<div class="cw-body">${body}</div>${foot}</div>${bubble}`;
+  const b = el.querySelector('.cw-body'); if (cw.view === 'thread' && b) b.scrollTop = b.scrollHeight;
+}
+const nowStamp = () => `${iso(TODAY)} ${new Date().toTimeString().slice(0, 5)}`;
+Object.assign(act, {
+  cwToggle() { cw.open = !cw.open; if (cw.open) cw.view = 'home'; renderWidget(); },
+  cwView(v) { cw.view = v; if (v !== 'new') cw.about = ''; renderWidget(); setTimeout(() => document.getElementById(v === 'new' ? 'cw-new' : 'x')?.focus(), 0); },
+  cwOpen(tid) { cw.view = 'thread'; cw.tid = tid; cw.draft = ''; renderWidget(); },
+  cwAbout(poId) { cw.open = true; cw.view = 'new'; cw.about = poId; cw.draft = ''; renderWidget(); setTimeout(() => document.getElementById('cw-new')?.focus(), 0); },
+  cwReply() {
+    const t = thread(cw.tid); const body = (document.getElementById('cw-reply')?.value || '').trim(); if (!body) return;
+    t.msgs.push(['them', nowStamp(), body]); t.status = 'open'; t.unread = true; t.custSeen = true; t.draftDismissed = true; cw.draft = '';
+    if (t.po) po(t.po).activity.push([iso(TODAY), `${cust(portalCustomer).contact} replied in the portal chat: "${body.slice(0, 80)}${body.length > 80 ? '…' : ''}"`]);
+    toast('<b>Sent.</b> Your Surface Edge team has it.'); render();
+  },
+  cwStart() {
+    const body = (document.getElementById('cw-new')?.value || '').trim(); if (!body) { document.getElementById('cw-new')?.focus(); return; }
+    const c = cust(portalCustomer); const pc = contactsOf(c.id).find(x => x.primary); const about = cw.about ? po(cw.about) : null;
+    const id = 'T' + (Math.max(...threads.map(t => Number(t.id.slice(1)))) + 1);
+    const subject = about ? `${about.job}: ${body.split(/[.?!\n]/)[0].slice(0, 60)}` : body.split(/[.?!\n]/)[0].slice(0, 70);
+    threads.unshift({ id, subject, company: c.id, contact: pc ? pc.id : null, assignee: 'marlene', status: 'open', po: about ? about.id : null, unread: true, custSeen: true,
+      msgs: [['them', nowStamp(), body], ['system', nowStamp(), `Started in the customer portal by ${c.contact}${about ? `, about ${about.job}` : ''}. Assigned to ${TEAM.marlene} (customer service).`]] });
+    if (about) about.activity.push([iso(TODAY), `${c.contact} started a portal chat: "${body.slice(0, 80)}${body.length > 80 ? '…' : ''}"`]);
+    cw.view = 'thread'; cw.tid = id; cw.draft = ''; cw.about = '';
+    toast('<b>Message sent.</b> It is in the team’s Chats now, not an inbox.'); render();
+  },
+});
+// Seed: TCC has an unread automatic reply on Sugarloaf, so the bubble shows a count.
+threads.forEach(t => { t.custSeen = !(t.id === 'T1' || t.id === 'T2'); });
+
 function renderMain() {
   const main = document.getElementById('main');
   if (isPortal()) {
     const m = route.match(/^portal-po-(\d+)$/);
     main.innerHTML = m ? viewPortalPO('PO-' + m[1]) : viewPortal();
+    renderWidget();
     return;
   }
   let body;
@@ -1523,9 +1859,13 @@ function renderMain() {
   else if (route === 'settings') body = viewSettings();
   else body = viewToday();
   main.innerHTML = topbar() + `<div class="page-content">${body}</div>`;
+  renderWidget();
+  markClipped();
 }
+window.addEventListener('resize', () => markClipped());
 let lastRoute = null;
 function render() {
+  resolveNeedBy();
   document.body.classList.toggle('portal', isPortal());
   if (!isPortal()) renderSidebar();
   if (route !== lastRoute) { q = ''; renaming = null; const side = document.getElementById('sidebar'); if (window.bootstrap) bootstrap.Offcanvas.getInstance(side)?.hide(); }
