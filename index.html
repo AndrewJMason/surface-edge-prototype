@@ -630,7 +630,7 @@ function durations(s) {
 }
 const totalDays = s => durations(s).reduce((a, b) => a + b, 0);
 /* The mill produces to a ship-by date, which the acknowledgement spells out ("produce according to needed ship by date"): the need-by minus ocean, customs and drayage. */
-function shipByDate(s) { if (s.type !== 'container' || !s.needBy) return null; const dur = durations(s); return addDays(s.needBy, -(dur[3] + dur[4] + dur[5])); }
+function shipByDate(s) { if (s.type !== 'container' || !s.needBy) return null; return addDays(s.needBy, -durations(s).slice(3).reduce((a, b) => a + b, 0)); }
 /* Days a container placed early is held back so it ships on its ship-by date instead of as soon as it can be made. */
 function holdDays(s) {
   const sb = s.placedAt && !s.actual[2] && !(s.booking && s.booking.etd) ? shipByDate(s) : null; if (!sb) return 0;
