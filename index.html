@@ -526,6 +526,14 @@ const ship = id => shipments.find(s => s.id === id);
 const ORIGIN_CO = { 'Daizhin, Korea':'daizhin', 'Wanke Georgia':'wanke-ga', 'Wanke Portland':'wanke-pdx' };
 const PORT_CARRIER = { Houston:'gulf-dray', Savannah:'coastal-dray', Charleston:'coastal-dray', Miami:'coastal-dray', 'Long Beach':'west-dray', 'Los Angeles':'west-dray' };
 shipments.forEach(s => { s.originCo = ORIGIN_CO[s.origin]; s.forwarder = s.type === 'container' ? 'pacific-line' : null; s.carrier = s.type === 'container' ? PORT_CARRIER[s.port] : 'cascade-ltl'; });
+/* Confirmed bookings from the forwarder. Fairway Container 2's is the one in the Pacific Line booking thread. */
+const BOOKINGS = {
+  S1: { ref:'PLX-76102', confirmed:'2026-07-02', vessel:'Pacific Lantern 0612E', container:'PLXU 482915-0', etd:'2026-07-23', eta:'2026-08-27' },
+  S2: { ref:'PLX-77120', confirmed:'2026-08-23', vessel:'Coral Meridian 0901E', container:'PLXU 770421-8', etd:'2026-09-14', eta:'2026-10-19' },
+  S5: { ref:'PLX-78342', confirmed:'2026-09-30', vessel:'Pacific Lantern 0710E', container:'PLXU 155302-4', etd:'2026-10-20', eta:'2026-11-24' },
+  S7: { ref:'PLX-78811', confirmed:'2026-10-09', vessel:'Golden Strait 1102E', container:null, etd:'2026-11-02', eta:'2026-12-05' },
+};
+shipments.forEach(s => { if (BOOKINGS[s.id]) s.booking = BOOKINGS[s.id]; });
 const vendorRoleOn = (v, s) => s.originCo === v ? (vendor(v).roles[0]) : s.forwarder === v ? 'Forwarder' : s.carrier === v ? 'Carrier' : null;
 const vendorShipments = v => shipments.filter(s => vendorRoleOn(v, s));
 
@@ -628,6 +636,16 @@ function durations(s) {
     : [0, C.pick, 1, C.ground];
 }
 const totalDays = s => durations(s).reduce((a, b) => a + b, 0);
+/* The mill produces to a ship-by date, which the acknowledgement spells out ("produce according to needed ship by date"): the need-by minus ocean, customs and drayage. */
+function shipByDate(s) { if (s.type !== 'container' || !s.needBy) return null; return addDays(s.needBy, -durations(s).slice(3).reduce((a, b) => a + b, 0)); }
+/* Days a container placed early is held back so it ships on its ship-by date instead of as soon as it can be made. */
+function holdDays(s) {
+  const sb = s.placedAt && !s.actual[2] && !(s.booking && s.booking.etd) ? shipByDate(s) : null; if (!sb) return 0;
+  const ready = s.actual[1] ? d(s.actual[1]) : addDays(s.placedAt, C.production);
+  return Math.max(0, diffDays(sb, addDays(ready, C.loadout)));
+}
+/* A confirmed booking sets departure and port arrival until the actual dates are recorded. */
+const bookedDate = (s, i) => (s.booking && { 2: s.booking.etd, 3: s.booking.eta }[i]) || null;
 function milestones(s) {
   const names = s.type === 'container' ? CONTAINER_STAGES : LTL_STAGES;
   const dur = durations(s);
@@ -635,7 +653,8 @@ function milestones(s) {
   const out = []; let cursor = d(start);
   names.forEach((name, i) => {
     if (i > 0) cursor = addDays(cursor, dur[i]);
-    if (s.actual[i]) cursor = d(s.actual[i]);
+    if (i === (s.actual[1] ? 2 : 1) && !s.actual[i]) cursor = addDays(cursor, holdDays(s));
+    if (s.actual[i] || bookedDate(s, i)) cursor = d(s.actual[i] || bookedDate(s, i));
     out.push({ i, name, date: cursor, done: s.placedAt && i <= s.stage, now: s.placedAt && i === s.stage + 1, actual: !!s.actual[i] || (i === 0 && !!s.placedAt) });
     /* The next milestone's estimate has passed with nothing recorded: it cannot happen before today, so it and everything after it move. */
     if (out[i].now && !out[i].actual && cursor < TODAY) { out[i].due = cursor; out[i].overdue = diffDays(TODAY, cursor); out[i].date = cursor = TODAY; }
@@ -658,7 +677,7 @@ function health(s) {
   if (!s.needBy) return { k:'muted', t:'Need-by unknown' };
   const slip = diffDays(eta(s), s.needBy);
   if (slip > 0) return { k:'crit', t:`${slip}d late` };
-  if (slip > -5) return { k:'warn', t:'Tight' };
+  if (slip > -5 && !holdDays(s)) return { k:'warn', t:'Tight' };
   return { k:'good', t:'On track' };
 }
 const stageName = s => s.placedAt ? (s.type === 'container' ? CONTAINER_STAGES : LTL_STAGES)[s.stage] : 'Not placed';
@@ -959,6 +978,7 @@ function msList(s, hideDates) {
     return `<li class="${x.done?'done':''} ${x.now?'now':''} ${(!x.done && !x.now)?'future':''} ${late || x.overdue ?'late':''}"><span class="k"></span><span class="n">${esc(x.name)}</span><span class="dt ${x.overdue && !hide ? 'text-danger' : ''}">${hide ? '—' : x.overdue ? `due ${fmt(x.due)}, not recorded` : (x.actual ? '' : (s.placedAt || s.needBy ? 'est. ' : '')) + fmt(x.date)}</span></li>`; }).join('')}</ul>`;
 }
 
+const bookingNote = s => `<div class="item-sub mt-2"><i class="bi bi-calendar-check me-1"></i>Booked <span class="mono">${esc(s.booking.ref)}</span>, confirmed ${fmt(s.booking.confirmed)}${s.booking.vessel ? ` · ${esc(s.booking.vessel)}` : ''}${s.booking.container ? ` · container <span class="mono">${esc(s.booking.container)}</span>` : ''} · ETD ${fmt(s.booking.etd)} · ETA ${esc(s.port)} ${fmt(s.booking.eta)}</div>`;
 function shipCard(s, opts = {}) {
   const h = health(s); const pb = placeBy(s);
   const collapsible = !!opts.office; const open = !collapsible || openShips.has(s.id);
@@ -976,12 +996,13 @@ function shipCard(s, opts = {}) {
         <div class="detail-field"><div class="detail-label">Need-by</div><div class="detail-value mono">${s.needBy ? fmtLong(s.needBy) : sb('pending', 'unknown')}</div></div>
         <div class="detail-field full-width"><div class="detail-label">Route</div><div class="detail-value">${esc(s.origin)}${s.port ? ` → ${esc(s.port)} port` : ''} → ${esc(s.dest)}</div>${opts.office ? `<div class="item-sub mt-1">${[s.originCo, s.forwarder, s.carrier].filter(Boolean).map(v => `<a href="#vendor-${v}" class="text-decoration-none">${esc(vendor(v).name)}</a> <span class="text-body-secondary">(${esc(vendorRoleOn(v, s))})</span>`).join(' · ')}</div>` : ''}</div>
         ${s.placedAt ? `<div class="detail-field"><div class="detail-label">Placed</div><div class="detail-value mono">${fmtLong(s.placedAt)}</div></div>` : `<div class="detail-field"><div class="detail-label">Place by</div><div class="detail-value mono">${pb ? fmtLong(pb) + ` <span class="text-body-secondary">(${rel(pb)})</span>` : '—'}</div></div>`}
+        ${shipByDate(s) && !s.actual[2] ? `<div class="detail-field"><div class="detail-label">Ship by</div><div class="detail-value mono">${fmtLong(shipByDate(s))}</div><div class="item-sub mt-1">${holdDays(s) ? `Placed early; the mill times production to this date` : 'Goes on the factory PO; the mill produces to it'}</div></div>` : ''}
         <div class="detail-field"><div class="detail-label">Est. delivery</div><div class="detail-value mono">${s.placedAt || s.needBy ? fmtLong(eta(s)) : '—'}</div></div>
         ${s.type === 'container' && s.placedAt && s.stage < 2 ? `<div class="detail-field full-width"><div class="detail-label">Request booking by</div><div class="detail-value mono ${bookingLate(s) ? 'text-danger' : ''}">${fmtLong(bookingBy(s))}${bookingLate(s) ? ` <span class="fw-normal">(${rel(bookingBy(s))}, no booking recorded)</span>` : ''}</div></div>` : ''}
       </div>
       ${opts.office && !s.placedAt && s.needBy ? `<button class="btn btn-sm btn-primary mt-3" onclick="act.completeAction('place-${s.id}','Factory PO drafted for ${esc(s.name)}.')"><i class="bi bi-send me-1"></i>Place with ${esc(s.origin.split(',')[0])}</button>` : ''}
     </div>
-    <div class="minw0">${msList(s, opts.hideDates)}</div>
+    <div class="minw0">${msList(s, opts.hideDates)}${opts.office && s.booking ? bookingNote(s) : ''}</div>
   </div>`;
   return `<div class="ship ${open ? 'open' : ''}">${head}${body}</div>`;
 }
