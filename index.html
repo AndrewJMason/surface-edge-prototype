@@ -465,28 +465,28 @@ const contact = id => contacts.find(c => c.id === id);
 const contactsOf = companyId => contacts.filter(c => c.company === companyId);
 
 const pos = [
-  { id:'PO-4471', customer:'ilg', job:'The Fairway at Westchase', site:'Houston, TX', sqft:200000, product:'SE Harbor Oak 7" SPC, 20 mil', received:'2026-05-28', source:'PDF (ILG PO #88213)', lane:'production', rep:'Meredith',
+  { id:'PO-4471', customer:'ilg', job:'The Fairway at Westchase', site:'Houston, TX', sqft:200000, product:'SE Harbor Oak 7" SPC, 20 mil', received:'2026-05-28', source:'PDF (ILG PO #88213)', rep:'Meredith',
     gate:[['package','New account package','Customer','done'],['credit','Credit approved','Credit','done'],['deposit','Deposit','Ops','na'],['prelim','Preliminary notice filed','Ops','done'],['tax','Tax status confirmed','Ops','done']],
     activity:[['2026-05-28','PO received by email from Dana Whitfield (ILG). Parsed: 4 shipments, need-by for the first only.'],['2026-05-28','Auto-reply sent: acknowledged, requested need-by for shipments 2–4.'],['2026-06-01','Container 1 placed with Daizhin.'],['2026-07-14','Customer set need-by Nov 20 and Jan 15 for Containers 2 and 3 via portal.'],['2026-09-16','Container 1 delivered to job site. Invoice #30417 sent.'],['2026-10-25','Change request received by email: push Container 3 to Feb 15.']] },
-  { id:'PO-4495', customer:'ilg', job:'Lakeshore Flats', site:'Dallas, TX', sqft:100000, product:'SE Harbor Oak 7" SPC, 20 mil', received:'2026-08-20', source:'PDF (ILG PO #88402)', lane:'production', rep:'Isaac',
+  { id:'PO-4495', customer:'ilg', job:'Lakeshore Flats', site:'Dallas, TX', sqft:100000, product:'SE Harbor Oak 7" SPC, 20 mil', received:'2026-08-20', source:'PDF (ILG PO #88402)', rep:'Isaac',
     gate:[['package','New account package','Customer','done'],['credit','Credit approved','Credit','done'],['deposit','Deposit','Ops','na'],['prelim','Preliminary notice filed','Ops','done'],['tax','Tax status confirmed','Ops','done']],
     activity:[['2026-08-20','PO received. Need-by Dec 5 for both shipments.'],['2026-08-24','Both shipments placed with Daizhin. Earliest planned delivery Dec 9; customer notified of 4-day gap.'],['2026-10-20','Ocean transit to Houston quoted 35 days; Container 1 now planned Dec 12.']] },
-  { id:'PO-4488', customer:'tcc', job:'Peachtree Commons Phase 2', site:'Atlanta, GA', sqft:104000, product:'SE Summit Hickory 9" SPC, 22 mil', received:'2026-09-02', source:'PDF (TCC PO 2026-0415)', lane:'production', rep:'Isaac',
+  { id:'PO-4488', customer:'tcc', job:'Peachtree Commons Phase 2', site:'Atlanta, GA', sqft:104000, product:'SE Summit Hickory 9" SPC, 22 mil', received:'2026-09-02', source:'PDF (TCC PO 2026-0415)', rep:'Isaac',
     gate:[['package','New account package','Customer','done'],['credit','Credit approved','Credit','done'],['deposit','Deposit','Ops','na'],['prelim','Preliminary notice filed','Ops','done'],['tax','Tax status confirmed','Ops','done']],
     activity:[['2026-09-02','PO received. 2 containers via Savannah plus a 4,000 sq ft balance from Wanke Georgia.'],['2026-09-08','Container 1 placed with Daizhin.'],['2026-10-24','Customer asked whether the balance could ship before the containers.']] },
-  { id:'PO-4490', customer:'northwind', job:'Cedar Ridge Senior Living', site:'Spokane, WA', sqft:18000, product:'SE Harbor Oak 7" SPC, 20 mil (Portland stock)', received:'2026-10-14', source:'Email body (no attachment)', lane:'production', rep:'Meredith',
+  { id:'PO-4490', customer:'northwind', job:'Cedar Ridge Senior Living', site:'Spokane, WA', sqft:18000, product:'SE Harbor Oak 7" SPC, 20 mil (Portland stock)', received:'2026-10-14', source:'Email body (no attachment)', rep:'Meredith',
     gate:[['package','New account package','Customer','done'],['credit','Credit approved','Credit','done'],['deposit','Deposit','Ops','na'],['prelim','Preliminary notice filed','Ops','done'],['tax','Tax status confirmed','Ops','done']],
     activity:[['2026-10-14','PO received as email text. Parsed 18,000 sq ft, need-by Nov 3.'],['2026-10-22','Released to Wanke Portland for pick.']] },
-  { id:'PO-4502', customer:'fantasia', job:'Midtown Lofts', site:'Atlanta, GA', sqft:150000, product:'SE Summit Hickory 9" SPC, 22 mil', received:'2026-10-02', source:'PDF (Fantasia PO F-1190)', lane:'queue', rep:'Alan',
+  { id:'PO-4502', customer:'fantasia', job:'Midtown Lofts', site:'Atlanta, GA', sqft:150000, product:'SE Summit Hickory 9" SPC, 22 mil', received:'2026-10-02', source:'PDF (Fantasia PO F-1190)', rep:'Alan',
     gate:[['package','New account package','Customer','done'],['credit','Credit approved','Credit','done'],['deposit','Deposit (20%)','Customer','pending'],['prelim','Preliminary notice filed','Ops','pending'],['tax','Tax status confirmed','Ops','done']],
     activity:[['2026-10-02','PO received. No need-by dates. Customer said "fall 2027, maybe".'],['2026-10-02','Auto-reply sent: added to queue, requested need-by dates and deposit.'],['2026-10-16','Reminder sent. No click-through.']] },
-  { id:'PO-4503', customer:'fantasia', job:'Buckhead Terrace', site:'Atlanta, GA', sqft:96000, product:'SE Harbor Oak 7" SPC, 20 mil', received:'2026-10-02', source:'PDF (Fantasia PO F-1191)', lane:'queue', rep:'Alan',
+  { id:'PO-4503', customer:'fantasia', job:'Buckhead Terrace', site:'Atlanta, GA', sqft:96000, product:'SE Harbor Oak 7" SPC, 20 mil', received:'2026-10-02', source:'PDF (Fantasia PO F-1191)', rep:'Alan',
     gate:[['package','New account package','Customer','done'],['credit','Credit approved','Credit','done'],['deposit','Deposit (20%)','Customer','pending'],['prelim','Preliminary notice filed','Ops','pending'],['tax','Tax status confirmed','Ops','done']],
     activity:[['2026-10-02','PO received. No need-by dates.'],['2026-10-16','Reminder sent. No click-through.']] },
-  { id:'PO-4510', customer:'meridian', job:'Riverline Hall', site:'Boise, ID', sqft:62000, product:'SE Harbor Oak 7" SPC, 20 mil', received:'2026-10-25', source:'PDF (Meridian PO 00071)', lane:'queue', rep:'Alan',
+  { id:'PO-4510', customer:'meridian', job:'Riverline Hall', site:'Boise, ID', sqft:62000, product:'SE Harbor Oak 7" SPC, 20 mil', received:'2026-10-25', source:'PDF (Meridian PO 00071)', rep:'Alan',
     gate:[['package','New account package','Customer','pending'],['credit','Credit approved','Credit','pending'],['deposit','Deposit','Ops','pending'],['prelim','Preliminary notice filed','Ops','pending'],['tax','Tax status confirmed','Ops','pending']],
     activity:[['2026-10-25','PO received 10:14 pm. Customer not found in customer list.'],['2026-10-25','Auto-reply sent: added to queue. Account package link sent to Tom Beckett.'],['2026-10-25','Credit department notified. Ops task opened for preliminary notice and tax status.']] },
-  { id:'PO-4515', customer:'tcc', job:'Sugarloaf Student Housing', site:'Lawrenceville, GA', sqft:150000, product:'SE Summit Hickory 9" SPC, 22 mil', received:'2026-10-26', source:'PDF (TCC PO 2026-0502)', lane:'queue', rep:'Isaac',
+  { id:'PO-4515', customer:'tcc', job:'Sugarloaf Student Housing', site:'Lawrenceville, GA', sqft:150000, product:'SE Summit Hickory 9" SPC, 22 mil', received:'2026-10-26', source:'PDF (TCC PO 2026-0502)', rep:'Isaac',
     gate:[['package','New account package','Customer','done'],['credit','Credit approved','Credit','done'],['deposit','Deposit','Ops','na'],['prelim','Preliminary notice filed','Ops','pending'],['tax','Tax status confirmed','Ops','done']],
     activity:[['2026-10-26','PO received 6:52 am, forwarded by Isaac rather than sent by the customer.'],['2026-10-26','Parsed: 3 shipments. Need-by Mar 1 for the first only. Ship-to address missing.'],['2026-10-26','Auto-reply sent to Luis Ortega: need ship-to address and need-by for shipments 2–3.']] },
 ];
@@ -536,6 +536,8 @@ function resolveNeedBy() {
   shipments.filter(s => s.needAfter).forEach(s => { const ref = ship(s.needAfter.ship); s.needBy = ref.needBy ? isoNearest(addDays(eta(ref), s.needAfter.days)) : null; });
 }
 const shipsOf = id => shipments.filter(s => s.po === id);
+/* Queue vs. active lives on the shipment, because Ryan holds back individual containers. An order is in production once any of its shipments is placed, and in queue until then. */
+pos.forEach(p => Object.defineProperty(p, 'lane', { get: () => shipsOf(p.id).some(s => s.placedAt) ? 'production' : 'queue' }));
 const ship = id => shipments.find(s => s.id === id);
 
 /* Vendor roles on each shipment: where it comes from, who books the freight, who moves the last leg. */
@@ -685,6 +687,7 @@ const needNote = s => { const lines = [s.asap ? `As soon as it can be made and s
 function eta(s) { const m = milestones(s); return m[m.length - 1].date; }
 const isDelivered = s => s.placedAt && s.stage === milestones(s).length - 1;
 function health(s) {
+  if (s.hold && !s.placedAt) return { k:'muted', t:'Held in queue' };
   if (isDelivered(s)) return { k:'good', t:'Delivered' };
   const od = overdueMs(s); if (od && !(s.needBy && diffDays(eta(s), s.needBy) > 0)) return { k:'warn', t:`${MS_SHORT[od.name] || od.name} ${od.overdue}d overdue` };
   if (!s.placedAt) {
@@ -718,6 +721,14 @@ function queueReasons(p) {
   if (unknown) r.push(`Need-by date missing on ${unknown} of ${sh.length} shipments`);
   if (sh.some(s => /missing/i.test(s.dest))) r.push('Ship-to address missing');
   return r;
+}
+/* Why one unplaced shipment is still waiting: held, missing information, open paperwork on the order, or simply not due to be placed yet. */
+function shipWaitingOn(s) {
+  if (s.hold) return 'held';
+  if (!s.needBy) return 'need-by date missing';
+  if (/missing/i.test(s.dest)) return 'ship-to address missing';
+  if (po(s.po).gate.some(g => g[3] === 'pending')) return 'paperwork';
+  return `place by ${fmt(placeBy(s))}`;
 }
 function poHealth(p) {
   const hs = shipsOf(p.id).map(health);
@@ -800,7 +811,7 @@ const act = {
   gate(poId, key, status) {
     const p = po(poId); const g = p.gate.find(x => x[0] === key); g[3] = status;
     p.activity.push([iso(TODAY), status === 'over' ? `${g[1]} overridden by Rob: "Proceed, I'll get it." Logged.` : `${g[1]} marked complete.`]);
-    if (!p.gate.some(x => x[3] === 'pending') && shipsOf(poId).some(s => s.needBy)) { p.lane = 'production'; toast(`<b>${poId} moved to Production.</b> All gate items closed.`); }
+    if (!p.gate.some(x => x[3] === 'pending') && shipsOf(poId).some(s => s.needBy)) toast(`<b>Checklist complete.</b> Dated shipments on ${poId} can be placed; the order moves to Production with the first one.`);
     else toast(status === 'over' ? '<b>Override logged.</b> Visible on the order permanently.' : '<b>Checklist updated.</b>');
     render();
   },
@@ -821,6 +832,7 @@ const act = {
   },
   cancelRename() { renaming = null; render(); },
   remind(poId) { toast(`<b>Reminder sent</b> to ${cust(po(poId).customer).contact} with a portal link.`); },
+  hold(shipId) { const s = ship(shipId); s.hold = !s.hold; po(s.po).activity.push([iso(TODAY), `${s.name} ${s.hold ? 'held in the queue' : 'released from hold'} by Ryan.`]); toast(s.hold ? `<b>${esc(s.name)} held.</b> It stays in the queue and drops out of the place-by actions until you release it.` : `<b>${esc(s.name)} released.</b> It will be proposed for placement when it is due.`); render(); },
   toggleLead(id) { const c = cust(id); c.showLeadTimes = !c.showLeadTimes; toast(`<b>${c.name}:</b> lead times ${c.showLeadTimes ? 'visible' : 'hidden'} in the portal.`); render(); },
   setC(key, val, port) { const n = Number(val); if (isNaN(n)) return; if (port) C.ocean[port] = n; else C[key] = n; render(); },
   portalCustomer(id) { portalCustomer = id; render(); },
@@ -1026,7 +1038,7 @@ function shipCard(s, opts = {}) {
         <div class="detail-field"><div class="detail-label">Est. delivery</div><div class="detail-value mono">${s.placedAt || s.needBy ? fmtLong(eta(s)) : '—'}</div></div>
         ${s.type === 'container' && s.placedAt && s.stage < 2 ? `<div class="detail-field full-width"><div class="detail-label">Request booking by</div><div class="detail-value mono ${bookingLate(s) ? 'text-danger' : ''}">${fmtLong(bookingBy(s))}${bookingLate(s) ? ` <span class="fw-normal">(${rel(bookingBy(s))}, no booking recorded)</span>` : ''}</div></div>` : ''}
       </div>
-      ${opts.office && !s.placedAt && s.needBy ? `<button class="btn btn-sm btn-primary mt-3" onclick="act.completeAction('place-${s.id}','Factory PO drafted for ${esc(s.name)}.')"><i class="bi bi-send me-1"></i>Place with ${esc(s.origin.split(',')[0])}</button>` : ''}
+      ${opts.office && !s.placedAt ? `<div class="d-flex gap-2 flex-wrap mt-3">${s.needBy && !s.hold ? `<button class="btn btn-sm btn-primary" onclick="act.completeAction('place-${s.id}','Factory PO drafted for ${esc(s.name)}.')"><i class="bi bi-send me-1"></i>Place with ${esc(s.origin.split(',')[0])}</button>` : ''}<button class="btn btn-sm btn-outline-secondary" onclick="act.hold('${s.id}')" title="${s.hold ? 'Let it be placed when it is due' : 'Keep it in the queue until you release it'}"><i class="bi bi-${s.hold ? 'play' : 'pause'}-circle me-1"></i>${s.hold ? 'Release hold' : 'Hold in queue'}</button></div>` : ''}
     </div>
     <div class="minw0">${msList(s, opts.hideDates)}${opts.office && s.booking ? bookingNote(s) : ''}</div>
   </div>`;
@@ -1162,8 +1174,10 @@ function viewPO(id, tab = 'shipments') {
   const p = po(id); if (!p) return `<div class="status-banner pending"><i class="bi bi-exclamation-circle"></i> No order ${esc(id)}.</div>`;
   const c = cust(p.customer); const sh = shipsOf(id); const cos = changes.filter(x => x.po === id); const ths = threadsOnPO(id);
   const reasons = queueReasons(p); const h = poHealth(p); const n = p.id.slice(3);
-  const banner = reasons.length ? `<div class="status-banner pending"><i class="bi bi-hourglass-split"></i><span>This order is <strong>in queue</strong>. Waiting on: ${reasons.join(' · ')}.</span></div>`
-    : h === 'crit' ? `<div class="status-banner danger"><i class="bi bi-exclamation-triangle-fill"></i><span>This order is <strong>at risk</strong>. At least one shipment will miss its need-by date on current lead times.</span></div>`
+  const waiting = sh.filter(s => !s.placedAt); const notPlaced = waiting.length ? ` ${waiting.length} of ${sh.length} shipments not placed yet: ${waiting.map(s => `${esc(s.name)} (${shipWaitingOn(s)})`).join(' · ')}.` : '';
+  const banner = p.lane === 'queue' ? `<div class="status-banner pending"><i class="bi bi-hourglass-split"></i><span>This order is <strong>in queue</strong>. Waiting on: ${reasons.length ? reasons.join(' · ') : 'placement'}.</span></div>`
+    : h === 'crit' ? `<div class="status-banner danger"><i class="bi bi-exclamation-triangle-fill"></i><span>This order is <strong>at risk</strong>. At least one shipment will miss its need-by date on current lead times.${notPlaced}</span></div>`
+    : waiting.length ? `<div class="status-banner pending"><i class="bi bi-hourglass-split"></i><span>This order is <strong>in production</strong>.${notPlaced}</span></div>`
     : `<div class="status-banner active"><i class="bi bi-check-circle-fill"></i><span>This order is <strong>in production</strong> and on track. ${sh.filter(isDelivered).length} of ${sh.length} shipments delivered.</span></div>`;
   const tabs = tabsUl([[`po-${n}`, 'Shipments', sh.length], [`po-${n}-changes`, 'Change requests', cos.length, cos.some(x => x.status === 'pending') ? 'warning' : 'secondary'], [`po-${n}-chats`, 'Chats', ths.length, ths.some(t => t.status === 'open') ? 'warning' : 'secondary'], [`po-${n}-activity`, 'Activity', p.activity.length]], tab === 'shipments' ? `po-${n}` : `po-${n}-${tab}`);
   const tools = { shipments: `<button class="btn btn-sm btn-outline-secondary" onclick="act.expandAll('${p.id}', true)">Expand all</button><button class="btn btn-sm btn-outline-secondary" onclick="act.expandAll('${p.id}', false)">Collapse all</button><button class="btn btn-sm btn-primary" onclick="act.stub('<b>Prototype.</b> Add shipment form would open here.')"><i class="bi bi-plus-lg me-1"></i>Add shipment</button>`,
