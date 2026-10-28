@@ -650,6 +650,10 @@ function milestones(s) {
   return out;
 }
 function placeBy(s) { return s.asap && !s.placedAt ? TODAY : s.needBy ? addDays(s.needBy, -totalDays(s)) : null; }
+/* How a need-by reads: ASAP, a date (with where it came from, when that matters), or unknown. */
+const needShort = s => s.asap ? 'ASAP' : s.needBy ? fmt(s.needBy) : null;
+const afterText = s => { const n = s.needAfter.days; return `${n % 7 ? n + ' days' : n / 7 + ' weeks'} after ${ship(s.needAfter.ship).name} delivers`; };
+const needNote = s => { const lines = [s.asap ? `As soon as it can be made and shipped; ${s.placedAt ? 'est.' : 'placed today it delivers'} ${fmt(eta(s))}` : null, s.needAfter ? (s.needBy ? afterText(s) : `${afterText(s)}; no date until ${ship(s.needAfter.ship).name} has one`) : null, s.requested && s.requested !== s.needBy ? `Customer PO asked for ${fmt(s.requested)}; we committed to this date` : null].filter(Boolean); return lines.map(l => `<div class="item-sub mt-1">${esc(l)}</div>`).join(''); };
 function eta(s) { const m = milestones(s); return m[m.length - 1].date; }
 const isDelivered = s => s.placedAt && s.stage === milestones(s).length - 1;
 function health(s) {
@@ -669,10 +673,6 @@ function health(s) {
   return { k:'good', t:'On track' };
 }
 const stageName = s => s.placedAt ? (s.type === 'container' ? CONTAINER_STAGES : LTL_STAGES)[s.stage] : 'Not placed';
-/* How a need-by reads: ASAP, a date (with where it came from, when that matters), or unknown. */
-const needShort = s => s.asap ? 'ASAP' : s.needBy ? fmt(s.needBy) : null;
-const afterText = s => { const n = s.needAfter.days; return `${n % 7 ? n + ' days' : n / 7 + ' weeks'} after ${ship(s.needAfter.ship).name} delivers`; };
-const needNote = s => { const lines = [s.asap ? `As soon as it can be made and shipped; ${s.placedAt ? 'est.' : 'placed today it delivers'} ${fmt(eta(s))}` : null, s.needAfter ? (s.needBy ? afterText(s) : `${afterText(s)}; no date until ${ship(s.needAfter.ship).name} has one`) : null, s.requested && s.requested !== s.needBy ? `Customer PO asked for ${fmt(s.requested)}; we committed to this date` : null].filter(Boolean); return lines.map(l => `<div class="item-sub mt-1">${esc(l)}</div>`).join(''); };
 const nextMs = s => milestones(s)[s.stage + 1] || null;
 
 /* ---------- derived ---------- */
