@@ -519,6 +519,22 @@ const shipments = [
   { id:'S19', po:'PO-4515', name:'Container 2', type:'container', sqft:50000, origin:'Daizhin, Korea', port:'Savannah', dest:'Ship-to address missing', needBy:null, placedAt:null, stage:-1, actual:{} },
   { id:'S20', po:'PO-4515', name:'Container 3', type:'container', sqft:50000, origin:'Daizhin, Korea', port:'Savannah', dest:'Ship-to address missing', needBy:null, placedAt:null, stage:-1, actual:{} },
 ];
+/* Need-by is not always a plain date. About half of Ryan's open factory POs say ASAP, some say "2 weeks after" another PO,
+   and the date on a customer's PO can differ from the one we commit to on the acknowledgement (requested vs. committed). */
+const NEED_BY_RULES = {
+  S7:  { requested:'2026-12-15' },              // the PO asked for Dec 15; the acknowledgement committed to Dec 20
+  S17: { asap:true },                           // pallet for the model units, as soon as it can ship
+  S19: { needAfter:{ ship:'S18', days:42 } },   // six weeks after Container 1, the way multi-truck jobs are spaced
+};
+shipments.forEach(s => Object.assign(s, NEED_BY_RULES[s.id]));
+po('PO-4515').activity.push(['2026-10-26', 'Luis Ortega replied: Container 2 follows six weeks after Container 1. Container 3 still unknown.']);
+/* ASAP and relative need-bys get a working date before each render, so place-by, health, and the forecast treat them like any other date.
+   ASAP: deliver as soon as possible (place today, or the current estimate once placed). Relative: the other shipment's delivery plus the gap. */
+const isoNearest = dt => iso(new Date(d(dt).getTime() + DAY / 2));   // nearest calendar day, so an estimate that lands at 11 pm counts as the next day
+function resolveNeedBy() {
+  shipments.filter(s => s.asap).forEach(s => { s.needBy = null; s.needBy = isoNearest(eta(s)); });
+  shipments.filter(s => s.needAfter).forEach(s => { const ref = ship(s.needAfter.ship); s.needBy = ref.needBy ? isoNearest(addDays(eta(ref), s.needAfter.days)) : null; });
+}
 const shipsOf = id => shipments.filter(s => s.po === id);
 const ship = id => shipments.find(s => s.id === id);
 
@@ -661,7 +677,11 @@ function milestones(s) {
   });
   return out;
 }
-function placeBy(s) { return s.needBy ? addDays(s.needBy, -totalDays(s)) : null; }
+function placeBy(s) { return s.asap && !s.placedAt ? TODAY : s.needBy ? addDays(s.needBy, -totalDays(s)) : null; }
+/* How a need-by reads: ASAP, a date (with where it came from, when that matters), or unknown. */
+const needShort = s => s.asap ? 'ASAP' : s.needBy ? fmt(s.needBy) : null;
+const afterText = s => { const n = s.needAfter.days; return `${n % 7 ? n + ' days' : n / 7 + ' weeks'} after ${ship(s.needAfter.ship).name} delivers`; };
+const needNote = s => { const lines = [s.asap ? `As soon as it can be made and shipped; ${s.placedAt ? 'est.' : 'placed today it delivers'} ${fmt(eta(s))}` : null, s.needAfter ? (s.needBy ? afterText(s) : `${afterText(s)}; no date until ${ship(s.needAfter.ship).name} has one`) : null, s.requested && s.requested !== s.needBy ? `Customer PO asked for ${fmt(s.requested)}; we committed to this date` : null].filter(Boolean); return lines.map(l => `<div class="item-sub mt-1">${esc(l)}</div>`).join(''); };
 function eta(s) { const m = milestones(s); return m[m.length - 1].date; }
 const isDelivered = s => s.placedAt && s.stage === milestones(s).length - 1;
 function health(s) {
@@ -670,11 +690,12 @@ function health(s) {
   if (!s.placedAt) {
     if (!s.needBy) return { k:'muted', t:'Need-by unknown' };
     const pb = placeBy(s), n = diffDays(pb, TODAY);
-    if (n < 0) return { k:'crit', t:`Place-by missed ${-n}d` };
-    if (n <= 14) return { k:'warn', t:`Place by ${fmt(pb)}` };
+    if (n < 0 && !s.asap) return { k:'crit', t:`Place-by missed ${-n}d` };
+    if (n <= 14) return { k:'warn', t: s.asap ? 'ASAP: place now' : `Place by ${fmt(pb)}` };
     return { k:'info', t:`Place by ${fmt(pb)}` };
   }
   if (!s.needBy) return { k:'muted', t:'Need-by unknown' };
+  if (s.asap) return { k:'info', t:'ASAP' };
   const slip = diffDays(eta(s), s.needBy);
   if (slip > 0) return { k:'crit', t:`${slip}d late` };
   if (slip > -5 && !holdDays(s)) return { k:'warn', t:'Tight' };
@@ -710,7 +731,7 @@ function nextActions() {
   const a = [];
   changes.filter(c => c.status === 'pending').forEach(c => a.push({ id:c.id, k:'info', t:`Review change request ${c.id} (${c.context.toLowerCase()})`, d:`${c.type} on ${coTarget(c).label} · ${c.from} → ${c.to}`, link:'changes', open:true }));
   shipments.filter(s => !s.placedAt && s.needBy).forEach(s => { const h = health(s);
-    if (h.k === 'crit' || h.k === 'warn') a.push({ id:'place-'+s.id, k:h.k, t:`Place ${s.name} of ${po(s.po).job} with ${s.origin}`, d:h.k === 'crit' ? `Place-by date passed. Earliest delivery now ${fmt(addDays(TODAY, totalDays(s)))} against need-by ${fmt(s.needBy)}.` : `Last day to place and still make ${fmt(s.needBy)} is ${fmt(placeBy(s))}.`, link:'po-'+s.po.slice(3), btn:'Approve: place order', toast:`Factory PO drafted for ${s.name}. Ryan to send to ${s.origin}.` }); });
+    if (h.k === 'crit' || h.k === 'warn') a.push({ id:'place-'+s.id, k:h.k, t:`Place ${s.name} of ${po(s.po).job} with ${s.origin}`, d:s.asap ? `ASAP on the customer's PO. Placed today, it delivers ${fmt(eta(s))}.` : h.k === 'crit' ? `Place-by date passed. Earliest delivery now ${fmt(addDays(TODAY, totalDays(s)))} against need-by ${fmt(s.needBy)}.` : `Last day to place and still make ${fmt(s.needBy)} is ${fmt(placeBy(s))}.`, link:'po-'+s.po.slice(3), btn:'Approve: place order', toast:`Factory PO drafted for ${s.name}. Ryan to send to ${s.origin}.` }); });
   shipments.filter(s => s.placedAt && s.needBy && !isDelivered(s) && diffDays(eta(s), s.needBy) > 0).forEach(s => a.push({ id:'late-'+s.id, k:'crit', t:`Tell ${cust(po(s.po).customer).name}: ${s.name} will arrive ${fmt(eta(s))}`, d:`${po(s.po).job} · need-by ${fmt(s.needBy)} · ${diffDays(eta(s), s.needBy)} days late. Offer stock from Wanke Georgia to start.`, link:'po-'+s.po.slice(3), btn:'Approve: send notice', toast:`Late notice sent to ${cust(po(s.po).customer).contact}, flagged "Action required".` }));
   pos.filter(p => p.lane === 'queue').forEach(p => { const r = queueReasons(p); if (!r.length) return;
     const waitingOn = p.gate.some(g => g[3] === 'pending' && g[2] === 'Customer') || shipsOf(p.id).some(s => !s.needBy);
@@ -761,6 +782,7 @@ const act = {
         else if (c.type === 'Set need-by') s.needBy = '2027-09-01';
         else if (c.type === 'Push need-by') s.needBy = '2027-02-15';
         else if (c.type === 'Pull in') s.needBy = '2026-11-10';
+        s.asap = false; delete s.needAfter;
         log(`${c.id} approved. Milestones recalculated. ${who} notified.`);
         toast(`<b>${c.id} approved.</b> Milestones recalculated and ${esc(who)} was notified.`);
       } else if (c.id === 'CO-2034') { C.production = 52; toast('<b>CO-2034 approved.</b> Production constraint set to 52 days. Every Daizhin place-by date moved 7 days earlier.'); }
@@ -786,7 +808,7 @@ const act = {
     if (!val) { toast('Pick a date first.'); return; }
     const s = ship(shipId); const p = po(s.po);
     const id = 'CO-' + (2034 + changes.filter(c => c.id > 'CO-2033').length);
-    changes.unshift({ id, context:'Shipment', po:p.id, ship:shipId, by:`Customer · ${cust(p.customer).contact} (${cust(p.customer).name})`, via:'Portal', received:iso(TODAY), type: s.needBy ? 'Change need-by' : 'Set need-by', from: s.needBy ? fmtLong(s.needBy) : 'Unknown', to:fmtLong(val), status:'pending', impact:`Place-by would be ${fmt(addDays(val, -totalDays(s)))}. Recommend: approve.`, pendingDate: val });
+    changes.unshift({ id, context:'Shipment', po:p.id, ship:shipId, by:`Customer · ${cust(p.customer).contact} (${cust(p.customer).name})`, via:'Portal', received:iso(TODAY), type: s.needBy ? 'Change need-by' : 'Set need-by', from: s.asap ? 'ASAP' : s.needBy ? fmtLong(s.needBy) : 'Unknown', to:fmtLong(val), status:'pending', impact:`Place-by would be ${fmt(addDays(val, -totalDays(s)))}. Recommend: approve.`, pendingDate: val });
     p.activity.push([iso(TODAY), `Customer set need-by ${fmtLong(val)} on ${s.name} via portal. ${id} opened for review.`]);
     toast(`<b>Thanks.</b> Surface Edge will confirm ${fmtLong(val)} for ${s.name}.`);
     render();
@@ -831,7 +853,11 @@ const act = {
     const name = v('name').trim() || s.name; if (name !== s.name) { changed.push(`renamed "${s.name}" → "${name}"`); s.name = name; }
     const type = v('type'); if (type && type !== s.type) { changed.push(`kind → ${type === 'container' ? 'ocean container' : 'LTL / pallet'}`); s.type = type; s.actual = {}; }
     const sq = Number(v('sqft')); if (sq > 0 && sq !== s.sqft) { changed.push(`quantity ${before.sqft.toLocaleString()} → ${sq.toLocaleString()} sq ft`); s.sqft = sq; }
-    const nb = v('needby') || null; if (nb !== s.needBy) { changed.push(`need-by ${s.needBy ? fmt(s.needBy) : 'unknown'} → ${nb ? fmt(nb) : 'unknown'}`); s.needBy = nb; }
+    /* Need-by: ASAP box, a typed date, or (left blank) the relative rule it already has. A date or ASAP replaces the rule. */
+    const asap = !!document.getElementById('f-asap')?.checked, nb = v('needby') || null;
+    const nbWas = s.asap ? 'ASAP' : s.needAfter ? 'rule' : s.needBy, nbNow = asap ? 'ASAP' : nb || (s.needAfter ? 'rule' : null);
+    const nbText = x => x === 'ASAP' ? 'ASAP' : x === 'rule' ? afterText(s) : x ? fmt(x) : 'unknown';
+    if (nbNow !== nbWas) { changed.push(`need-by ${nbText(nbWas)} → ${nbText(nbNow)}`); s.asap = asap; if (asap || nb) delete s.needAfter; if (!asap) s.needBy = nb; }
     const oc = v('origin'); if (oc && oc !== s.originCo) { changed.push(`origin → ${vendor(oc).name}`); s.originCo = oc; s.origin = ORIGIN_LABEL[oc] || vendor(oc).name; }
     const port = v('port') || null; if (port !== s.port) { changed.push(`port → ${port || 'none'}`); s.port = port; }
     const dest = v('dest').trim(); if (dest && dest !== s.dest) { changed.push(`destination → ${dest}`); s.dest = dest; }
@@ -986,14 +1012,14 @@ function shipCard(s, opts = {}) {
     ? `<div class="input-group input-group-sm" style="max-width:18rem"><input class="form-control" id="rn-${s.id}" value="${esc(s.name)}" onkeydown="if(event.key==='Enter')act.saveName('${s.id}');if(event.key==='Escape')act.cancelRename()"><button class="btn btn-primary" onclick="act.saveName('${s.id}')">Save</button><button class="btn btn-outline-secondary" onclick="act.cancelRename()">Cancel</button></div>`
     : `<h4 class="ship-name">${esc(s.name)}</h4>${opts.office ? `<button class="btn btn-link btn-sm p-0 text-body-secondary" onclick="act.rename('${s.id}')" title="Rename shipment"><i class="bi bi-pencil"></i></button>` : ''}`;
   const badges = `${pill(h)}${s.invoiced ? sb('active', 'Invoiced') : ''}<span class="ship-kind">${s.type === 'container' ? 'Ocean container' : 'LTL / pallet'}</span>`;
-  const summary = `<span class="mono">${sqft(s.sqft)}</span> · need-by <span class="mono">${s.needBy ? fmt(s.needBy) : '?'}</span> · ${esc(stageName(s))}${s.placedAt || s.needBy ? ` · est. delivery <span class="mono">${fmt(eta(s))}</span>` : ''}`;
+  const summary = `<span class="mono">${sqft(s.sqft)}</span> · need-by <span class="mono">${needShort(s) || '?'}</span> · ${esc(stageName(s))}${s.placedAt || s.needBy ? ` · est. delivery <span class="mono">${fmt(eta(s))}</span>` : ''}`;
   const head = collapsible ? `<div class="ship-head"><button class="ship-toggle" type="button" aria-expanded="${open}" aria-label="Toggle ${esc(s.name)}" onclick="act.toggleShip('${s.id}')"><i class="bi bi-chevron-right chev"></i></button><div class="ship-sum"><div class="d-flex align-items-center gap-2 flex-wrap">${nameBlock}${badges}</div><div class="item-sub">${summary}</div></div><a class="btn btn-sm btn-outline-secondary flex-shrink-0" href="#ship-${s.id}" title="Edit shipment"><i class="bi bi-pencil-square me-1"></i>Edit</a></div>` : '';
   const body = `<div class="ship-body" ${open ? '' : 'hidden'}>
     <div class="minw0">
       ${collapsible ? '' : `<div class="d-flex align-items-center gap-2 flex-wrap mb-2">${nameBlock}${badges}</div>`}
       <div class="detail-grid">
         <div class="detail-field"><div class="detail-label">Quantity</div><div class="detail-value mono">${sqft(s.sqft)}</div></div>
-        <div class="detail-field"><div class="detail-label">Need-by</div><div class="detail-value mono">${s.needBy ? fmtLong(s.needBy) : sb('pending', 'unknown')}</div></div>
+        <div class="detail-field"><div class="detail-label">Need-by</div><div class="detail-value mono">${s.asap ? 'ASAP' : s.needBy ? fmtLong(s.needBy) : sb('pending', 'unknown')}</div>${needNote(s)}</div>
         <div class="detail-field full-width"><div class="detail-label">Route</div><div class="detail-value">${esc(s.origin)}${s.port ? ` → ${esc(s.port)} port` : ''} → ${esc(s.dest)}</div>${opts.office ? `<div class="item-sub mt-1">${[s.originCo, s.forwarder, s.carrier].filter(Boolean).map(v => `<a href="#vendor-${v}" class="text-decoration-none">${esc(vendor(v).name)}</a> <span class="text-body-secondary">(${esc(vendorRoleOn(v, s))})</span>`).join(' · ')}</div>` : ''}</div>
         ${s.placedAt ? `<div class="detail-field"><div class="detail-label">Placed</div><div class="detail-value mono">${fmtLong(s.placedAt)}</div></div>` : `<div class="detail-field"><div class="detail-label">Place by</div><div class="detail-value mono">${pb ? fmtLong(pb) + ` <span class="text-body-secondary">(${rel(pb)})</span>` : '—'}</div></div>`}
         ${shipByDate(s) && !s.actual[2] ? `<div class="detail-field"><div class="detail-label">Ship by</div><div class="detail-value mono">${fmtLong(shipByDate(s))}</div><div class="item-sub mt-1">${holdDays(s) ? `Placed early; the mill times production to this date` : 'Goes on the factory PO; the mill produces to it'}</div></div>` : ''}
@@ -1069,7 +1095,7 @@ function viewOrdersByShipment(tab) {
       const last = tab === 'queue'
         ? (pb ? `<span class="mono">${fmt(pb)}</span> <span class="item-sub">${rel(pb)}</span>` : '<span class="text-body-secondary">unknown</span>')
         : (isDelivered(s) ? `<span class="text-body-secondary">Delivered ${fmt(eta(s))}</span>` : `${esc(stageName(s))}<div class="item-sub">→ ${esc(n.name)} <span class="mono">${fmt(n.date)}</span></div>`);
-      return `<tr class="link" onclick="go('po-${p.id.slice(3)}')"><td class="item-name"><a href="#po-${p.id.slice(3)}">${esc(s.name)}</a><div class="item-sub mono">${p.id}</div></td><td>${esc(cust(p.customer).name)}<div class="item-sub">${esc(p.job)} · ${esc(p.site)}</div></td><td><span class="ship-kind">${s.type === 'container' ? 'Ocean container' : 'LTL / pallet'}</span><div class="item-sub">${esc(s.origin)}${s.port ? ' → ' + esc(s.port) : ''}</div></td><td class="num">${s.sqft.toLocaleString()}</td><td class="mono">${s.needBy ? fmt(s.needBy) : sb('pending', 'no date')}</td><td>${pill(h)}</td><td>${last}</td></tr>`; }).join('')}
+      return `<tr class="link" onclick="go('po-${p.id.slice(3)}')"><td class="item-name"><a href="#po-${p.id.slice(3)}">${esc(s.name)}</a><div class="item-sub mono">${p.id}</div></td><td>${esc(cust(p.customer).name)}<div class="item-sub">${esc(p.job)} · ${esc(p.site)}</div></td><td><span class="ship-kind">${s.type === 'container' ? 'Ocean container' : 'LTL / pallet'}</span><div class="item-sub">${esc(s.origin)}${s.port ? ' → ' + esc(s.port) : ''}</div></td><td class="num">${s.sqft.toLocaleString()}</td><td class="mono">${needShort(s) || sb('pending', 'no date')}</td><td>${pill(h)}</td><td>${last}</td></tr>`; }).join('')}
     ${list.length ? '' : '<tr><td colspan="7" class="empty">No shipments match.</td></tr>'}
   </tbody></table></div>${tableFooter(list.length, 'shipments')}</div>`;
 }
@@ -1089,7 +1115,7 @@ function viewOrders(tab) {
         ? (() => { const dated = sh.filter(s => s.needBy && !s.placedAt).map(placeBy).sort((a,b)=>a-b); return dated.length ? `<span class="mono">${fmt(dated[0])}</span> <span class="item-sub">${rel(dated[0])}</span>` : '<span class="text-body-secondary">unknown</span>'; })()
         : (() => { const live = sh.filter(s => s.placedAt && !isDelivered(s)).map(s => ({s, n: nextMs(s)})).sort((a,b)=>a.n.date-b.n.date)[0]; return live ? `${esc(live.n.name)} <span class="mono">${fmt(live.n.date)}</span><div class="item-sub">${esc(live.s.name)}</div>` : '<span class="text-body-secondary">—</span>'; })();
       const statusCol = tab === 'queue' ? queueReasons(p).map(r => `<div style="font-size:13px">${esc(r)}</div>`).join('') : `${pill({k:h, t:PO_LABEL[h]})}<div class="item-sub mt-1">${sh.filter(isDelivered).length} of ${sh.length} delivered</div>`;
-      return `<tr class="link" onclick="go('po-${p.id.slice(3)}')"><td class="mono">${p.id}</td><td class="item-name"><a href="#po-${p.id.slice(3)}">${esc(cust(p.customer).name)}</a><div class="item-sub">${esc(p.job)} · ${esc(p.site)}</div></td><td class="num">${p.sqft.toLocaleString()}</td><td>${sh.map(s => `<div style="font-size:13px">${esc(s.name)} ${s.needBy ? `<span class="mono text-body-secondary">${fmt(s.needBy)}</span>` : sb('pending', 'no date')}</div>`).join('')}</td><td>${statusCol}</td><td>${nextCol}</td></tr>`; }).join('')}
+      return `<tr class="link" onclick="go('po-${p.id.slice(3)}')"><td class="mono">${p.id}</td><td class="item-name"><a href="#po-${p.id.slice(3)}">${esc(cust(p.customer).name)}</a><div class="item-sub">${esc(p.job)} · ${esc(p.site)}</div></td><td class="num">${p.sqft.toLocaleString()}</td><td>${sh.map(s => `<div style="font-size:13px">${esc(s.name)} ${needShort(s) ? `<span class="mono text-body-secondary">${needShort(s)}</span>` : sb('pending', 'no date')}</div>`).join('')}</td><td>${statusCol}</td><td>${nextCol}</td></tr>`; }).join('')}
     ${list.length ? '' : '<tr><td colspan="6" class="empty">No orders match.</td></tr>'}
   </tbody></table></div>${tableFooter(list.length, 'orders')}</div>`;
 }
@@ -1170,7 +1196,7 @@ function viewShipEdit(sid) {
       ${field('Name', txt('f-name', s.name))}
       ${field('Kind', sel('f-type', [['container','Ocean container'],['ltl','LTL / pallet']], s.type))}
       ${field('Quantity (sq ft)', txt('f-sqft', s.sqft, 'number'))}
-      ${field('Need-by date', txt('f-needby', s.needBy || '', 'date'))}
+      ${field('Need-by date (committed)', txt('f-needby', s.asap || s.needAfter ? '' : s.needBy || '', 'date') + `<div class="form-check mt-1"><input class="form-check-input" type="checkbox" id="f-asap" ${s.asap ? 'checked' : ''}><label class="form-check-label small" for="f-asap">ASAP: as soon as it can be made and shipped</label></div>${s.needAfter ? `<div class="item-sub mt-1">Now ${esc(afterText(s))}${s.needBy ? ` (${fmt(s.needBy)})` : ''}. A date here replaces that.</div>` : ''}${s.requested ? `<div class="item-sub mt-1">Customer PO asked for ${fmt(s.requested)}.</div>` : ''}`)}
       ${field('Origin', sel('f-origin', origins.map(v => [v.id, `${v.name} · ${v.roles[0]}`]), s.originCo))}
       ${field('US port (ocean only)', sel('f-port', Object.keys(C.ocean).map(k => [k, `${k} · ${C.ocean[k]} days`]), s.port, true))}
       ${field('Destination', txt('f-dest', s.dest), true)}
@@ -1236,7 +1262,7 @@ function factoryForecast(vendorId) {
     <div class="detail-card-body">${rows.map(r => `<div class="bar-row"><span class="lbl">${r.label}</span><div class="bar-track">${Array.from({length:r.placed}).map(()=>`<span class="bar-seg placed" style="width:${100/max}%"></span>`).join('')}${Array.from({length:r.toplace}).map(()=>`<span class="bar-seg toplace" style="width:${100/max}%"></span>`).join('')}</div><span class="mono item-sub" style="width:1.5rem;text-align:right">${r.placed + r.toplace || ''}</span></div>`).join('')}
     <p class="item-sub mt-3 mb-0">Ryan's two spreadsheets in one place: what is placed with the mill by the month it finishes production, and what the queue says must be placed each month. Plus <b>${unknown}</b> shipments with no need-by date that cannot be scheduled yet.</p></div></div>
   <div class="data-table-wrapper"><div class="detail-card-header"><h3>Not yet placed</h3><span class="card-note">sorted by place-by date</span></div><div class="table-responsive"><table class="table table-hover"><thead><tr><th>Customer · Job</th><th>Shipment</th><th>Need-by</th><th>Place by</th><th>Est. delivery if placed today</th><th>Status</th></tr></thead><tbody>
-    ${unplaced.map(s => { const p = po(s.po); const pb = placeBy(s); return `<tr class="link" onclick="go('po-${p.id.slice(3)}')"><td class="item-name"><a href="#po-${p.id.slice(3)}">${esc(cust(p.customer).name)}</a><div class="item-sub">${esc(p.job)}</div></td><td>${esc(s.name)} <span class="item-sub">→ ${esc(s.port)}</span></td><td class="mono">${s.needBy ? fmt(s.needBy) : sb('pending', 'unknown')}</td><td class="mono">${pb ? fmt(pb) : '—'}</td><td class="mono">${fmt(addDays(TODAY, totalDays(s)))}</td><td>${pill(health(s))}</td></tr>`; }).join('')}
+    ${unplaced.map(s => { const p = po(s.po); const pb = placeBy(s); return `<tr class="link" onclick="go('po-${p.id.slice(3)}')"><td class="item-name"><a href="#po-${p.id.slice(3)}">${esc(cust(p.customer).name)}</a><div class="item-sub">${esc(p.job)}</div></td><td>${esc(s.name)} <span class="item-sub">→ ${esc(s.port)}</span></td><td class="mono">${needShort(s) || sb('pending', 'unknown')}</td><td class="mono">${pb ? fmt(pb) : '—'}</td><td class="mono">${fmt(addDays(TODAY, totalDays(s)))}</td><td>${pill(health(s))}</td></tr>`; }).join('')}
     ${unplaced.length ? '' : '<tr><td colspan="6" class="empty">Nothing waiting to be placed.</td></tr>'}
   </tbody></table></div>${tableFooter(unplaced.length, 'shipments')}</div>`;
 }
@@ -1428,7 +1454,7 @@ function portalShipCard(s, c) {
       <div class="detail-grid">
         <div class="detail-field"><div class="detail-label">Quantity</div><div class="detail-value mono">${sqft(s.sqft)}</div></div>
         <div class="detail-field"><div class="detail-label">Deliver to</div><div class="detail-value">${esc(s.dest)}</div></div>
-        <div class="detail-field full-width"><div class="detail-label">Need-by</div><div class="detail-value d-flex align-items-center gap-2 flex-wrap">${s.needBy ? `<span class="mono">${fmtLong(s.needBy)}</span>` : ''}${pendingCO ? sb('info', 'Pending: ' + pendingCO.to) : ''}${isDelivered(s) ? '' : `<div class="input-group input-group-sm" style="width:auto">${dateInput('pnb-'+s.id)}<button class="btn btn-outline-secondary" onclick="act.setNeedBy('${s.id}', document.getElementById('pnb-${s.id}').value)">${s.needBy ? 'Request change' : 'Set date'}</button></div>`}</div></div>
+        <div class="detail-field full-width"><div class="detail-label">Need-by</div><div class="detail-value d-flex align-items-center gap-2 flex-wrap">${s.asap ? '<span class="mono">ASAP</span>' : s.needBy ? `<span class="mono">${fmtLong(s.needBy)}</span>` : ''}${pendingCO ? sb('info', 'Pending: ' + pendingCO.to) : ''}${isDelivered(s) ? '' : `<div class="input-group input-group-sm" style="width:auto">${dateInput('pnb-'+s.id)}<button class="btn btn-outline-secondary" onclick="act.setNeedBy('${s.id}', document.getElementById('pnb-${s.id}').value)">${s.needBy ? 'Request change' : 'Set date'}</button></div>`}</div></div>
         ${s.placedAt || !s.needBy ? '' : `<div class="detail-field"><div class="detail-label">Must be placed by</div><div class="detail-value mono">${fmtLong(placeBy(s))}</div></div>`}
         ${(s.placedAt || s.needBy) && c.showLeadTimes ? `<div class="detail-field"><div class="detail-label">Est. delivery</div><div class="detail-value mono">${fmtLong(eta(s))}</div></div>` : ''}
       </div></div>
@@ -1546,6 +1572,7 @@ function renderMain() {
 }
 let lastRoute = null;
 function render() {
+  resolveNeedBy();
   document.body.classList.toggle('portal', isPortal());
   if (!isPortal()) renderSidebar();
   if (route !== lastRoute) { q = ''; renaming = null; const side = document.getElementById('sidebar'); if (window.bootstrap) bootstrap.Offcanvas.getInstance(side)?.hide(); }
