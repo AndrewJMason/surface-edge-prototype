@@ -522,6 +522,36 @@ shipments.forEach(s => { s.originCo = ORIGIN_CO[s.origin]; s.forwarder = s.type 
 const vendorRoleOn = (v, s) => s.originCo === v ? (vendor(v).roles[0]) : s.forwarder === v ? 'Forwarder' : s.carrier === v ? 'Carrier' : null;
 const vendorShipments = v => shipments.filter(s => vendorRoleOn(v, s));
 
+/* Orders have line items, not one product. The real paperwork shows a second product in the same container, accessories, a separate
+   price for a broken pallet, and acknowledgements that supply a different product labeled with the ordered name. Quantities are rounded
+   to full pallets, so cartons and pallets are shown and checked. Sample values. */
+const PRODUCTS = {
+  'SE Harbor Oak 7" SPC, 20 mil': { sfPerCarton: 25, cartonsPerPallet: 40 },
+  'SE Driftwood Oak 7" SPC, 20 mil': { sfPerCarton: 25, cartonsPerPallet: 40 },
+  'SE Summit Hickory 9" SPC, 22 mil': { sfPerCarton: 20, cartonsPerPallet: 50 },
+};
+const LINES = {
+  'PO-4495': [{ id:'L1', product:'SE Harbor Oak 7" SPC, 20 mil', sqft:100000, price:2.95, supplied:'SE Driftwood Oak 7" SPC, 20 mil', labelAs:true, note:'Harbor Oak is between runs at the mill. Agreed on the acknowledgement: Driftwood Oak, labeled as Harbor Oak.' }],
+  'PO-4488': [{ id:'L1', product:'SE Summit Hickory 9" SPC, 22 mil', sqft:104000, price:3.10 }, { id:'L2', product:'Summit Hickory stair nose, 94 in', qty:420, unit:'pieces', price:18.50, ackPrice:19.25 }],
+};
+const ITEMS = { S9: [{ line:'L1', sqft:4000 }, { line:'L2', qty:420 }] };   // the stair nose rides with the balance pallet from Georgia
+const linesOf = p => LINES[p.id] || [{ id:'L1', product:p.product, sqft:p.sqft }];
+const itemsOf = s => ITEMS[s.id] || [{ line:'L1', sqft:s.sqft }];
+const packOf = (product, sf) => { const c = PRODUCTS[product]; if (!c || !sf) return null; const n = Math.ceil(sf / c.sfPerCarton - 1e-9); return { cartons: n, pallets: Math.floor(n / c.cartonsPerPallet), extra: n % c.cartonsPerPallet }; };
+function itemsCard(p) {
+  const sh = shipsOf(p.id), lines = linesOf(p);
+  return detailCard('Items', `${lines.length} line${lines.length > 1 ? 's' : ''} <a href="#po-${p.id.slice(3)}" class="ms-2" onclick="act.stub('<b>Prototype.</b> Lines would be edited here, or come in from the acknowledgement.')">Edit</a>`, `<ul class="meta-list">${lines.map(l => {
+    const pack = l.sqft ? packOf(l.supplied || l.product, l.sqft) : null;
+    const carried = sh.map(s => ({ s, it: itemsOf(s).find(i => i.line === l.id) })).filter(x => x.it);
+    return `<li class="meta-item d-block"><div style="font-size:13px;font-weight:500">${esc(l.product)}</div>
+      <div class="item-sub mono">${l.unit ? `${l.qty.toLocaleString()} ${l.unit}` : sqft(l.sqft)}${pack ? ` · ${pack.cartons.toLocaleString()} cartons · ${pack.pallets} pallets${pack.extra ? ` + ${pack.extra} cartons` : ''}` : ''}${l.price ? ` · $${l.price.toFixed(2)}/${l.unit ? 'pc' : 'sq ft'}` : ''}</div>
+      ${pack && pack.extra ? `<div class="mt-1"><span class="tag amber">Not a full pallet</span></div>` : ''}
+      ${l.supplied ? `<div class="mt-1"><span class="tag amber">Substitution</span> <span class="item-sub">Supplying ${esc(l.supplied)}${l.labelAs ? ', labeled as ordered' : ''}</span></div>` : ''}
+      ${l.ackPrice && l.ackPrice !== l.price ? `<div class="mt-1"><span class="tag red">Price differs</span> <span class="item-sub">PO $${l.price.toFixed(2)}, acknowledgement $${l.ackPrice.toFixed(2)}</span></div>` : ''}
+      ${l.note ? `<div class="item-sub mt-1">${esc(l.note)}</div>` : ''}
+      <div class="item-sub mt-1">${carried.length ? 'On ' + carried.map(x => `${esc(x.s.name)} (${x.it.qty != null ? x.it.qty.toLocaleString() : x.it.sqft.toLocaleString() + ' sq ft'})`).join(', ') : 'Not on a shipment yet'}</div></li>`; }).join('')}</ul>`);
+}
+
 /* Change requests carry a context: what the change is about. Status names match the action names: Approve → Approved, Reject → Rejected, Modify → Modified. */
 const CONTEXTS = ['Shipment', 'Order', 'Customer', 'Vendor', 'Contact'];
 const changes = [
@@ -1083,6 +1113,7 @@ function poSidebar(p, c) {
   return `<div class="detail-card"><div class="detail-card-header"><h3>Before we can proceed</h3><span class="card-note">${gateDone} of ${p.gate.length}</span></div>
       <ul class="check-list">${p.gate.map(g => `<li class="check-item ${g[3]==='na'?'na':''} ${g[3]==='over'?'over':''}"><input class="form-check-input" type="checkbox" disabled ${g[3]==='done'||g[3]==='over'?'checked':''} aria-label="${esc(g[1])}"><div class="check-label">${esc(g[1])}<div class="check-sub">${g[3]==='na'?'Not required':g[3]==='over'?'Overridden by Rob':g[3]==='done'?'Complete':'Waiting on ' + esc(g[2])}</div></div>${g[3]==='pending' ? `<div class="btn-group btn-group-sm"><button class="btn btn-outline-secondary" onclick="act.gate('${p.id}','${g[0]}','done')">Done</button><button class="btn btn-outline-secondary" title="Proceed without it; logged on the order" onclick="act.gate('${p.id}','${g[0]}','over')">Override</button></div>` : ''}</li>`).join('')}</ul>
       <div class="detail-card-footer">Override is the sanctioned version of "go ahead anyway." It is logged on the order and counted per person.</div></div>
+    ${itemsCard(p)}
     ${detailCard('Source', '', `<ul class="meta-list">
       <li class="meta-item"><span class="meta-label">Received</span><span class="meta-value mono">${fmtLong(p.received)}</span></li>
       <li class="meta-item"><span class="meta-label">Format</span><span class="meta-value">${esc(p.source)}</span></li>
