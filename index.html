@@ -1382,7 +1382,7 @@ Object.assign(act, {
     const s = { id:'S' + (Math.max(...shipments.map(x => Number(x.id.slice(1)))) + 1), po:poId, name:`${type === 'ltl' ? 'Pallet' : 'Container'} ${sh.filter(x => x.type === type).length + 1}`, type,
       sqft:Math.max(0, p.sqft - sh.reduce((a, x) => a + x.sqft, 0)) || last.sqft || 0, origin:last.origin || 'Daizhin, Korea', port:last.port || (type === 'container' ? 'Savannah' : null), dest:last.dest || 'Ship-to address missing',
       needBy:null, placedAt:null, stage:-1, actual:{}, originCo:last.originCo || 'daizhin', forwarder:last.forwarder || (type === 'container' ? 'pacific-line' : null), carrier:last.carrier || null };
-    shipments.push(s); p.activity.push([iso(TODAY), `${s.name} added by ${TEAM[ME]}.`]);
+    shipments.push(s); p.activity.push([iso(TODAY), `${TEAM[ME]} added ${s.name}.`]);
     toast(`<b>${esc(s.name)} added.</b> Set its date and details, then save.`); go('ship-' + s.id);
   },
 });
