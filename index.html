@@ -809,8 +809,8 @@ function shipByDate(s) { if (s.type !== 'container' || !s.needBy) return null; r
 /* Days a container placed early is held back so it ships on its ship-by date instead of as soon as it can be made. */
 function holdDays(s) {
   const sb = s.placedAt && !s.actual[2] && !(s.booking && s.booking.etd) ? shipByDate(s) : null; if (!sb) return 0;
-  const ready = s.actual[1] ? d(s.actual[1]) : addDays(s.placedAt, C.production);
-  return Math.max(0, diffDays(sb, addDays(ready, C.loadout)));
+  const ready = s.actual[1] ? d(s.actual[1]) : addDays(s.placedAt, durations(s)[1]);
+  return Math.max(0, diffDays(sb, addDays(ready, durations(s)[2])));
 }
 /* A confirmed booking sets departure and port arrival until the actual dates are recorded. */
 const bookedDate = (s, i) => (s.booking && { 2: s.booking.etd, 3: s.booking.eta }[i]) || null;
@@ -1176,9 +1176,9 @@ const CO_TABS = [['changes','Pending','pending','warning'],['changes-approved','
 const dateInput = id => `<input type="date" class="form-control form-control-sm mono" id="${id}" min="${iso(TODAY)}" style="max-width:11rem">`;
 const matches = (...parts) => !q || parts.join(' ').toLowerCase().includes(q);
 
-/* Steps between milestones, from purchasing's list (Oct 28). They do not move the plan. They show whether each hand-off happened, on office
-   pages only; the customer portal keeps the six milestones. Proforma: C.proforma days after placing. Arrival notice: C.arrivalNotice days before port arrival (the forwarder
-   sends it 4 to 7 business days ahead). Picked up: when the truck leaves the port, its driving days before delivery or the warehouse stop. */
+/* Steps between milestones, from purchasing's list (Oct 28). They show whether each hand-off happened, on office pages only; the customer
+   portal keeps the six milestones. Proforma: C.proforma days after placing. Arrival notice: C.arrivalNotice days before port arrival (the
+   forwarder sends it 4 to 7 business days ahead). Picked up: when the truck leaves the port, its driving days before delivery or the warehouse stop. */
 Object.assign(C, { proforma: 3, arrivalNotice: 7 });
 const STEP_NAMES = { proforma:'Proforma received', arrivalNotice:'Arrival notice', pickedUp:'Picked up from port' };
 const STEP_DATES = { S1:{ proforma:'2026-06-02', arrivalNotice:'2026-08-20', pickedUp:'2026-09-15' }, S2:{ proforma:'2026-07-21', arrivalNotice:'2026-10-13' }, S3:{ proforma:'2026-09-21' }, S5:{ proforma:'2026-08-25' }, S6:{ proforma:'2026-08-25' }, S7:{ proforma:'2026-09-09' } };
@@ -1189,6 +1189,11 @@ function steps(s) {
   return [['proforma', 0, addDays(m[0].date, C.proforma)], ['arrivalNotice', 2, addDays(m[3].date, -C.arrivalNotice)], ['pickedUp', 4, addDays(stop.date, -(s.via ? C.drayage : legDays(s)))]]
     .map(([key, after, plan]) => ({ key, after, name: STEP_NAMES[key], date: rec[key] ? d(rec[key]) : plan, recorded: !!rec[key], passed: !rec[key] && !!m[after + 1].done, due: !rec[key] && !m[after + 1].done && plan < TODAY }));
 }
+/* The proforma is the one step that moves the plan. Production's 45 days start once the mill's proforma is approved (Oct 28), not when the
+   order goes out, so production counts from the recorded proforma date, or from C.proforma days after placing until one is recorded. */
+const proformaWait = s => s.placedAt && s.steps && s.steps.proforma ? Math.max(0, diffDays(s.steps.proforma, s.placedAt)) : C.proforma;
+const legsFromPlacing = durations;
+durations = s => { const dur = legsFromPlacing(s); if (s.type === 'container') dur[1] = proformaWait(s) + dur[1]; return dur; };
 
 function msList(s, hideDates) {
   const m = milestones(s), st = isPortal() ? [] : steps(s);
